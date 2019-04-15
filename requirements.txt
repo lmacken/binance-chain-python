@@ -1,3 +1,4 @@
+wheel
 bech32
 ecpy
 aiohttp
