@@ -1,0 +1,3 @@
+bech32
+ecpy
+aiohttp
