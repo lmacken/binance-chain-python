@@ -1,0 +1,4 @@
+py*env
+*.py[co]
+.*.sw*
+build
