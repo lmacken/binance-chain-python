@@ -1,11 +1,12 @@
 """
     Interact with binance chain
 """
-import aiohttp
 import datetime
 
+import aiohttp
+
 NETWORK_PREFIX_MAPPING = {"testnet": "tbnb", "mainnet": "bnb"}
-api = [
+API = [
     "time",
     "node-info",
     "validators",
@@ -24,13 +25,15 @@ api = [
     "transactions",
 ]
 
+TEST_URL = "https://testnet-dex.binance.org/api/v1/time"
+URL = TEST_URL
+
 
 class BNC:
-    def __init__(self, _server):
-        if not _server:
-            return "Server not found"
-        this.server = _server + "/api/v1"
-        this.session = aiohttp.ClientSession()
+    def __init__(self, testnet=False, session=None):
+        url = URL if not testnet else TEST_URL
+        self.server = url + "/api/v1"
+        self.session = aiohttp.ClientSession()
 
     def set_network(self, network):
         self.network = network
