@@ -2,6 +2,8 @@
     Interact with binance chain
 """
 import datetime
+import traceback
+import warnings
 
 import aiohttp
 
@@ -25,27 +27,54 @@ API = [
     "transactions",
 ]
 
-TEST_URL = "https://testnet-dex.binance.org/api/v1/time"
-URL = TEST_URL
+MAINNET_URL = ""
+TESTNET_URL = "https://testnet-dex.binance.org"
 
 
 class BNC:
-    def __init__(self, testnet=False, session=None):
-        url = URL if not testnet else TEST_URL
-        self.server = url + "/api/v1"
-        self.session = aiohttp.ClientSession()
+    """ Binance DEX Client """
 
-    def set_network(self, network):
-        self.network = network
+    def __init__(self, testnet: bool = True, api_version: str = 'v1',
+                 session: aiohttp.ClientSession = None):
+        """
+        :testnet: A boolean to enable testnet
+        :api_version: The API version to use
+        :session: An optional HTTP session to use
+        """
+        url = TESTNET_URL if testnet else MAINNET_URL
+        self._server = f"{url}/api/{api_version}/"
+        self._session = aiohttp.ClientSession()
 
-    async def get_request(self, _uri, params=None):
-        async with self.session.get(self.server + uri, params=params) as resp:
-            json_body = await resp.json()
-            return json_body
+    def __del__(self):
+        if self._session:
+            warnings.warn(f'{repr(self)}.close() was never awaited')
 
-    async def post_request(self, _uri, data=None):
-        async with self.session.post(self.server + uri, data=data) as resp:
-            return resp
+    async def close(self):
+        """ Clean up our connections """
+        if self._session:
+            try:
+                await self._session.close()
+                self._session = None
+            except Exception as e:
+                traceback.print_exc()
+
+    async def _request(self, method, path, **kwargs):
+        """
+        :kwargs: Extra arguments to pass to the request, like `params` or `data`.
+        """
+        try:
+            async with getattr(self._session, method)(
+                self._server + path, **kwargs
+            ) as resp:
+                return await resp.json()
+        except Exception as e:
+            traceback.print_exc()
+
+    async def get_request(self, path, params=None):
+        return await self._request("get", path, params=params)
+
+    async def post_request(self, path, data=None):
+        return await self._request("post", path, data=data)
 
     async def get_balance(self, _address):
         try:
@@ -59,10 +88,10 @@ class BNC:
         return self.get_request(uri)
 
     async def get_time(self):
-        return self.get_request("/time")
+        return await self.get_request("time")
 
     async def get_node_info(self):
-        return self.get_request("/node-info")
+        return self.get_request("node-info")
 
     async def get_validators(self):
         return self.get_request("/validators")
