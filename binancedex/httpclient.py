@@ -1,9 +1,10 @@
 """
     Interact with binance chain
 """
-import datetime
+import asyncio
 import traceback
 import warnings
+from typing import List
 
 import aiohttp
 
@@ -34,8 +35,12 @@ TESTNET_URL = "https://testnet-dex.binance.org"
 class BNC:
     """ Binance DEX Client """
 
-    def __init__(self, testnet: bool = True, api_version: str = 'v1',
-                 session: aiohttp.ClientSession = None):
+    def __init__(
+        self,
+        testnet: bool = True,
+        api_version: str = "v1",
+        session: aiohttp.ClientSession = None,
+    ):
         """
         :testnet: A boolean to enable testnet
         :api_version: The API version to use
@@ -47,7 +52,7 @@ class BNC:
 
     def __del__(self):
         if self._session:
-            warnings.warn(f'{repr(self)}.close() was never awaited')
+            warnings.warn(f"{repr(self)}.close() was never awaited")
 
     async def close(self):
         """ Clean up our connections """
@@ -58,8 +63,10 @@ class BNC:
             except Exception as e:
                 traceback.print_exc()
 
-    async def _request(self, method, path, **kwargs):
+    async def _request(self, method: str, path: str, **kwargs):
         """
+        :method: `get` or `post`
+        :path: the remote endpoint to call
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
         """
         try:
@@ -70,40 +77,39 @@ class BNC:
         except Exception as e:
             traceback.print_exc()
 
-    async def get_request(self, path, params=None):
+    async def get_request(self, path: str, params: dict = None):
         return await self._request("get", path, params=params)
 
-    async def post_request(self, path, data=None):
+    async def post_request(self, path: str, data: dict = None):
         return await self._request("post", path, data=data)
 
-    async def get_balance(self, _address):
+    async def get_balance(self, address: str):
         try:
-            info = await self.get_account_info(_address)
+            info = await self.get_account_info(address)
             return info["result"]["balance"]
-        except:
+        except Exception as e:
             return "No balance found"
 
-    async def get_account_info(self, _address):
-        uri = "/account/" + _address
-        return self.get_request(uri)
+    async def get_account_info(self, address: str):
+        return await self.get_request(f"account/{address}")
 
-    async def get_time(self):
+    async def get_time(self) -> dict:
         return await self.get_request("time")
 
-    async def get_node_info(self):
-        return self.get_request("node-info")
+    async def get_node_info(self) -> dict:
+        return await self.get_request("node-info")
 
-    async def get_validators(self):
-        return self.get_request("/validators")
+    async def get_validators(self) -> dict:
+        return await self.get_request("validators")
 
-    async def get_peers(self):
-        return self.get_request("/peers")
+    async def get_peers(self) -> list:
+        return await self.get_request("peers")
 
-    async def get_transaction(self, _txid):
-        return self.get_request("/tx/" + _txid)
+    async def get_transaction(self, txid: str) -> dict:
+        return await self.get_request(f"tx/{txid}")
 
-    async def get_token_list(self):
-        return self.get_request("/tokens")
+    async def get_token_list(self) -> List[dict]:
+        return await self.get_request("tokens")
 
     async def get_markets(self, _limit=500, _offset=0):
         params = {"limit": _limit, "offset": _offset}
