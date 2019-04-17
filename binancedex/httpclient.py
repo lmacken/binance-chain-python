@@ -2,9 +2,10 @@
     Interact with binance chain
 """
 import asyncio
+import sys
 import traceback
 import warnings
-from typing import List
+from typing import Any, List
 
 import aiohttp
 
@@ -75,12 +76,12 @@ class BNC:
             ) as resp:
                 return await resp.json()
         except Exception as e:
-            traceback.print_exc()
+            print("Error:", await resp.text(), file=sys.stderr)
 
-    async def get_request(self, path: str, params: dict = None):
+    async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
 
-    async def post_request(self, path: str, data: dict = None):
+    async def post_request(self, path: str, data: dict = None) -> Any:
         return await self._request("post", path, data=data)
 
     async def get_balance(self, address: str):
@@ -94,42 +95,84 @@ class BNC:
         return await self.get_request(f"account/{address}")
 
     async def get_time(self) -> dict:
+        """ Get the block time.
+
+        Gets the latest block time and the current time according to the HTTP
+        service.
+
+        Destination: Validator node.
+	Rate Limit: 1 request per IP per second.
+        """
         return await self.get_request("time")
 
     async def get_node_info(self) -> dict:
+        """ Get node information.
+
+        Gets runtime information about the node.
+
+        Destination: Validator node.
+        Rate Limit: 1 request per IP per second.
+        """
         return await self.get_request("node-info")
 
     async def get_validators(self) -> dict:
+        """ Get validators.
+
+        Gets the list of validators used in consensus.
+
+        Destination: Witness node.
+        Rate Limit: 10 requests per IP per second.
+        """
         return await self.get_request("validators")
 
     async def get_peers(self) -> list:
+        """  Get network peers.
+
+        Gets the list of network peers.
+
+        Destination: Witness node.
+        Rate Limit: 1 request per IP per second.
+        """
         return await self.get_request("peers")
 
     async def get_transaction(self, txid: str) -> dict:
         return await self.get_request(f"tx/{txid}")
 
     async def get_token_list(self) -> List[dict]:
+        """ Get tokens list.
+
+        Gets a list of tokens that have been issued.
+
+        Destination: Witness node.
+        Rate Limit: 1 request per IP per second.
+        """
         return await self.get_request("tokens")
 
-    # TODO: merge with get_token_list?
     async def get_markets(self, limit: int = 500, offset: int = 0) -> List[dict]:
-        return await self.get_request("tokens", params={"limit": limit, "offset": offset})
+        """
+        :limit: default 500; max 1000.
+        :offset: start with 0; default 0.
+        """
+        return await self.get_request(
+            "markets", params={"limit": limit, "offset": offset}
+        )
 
     async def get_fees(self) -> List[dict]:
         return await self.get_request("fees")
 
-    async def get_depth(self, symbol, limit=100):
-        params = {"symbol": symbol, "limit": limit}
-        return self.get_request("/depth", params=params)
+    async def get_depth(self, symbol: str, limit: int = 100):
+        return await self.get_request(
+            "depth", params={"symbol": symbol, "limit": limit}
+        )
 
     async def broadcast(self, _signedTx):
-        return self.post_request("/broadcast", data=_signedTx)
+        return self.post_request("broadcast", data=_signedTx)
 
     async def get_klines(
         self, symbol, interval, limit=300, startTime=None, endTime=None
     ):
         return self.get_request(
-            "/klines",
+            "klines",
             params={
                 "symbol": symbol,
                 "interval": interval,
