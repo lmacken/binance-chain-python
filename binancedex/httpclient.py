@@ -111,12 +111,12 @@ class BNC:
     async def get_token_list(self) -> List[dict]:
         return await self.get_request("tokens")
 
-    async def get_markets(self, _limit=500, _offset=0):
-        params = {"limit": _limit, "offset": _offset}
-        return self.get_request("/tokens/", params=params)
+    # TODO: merge with get_token_list?
+    async def get_markets(self, limit: int = 500, offset: int = 0) -> List[dict]:
+        return await self.get_request("tokens", params={"limit": limit, "offset": offset})
 
-    async def get_fees(self):
-        return self.get_request("/fees")
+    async def get_fees(self) -> List[dict]:
+        return await self.get_request("fees")
 
     async def get_depth(self, symbol, limit=100):
         params = {"symbol": symbol, "limit": limit}

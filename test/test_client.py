@@ -60,7 +60,24 @@ async def test_get_peers(client):
 async def test_token_list(client):
     tokens = await client.get_token_list()
     pprint(tokens)
-    assert False
     for token in tokens:
         for key in ("mintable", 'name', 'original_symbol', 'owner', 'symbol', 'total_supply'):
             assert key in token
+
+
+@pytest.mark.asyncio
+async def test_get_markets(client):
+    markets = await client.get_markets()
+    pprint(markets)
+    for market in markets:
+        for key in ("mintable", 'name', 'original_symbol', 'owner', 'symbol', 'total_supply'):
+            assert key in market
+
+
+@pytest.mark.asyncio
+async def test_get_fees(client):
+    fees = await client.get_fees()
+    pprint(fees)
+    for fee in fees:
+        for key in ('fee', 'fee_for', 'msg_type'):
+            assert key in fee
