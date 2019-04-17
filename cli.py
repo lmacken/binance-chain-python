@@ -33,6 +33,15 @@ def run(coro):
     return loop.run_until_complete(coro)
 
 
+def dex_run(method, **kwargs):
+    """ Run a method on the Binance DEX client """
+    dex = BNC()
+    result = run(getattr(dex, method)(**kwargs))
+    pprint(result)
+    run(dex.close())
+    return result
+
+
 @click.group()
 def main():
     pass
@@ -40,68 +49,43 @@ def main():
 
 @main.command()
 def time():
-    dex = BNC()
-    time = run(dex.get_time())
-    pprint(time)
-    run(dex.close())
+    dex_run('get_time')
 
 
 @main.command()
 def node_info():
-    dex = BNC()
-    info = run(dex.get_node_info())
-    pprint(info)
-    run(dex.close())
+    dex_run('get_node_info')
 
 
 @main.command()
 def fees():
-    dex = BNC()
-    fees = run(dex.get_fees())
-    pprint(fees)
-    run(dex.close())
+    dex_run('get_fees')
 
 
 @main.command()
 def validators():
-    dex = BNC()
-    validators = run(dex.get_validators())
-    pprint(validators)
-    run(dex.close())
+    dex_run('get_validators')
 
 
 @main.command()
 def peers():
-    dex = BNC()
-    peers = run(dex.get_peers())
-    pprint(peers)
-    run(dex.close())
+    dex_run('get_peers')
 
 
 @main.command()
 def tokens():
-    dex = BNC()
-    tokens = run(dex.get_token_list())
-    pprint(tokens)
-    run(dex.close())
+    dex_run('get_token_list')
 
 
 @main.command()
 def markets():
-    dex = BNC()
-    markets = run(dex.get_markets())
-    pprint(markets)
-    run(dex.close())
+    dex_run('get_markets')
 
 
 @main.command()
 @click.argument('symbol')
 def depth(symbol):
-    dex = BNC()
-    depth = run(dex.get_depth(symbol))
-    pprint(depth)
-    run(dex.close())
-
+    dex_run('get_depth', symbol=symbol)
 
 
 if __name__ == '__main__':
