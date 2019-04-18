@@ -136,17 +136,19 @@ class BinanceChain:
         """
         return await self.get_request("peers")
 
-    async def get_account(self, address: str):
+    async def get_account(self, address: str) -> dict:
         """Get an account.
 
         Gets account metadata for an address.
 
         Destination: Witness node.
         Rate Limit: 5 requests per IP per second.
+
+        :param address: The account address to query
         """
         return await self.get_request(f"account/{address}")
 
-    async def get_account_sequence(self, address: str):
+    async def get_account_sequence(self, address: str) -> dict:
         """Get an account sequence.
 
         Gets an account sequence for an address.
