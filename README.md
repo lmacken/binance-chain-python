@@ -4,8 +4,10 @@ Implementation Details
 - Python3 asyncio
 - Uses Python3.6's f-strings
 - Type annotations
-- asyncio
 - pytest suite
+- asyncio
+- aiohttp
+    connection pooling?
 
 
 SDK features
