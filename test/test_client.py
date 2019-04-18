@@ -19,7 +19,7 @@ from pprint import pprint
 
 import pytest
 
-from binancedex.httpclient import BNC
+from binancechain import BinanceChain
 
 
 @pytest.fixture
@@ -183,9 +183,9 @@ async def test_get_ticker(client):
 async def test_trades(client):
     trades = await client.get_trades()
     pprint(trades)
-    assert 'total' in trades
-    assert 'trade' in trades
-    for trade in trades['trade']:
+    assert "total" in trades
+    assert "trade" in trades
+    for trade in trades["trade"]:
         for key in (
             "baseAsset",
             "blockHeight",
@@ -210,7 +210,7 @@ async def test_get_block_exchange_fee(client):
     fees = await client.get_block_exchange_fee()
     pprint(fees)
     # TODO: returns None w/o an address
-    #assert False
-    #for fee in fees:
+    # assert False
+    # for fee in fees:
     #    for key in ("askPrice", "askQuantity", "bidPrice", "bidQuantity"):
     #        assert key in ticker

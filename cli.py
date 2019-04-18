@@ -25,7 +25,7 @@ from pprint import pprint
 import click
 import pandas as pd
 
-from binancedex.httpclient import BNC
+from binancechain import BinanceChain
 
 
 def run(coro):
