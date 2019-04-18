@@ -147,6 +147,13 @@ async def test_get_order(client):
     orders = await client.get_order(id)
     pprint(order)
     assert False
+
+@pytest.mark.asyncio
+async def test_get_transactions(client):
+    address = ...
+    transactions = await client.get_transactions(address=address)
+    pprint(fees)
+    assert False
 """
 
 
@@ -196,3 +203,14 @@ async def test_trades(client):
             "tradeId",
         ):
             assert key in trade
+
+
+@pytest.mark.asyncio
+async def test_get_block_exchange_fee(client):
+    fees = await client.get_block_exchange_fee()
+    pprint(fees)
+    # TODO: returns None w/o an address
+    #assert False
+    #for fee in fees:
+    #    for key in ("askPrice", "askQuantity", "bidPrice", "bidQuantity"):
+    #        assert key in ticker

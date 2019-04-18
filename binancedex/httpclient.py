@@ -17,7 +17,6 @@
 Binance DEX SDK
 
 """
-import asyncio
 import sys
 import traceback
 import warnings
@@ -95,7 +94,11 @@ class BNC:
                 return await resp.json()
         except Exception as e:
             if resp:
-                print("Error:", await resp.text(), file=sys.stderr)
+                text = await resp.text()
+                if not text:
+                    print(f"Empty response from `{path}`")
+                else:
+                    print("Error:", text, file=sys.stderr)
             else:
                 raise
 
@@ -104,13 +107,6 @@ class BNC:
 
     async def post_request(self, path: str, data: dict = None) -> Any:
         return await self._request("post", path, data=data)
-
-    async def get_balance(self, address: str):
-        try:
-            info = await self.get_account_info(address)
-            return info["result"]["balance"]
-        except Exception as e:
-            return "No balance found"
 
     async def get_time(self) -> dict:
         """Get the block time.
@@ -259,8 +255,8 @@ class BNC:
         symbol: str,
         interval: str,
         limit: int = 300,
-        startTime: float = None,
-        endTime: float = None,
+        start: int = None,
+        end: int = None,
     ) -> List[Tuple[int, str, str, str, str, str, int, str, int]]:
         """Get candlestick bars.
 
@@ -277,24 +273,24 @@ class BNC:
         :param interval: interval. Allowed value: [1m, 3m, 5m, 15m, 30m, 1h,
             2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M]
         :param limit: default 300; max 1000.
-        :param startTime: start time in Milliseconds
-        :param endTime: end time in Milliseconds
+        :param start: start time in Milliseconds
+        :param end: end time in Milliseconds
         """
         params = {"symbol": symbol, "interval": interval, "limit": limit}
-        if startTime:
-            params["startTime"] = startTime
-        if endTime:
-            params["endTime"] = endTime
+        if start:
+            params["startTime"] = start
+        if end:
+            params["endTime"] = end
         return await self.get_request("klines", params=params)
 
     async def get_closed_orders(
         self,
         address: str,
-        end: float = None,
+        end: int = None,
         limit: int = None,
         offset: int = None,
         side: int = None,
-        start: float = None,
+        start: int = None,
         status: str = None,
         symbol: str = None,
         total: int = None,
@@ -372,7 +368,7 @@ class BNC:
 
         :param id: order id
         """
-        return self.get_request(f"orders/{id}")
+        return await self.get_request(f"orders/{id}")
 
     async def get_ticker(self, symbol: str = None) -> List[dict]:
         """Get a market ticker.
@@ -385,21 +381,21 @@ class BNC:
         """
         params = {}
         if symbol:
-            params['symbol'] = symbol
+            params["symbol"] = symbol
         return await self.get_request("ticker/24hr", params=params)
 
     async def get_trades(
         self,
         address: str = None,
         buyerOrderId: str = None,
-        height: float = None,
+        height: int = None,
         limit: int = None,
         offset: int = None,
         quoteAsset: str = None,
         sellerOrderId: str = None,
         side: int = None,
-        start: float = None,
-        end: float = None,
+        start: int = None,
+        end: int = None,
         total: int = None,
         symbol: str = None,
     ) -> List[dict]:
@@ -428,61 +424,122 @@ class BNC:
         """
         params: Dict[Any, Any] = {}
         if address:
-            params['address'] = address
+            params["address"] = address
         if buyerOrderId:
-            params['buyerOrderId'] = buyerOrderId
+            params["buyerOrderId"] = buyerOrderId
         if height:
             params["height"] = height
         if limit:
-            params['limit'] = limit
+            params["limit"] = limit
         if offset:
             params["offset"] = offset
         if sellerOrderId:
             params["sellerOrderId"] = sellerOrderId
         if side:
-            params['side'] = side
+            params["side"] = side
         if start:
-            params['start'] = start
+            params["start"] = start
         if end:
-            params['end'] = end
+            params["end"] = end
         if symbol:
             params["symbol"] = symbol
         if total:
             params["total"] = total
         return await self.get_request("trades", params=params)
 
+    async def get_block_exchange_fee(
+        self,
+        address: str = None,
+        end: int = None,
+        limit: int = None,
+        offset: int = None,
+        start: int = None,
+        total: int = None,
+    ) -> List[dict]:
+        """Trading fee of the address grouped by block
+
+        Get historical trading fees of the address, including fees of
+        trade/canceled order/expired order. Transfer and other transaction fees
+        are not included. Order by block height DESC.
+
+        Query Window: Default query window is latest 7 days; The maximum
+        start - end query window is 3 months.
+
+        Rate Limit: 5 requests per IP per second.
+
+        :param address: the buyer/seller address
+        :param buyerOrderId: buyer order id
+        :param end: end time in Milliseconds
+        :param limit: default 500; max 1000.
+        :param offset: start with 0; default 0.
+        :param start: start with 0; default 0.
+        :param total: total number required, 0 for not required and 1 for
+            required; default not required, return total=-1 in response
+        """
+        params: Dict[Any, Any] = {}
+        if address:
+            params["address"] = address
+        if end:
+            params["end"] = end
+        if limit:
+            params["limit"] = limit
+        if offset:
+            params["offset"] = offset
+        if start:
+            params["start"] = start
+        if total:
+            params["total"] = total
+        return await self.get_request("block-exchange-fee", params=params)
+
     async def get_transactions(
         self,
-        address,
-        blockHeight,
-        startTime,
-        endTime,
-        limit,
-        offset,
-        side,
-        txAsset,
-        txType,
-    ):
-        prms = {
-            "address": address,
-            "blockHeight": blockHeight,
-            "startTime": startTime,
-            "endTime": endTime,
-            "limit": limit,
-            "offset": offset,
-            "side": side,
-            "txAsset": txAsset,
-            "txType": txType,
-        }
+        address: str,
+        height: int = None,
+        end: int = None,
+        limit: int = None,
+        offset: int = None,
+        side: str = None,
+        start: int = None,
+        tx_asset: str = None,
+        tx_type: str = None,
+    ) -> List[dict]:
+        """Get transactions.
 
+        Gets a list of transactions. Multisend transaction is not available in
+        this API.
 
-async def main():
-    bnc = BNC("testnet-dex.binance.org")
-    time = bnc.get_time()
-    print(time)
+        Query Window: Default query window is latest 24 hours; The maximum
+        start - end query window is 3 months.
 
+        Rate Limit: 60 requests per IP per minute.
 
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    asyncio.ensure_future(main())
-    loop.run_forever()
+        :param address: address
+        :param height: block height
+        :param end: end time in milliseconds
+        :param limit: limit
+        :param offset: offset
+        :param side: transaction side. Allowed value: [ RECEIVE, SEND]
+        :param start: start time in milliseconds
+        :param tx_asset: txAsset
+        :param tx_type: transaction type. Allowed value: [
+            NEW_ORDER,ISSUE_TOKEN,BURN_TOKEN,LIST_TOKEN,CANCEL_ORDER,FREEZE_TOKEN,
+            UN_FREEZE_TOKEN,TRANSFER,PROPOSAL,VOTE,MINT,DEPOSIT]
+        """
+        params: Dict[Any, Any] = {'address': address}
+        if height:
+            params["blockHeight"] = height
+        if start:
+            params["startTime"] = start
+        if end:
+            params["endTime"] = end
+        if limit:
+            params["limit"] = limit
+        if offset:
+            params["offset"] = offset
+        if side:
+            params["side"] = side
+        if tx_asset:
+            params["txAsset"] = tx_asset
+        if tx_type:
+            params["txType"] = tx_type
+        return await self.get_request("transactions", params=params)
