@@ -20,15 +20,12 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Binance DEX CLI
+Binance Chain CLI
 """
-import argparse
 import asyncio
-from functools import update_wrapper
 from pprint import pprint
 
 import click
-import pandas as pd
 
 from binancechain import BinanceChain
 
@@ -41,7 +38,7 @@ def run(coro):
 
 def dex_run(method, **kwargs):
     """ Run a method on the Binance DEX client """
-    dex = BNC()
+    dex = BinanceChain()
     result = run(getattr(dex, method)(**kwargs))
     pprint(result)
     run(dex.close())
