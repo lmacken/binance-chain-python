@@ -24,7 +24,7 @@ from binancechain import BinanceChain
 
 @pytest.fixture
 async def client():
-    client = BNC(testnet=True)
+    client = BinanceChain(testnet=True)
     yield client
     await client.close()
 
