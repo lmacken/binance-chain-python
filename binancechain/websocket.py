@@ -4,7 +4,7 @@ https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 import asyncio
 import json
 import sys
-from typing import Coroutine, Dict, List
+from typing import Callable, Dict, List
 
 import aiohttp
 
@@ -22,7 +22,7 @@ class BinanceDexSocketManager:
     def __init__(self, testnet=False) -> None:
         self.url = TESTNET_URL if testnet else MAINNET_URL
         self.session = aiohttp.ClientSession()
-        self.callbacks: Dict[str, Coroutine] = {}
+        self.callbacks: Dict[str, Callable[[dict], None]] = {}
 
     def start(self, on_open=None, on_error=None, loop=None):
         loop = loop or asyncio.get_event_loop()
