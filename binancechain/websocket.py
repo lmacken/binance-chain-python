@@ -13,11 +13,7 @@ TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
 
 
 class BinanceDexSocketManager:
-    """The Binance DEX WebSocket Manager.
-
-    API modeled off of `python-binance`.
-    https://python-binance.readthedocs.io/en/latest/websockets.html
-    """
+    """The Binance DEX WebSocket Manager."""
 
     def __init__(self, testnet=False) -> None:
         self.url = TESTNET_URL if testnet else MAINNET_URL
