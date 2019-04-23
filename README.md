@@ -25,5 +25,7 @@ OSS Best Practices
 Running the test suite
 ----------------------
 
+    `git clone ...`
     `pip install -r test-requirements.txt`
+    `python setup.py develop`
     `pytest -v --cov=binancechain`
