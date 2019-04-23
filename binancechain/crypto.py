@@ -4,7 +4,6 @@ import bech32
 
 def from_path(root_key, path):
     if isinstance(path, str):
-        # Remove trailing "/"
         p = path.rstrip("/").split("/")
     elif isinstance(path, bytes):
         p = path.decode("utf-8").rstrip("/").split("/")

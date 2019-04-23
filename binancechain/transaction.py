@@ -49,21 +49,21 @@ class BinanceTransaction:
                 raise Exception("No account information found")
             account_number = account_info["result"]["account_number"]
         if not sequence:
-            sequence = await BinanceChain(testnet=testnet).get_account_sequence(address)
+            sequence = await binance_chain.get_account_sequence(address)
             sequence += 1
-        tx = BNTX(
+        tx = BinanceTransaction(
             testnet=testnet,
             memo=memo,
             type=TX_TYPE["NewOrderMsg"],
             account_number=account_number,
             sequence=sequence,
         )
-        id = f"{address.to_hex()}-{sequence}"
+        id = f"{address.to_hex()}-{sequence}"  # fixme string to hex
         tx.update(
             {
                 "sender": address,
                 "id": id,
-                "orderType": 2,
+                "orderType": 2,  # currently only 1 type : limit =2, will change in the future
                 "symbol": symbol,
                 "side": side,
                 "price": price,
@@ -92,11 +92,11 @@ class BinanceTransaction:
     def __init__(
         self, memo, type, testnet=False, account_number=0, sequence=0, chain_id=CHAIN_ID
     ):
-        self.type: str = type
-        self.memo: str = memo
-        self.testnet: bool = testnet
+        self.type = type
+        self.memo = memo
+        self.testnet = testnet
         self.msgs = []
-        self.account_number: number = account_number
+        self.account_number = account_number
         self.sequence = sequence
         self.chain_id = chain_id
 
