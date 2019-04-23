@@ -2,3 +2,7 @@ py*env
 *.py[co]
 .*.sw*
 build
+.ipynb_checkpoints
+.mypy_cache
+*.ipynb
+py36

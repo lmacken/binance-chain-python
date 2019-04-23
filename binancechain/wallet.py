@@ -9,7 +9,7 @@ from .crypto import from_path, get_address
 HDPATH = "44'/714'/0'/0/0"
 
 
-class BNWallet:
+class BinanceWallet:
     def __init__(self, testnet=False):
         self.testnet = testnet
         self.prefix = "tbnb" if testnet else "bnb"
