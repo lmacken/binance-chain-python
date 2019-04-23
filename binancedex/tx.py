@@ -4,11 +4,7 @@
 import aiohttp
 
 
-class BNW:
-    def __init__(self, server):
-        if not server:
-            return "No Binance server found"
-        self.session = aiohttp.ClientSession(server)
+class BNTX:
 
     def create_order(self):
         pass

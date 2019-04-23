@@ -2,3 +2,7 @@ wheel
 bech32
 ecpy
 aiohttp
+Base58
+eth_utils
+two1
+pycryptodome
