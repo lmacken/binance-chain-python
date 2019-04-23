@@ -1,1 +1,7 @@
+tox
+
 pytest-asyncio
+pytest-cov
+
+# for the static typechecker
+mypy
