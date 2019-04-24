@@ -26,9 +26,12 @@ https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
 import asyncio
 import sys
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aiohttp
+
+from pyee import EventEmitter
+
 
 MAINNET_URL = ""
 TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
@@ -37,12 +40,30 @@ TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
 class BinanceChainWebSocket:
     """The Binance DEX WebSocket Manager."""
 
-    def __init__(self, address: str = None, testnet: bool = False) -> None:
+    def __init__(
+        self,
+        address: str = None,
+        testnet: bool = False,
+        loop: asyncio.AbstractEventLoop = None,
+    ) -> None:
         self.address = address
         self.url = TESTNET_URL if testnet else MAINNET_URL
         self._session = aiohttp.ClientSession()
         self._callbacks: Dict[str, Callable[[dict], None]] = {}
         self._ws: Optional[aiohttp.ClientWebSocketResponse] = None
+        self._loop = loop or asyncio.get_event_loop()
+        self._events = EventEmitter(scheduler=asyncio.ensure_future, loop=self._loop)
+        self._sub_queue: List[Tuple[str, dict]] = []
+
+    def on(self, event, func=None, **kwargs):
+        print("on", event, func)
+        if event not in ("open", "new_listener", "error"):
+            # Trigger subscription on open
+            self._sub_queue.append((event, kwargs))
+        if func:
+            self._events.on(event, func)
+        else:
+            return self._events.on(event)
 
     def start(
         self,
@@ -67,6 +88,12 @@ class BinanceChainWebSocket:
 
         async with self._session.ws_connect(url) as ws:
             self._ws = ws
+            self._events.emit("open")
+
+            for event, kwargs in self._sub_queue:
+                print("subbing", event, kwargs)
+                self.subscribe(event, **kwargs)
+
             if on_open:
                 on_open()
             async for msg in ws:
@@ -80,25 +107,27 @@ class BinanceChainWebSocket:
                         print(f"Got empty msg: {msg}", file=sys.stderr)
                         continue
                     if "error" in data:
+                        self._events.emit("error", data)
                         if on_error:
                             on_error(data)
                         else:
                             print(f"Unhandled error msg: {data}", file=sys.stderr)
                         continue
+
                     if "stream" not in data:
                         print(f"Got msg without stream: {data}", file=sys.stderr)
                         continue
-                    stream = data["stream"]
-                    if stream not in self._callbacks:
-                        print(
-                            f"Cannot find callback for stream {stream}", file=sys.stderr
-                        )
+                    if "data" not in data:
+                        print(f"Got msg without data: {data}", file=sys.stderr)
                         continue
-
-                    self._callbacks[stream](data)
+                    stream = data["stream"]
+                    self._events.emit(stream, data["data"])
+                    if stream in self._callbacks:
+                        self._callbacks[stream](data)
 
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     print(msg, file=sys.stderr)
+                    self._events.emit("error", msg)
                     break
 
     async def send(self, data: dict) -> None:
