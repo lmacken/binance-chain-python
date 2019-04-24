@@ -34,6 +34,6 @@ async def test_new_order(wallet, chain):
     transaction.update_signature(pubkey, signature)
     broadcast = await chain.broadcast(transaction.txblob)
     txid = broadcast[0]["hash"]
-    tx = await chain.get_transaction(hash)
+    tx = await chain.get_transaction(txid)
     print(tx)
     # transaction.udpate_signature(signature)
