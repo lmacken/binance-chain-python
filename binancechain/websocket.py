@@ -51,9 +51,9 @@ class BinanceChainWebSocket:
     ) -> None:
         """The main blocking call to start the WebSocket connection."""
         loop = loop or asyncio.get_event_loop()
-        return loop.run_until_complete(self._start(on_open, on_error))
+        return loop.run_until_complete(self.start_async(on_open, on_error))
 
-    async def _start(
+    async def start_async(
         self,
         on_open: Optional[Callable[[], None]],
         on_error: Optional[Callable[[dict], None]],
