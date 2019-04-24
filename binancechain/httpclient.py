@@ -237,7 +237,9 @@ class BinanceChain:
         :param sync: Synchronous broadcast (wait for DeliverTx)?
         :param body: Hex-encoded transaction
         """
-        return await self.post_request("broadcast", data=body)
+        return await self.post_request(
+            "broadcast", data=body, headers={"Content-Type": "text/plain"}
+        )
 
     async def get_klines(
         self,
