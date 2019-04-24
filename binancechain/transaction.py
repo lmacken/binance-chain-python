@@ -8,6 +8,8 @@ from .crypto import generate_id
 import numpy as np
 import simplejson
 import marshal
+from varint import encode
+import binascii
 
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
@@ -72,8 +74,8 @@ class BinanceTransaction:
                 "ordertype": 2,  # currently only 1 type : limit =2, will change in the future
                 "symbol": symbol,
                 "side": side,
-                "price": int(price * (10 ^ 8)),
-                "quantity": int(quantity * (10 ^ 8)),
+                "price": 100000000,
+                "quantity": 100000000,
                 "timeinforce": timeInForce,
             }
         )
@@ -139,10 +141,14 @@ class BinanceTransaction:
             "source": 1,
             "data": "",
         }
-        stdTxBytes = marshal.dumps(self.StdTx).hex()
-        print("STDTXBYTES", stdTxBytes)
+        print(self.StdTx)
+        stdTxBytes = binascii.hexlify(marshal.dumps(self.StdTx))
+        print("STDTXBYTES", len(stdTxBytes))
         # stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
-        stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
+        if self.type:
+            stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
+            lenBytes = encode(len(stdTxBytes))
+            stdTxBytes = lenBytes + stdTxBytes
         stdTxBytes = TYPE_PREFIX["StdTx"] + stdTxBytes
-        lenBytes = np.uint64(len(stdTxBytes)).tobytes().hex()
+        lenBytes = encode(len(stdTxBytes))
         self.txblob = lenBytes + stdTxBytes
