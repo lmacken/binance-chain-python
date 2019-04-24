@@ -52,9 +52,9 @@ class BinanceChainWebSocket:
         self._loop = loop or asyncio.get_event_loop()
         self._events = AsyncIOEventEmitter(loop=self._loop)
         self._sub_queue: List[Tuple[str, dict]] = []
-        self._open = False
-        self._keepalive = True
+        self._keepalive = keepalive
         self._keepalive_task = None
+        self._open = False
 
     def on(self, event: str, func: Optional[Callable] = None, **kwargs):
         """Register an event, and optional handler.
