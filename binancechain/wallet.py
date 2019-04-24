@@ -16,7 +16,7 @@ HDPATH = "44'/714'/0'/0/0"
 class BinanceWallet:
     def create_wallet_privatekey(privatekey, testnet=False):
         key = keys.HDKey(import_key=privatekey)
-        return BinanceWalet(key=key, testnet=testnet)
+        return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
     def create_wallet(password="", testnet=False):
@@ -97,13 +97,3 @@ class BinanceWallet:
         """
 
         pass
-
-
-if __name__ == "__main__":
-    # m = Mnemonic("english").generate(256)
-    m = "tennis utility midnight pattern that foot security tent punch glance still night virus loop trade velvet rent glare ramp cushion defy grass section cage"
-    bn = BinanceWallet.create_wallet(testnet=True)
-    key_store = BinanceWallet.create_wallet_keystore()
-    print(key_store)
-    wallet = BinanceWallet.recover_from_keystore(keystore=key_store)
-    print(wallet.address)
