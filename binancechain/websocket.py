@@ -212,32 +212,3 @@ class BinanceChainWebSocket:
         asyncio.ensure_future(self.send({"method": "close"}))
         if self._session:
             asyncio.ensure_future(self._session.close())
-
-
-if __name__ == "__main__":
-    dex = BinanceChainWebSocket(testnet=True)
-
-    def on_open():
-        address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
-        dex.subscribe_user_orders(address, user_orders)
-        dex.subscribe_user_accounts(address, user_orders)
-        dex.subscribe_user_transfers(address, user_orders)
-
-        # dex.subscribe("allMiniTickers", symbols=["$all"], callback=mini_tickers)
-
-    def user_orders(msg):
-        print(f"user_orders: {msg}")
-
-    def user_accounts(msg):
-        print(f"user_accounts: {msg}")
-
-    def user_transfers(msg):
-        print(f"user_transfers: {msg}")
-
-    def mini_tickers(msg):
-        print(f"mini_tickers: {msg}")
-
-    def on_error(msg):
-        print(f"Error: {msg}")
-
-    dex.start(on_open, on_error)
