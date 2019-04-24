@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright 2019 Sensei.Chat
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

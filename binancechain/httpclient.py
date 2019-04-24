@@ -126,7 +126,7 @@ class BinanceChain:
         """
         return await self.get_request("validators")
 
-    async def get_peers(self) -> list:
+    async def get_peers(self) -> List[dict]:
         """Get network peers.
 
         Gets the list of network peers.
