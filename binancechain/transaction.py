@@ -10,13 +10,13 @@ import simplejson
 
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
-    "CancelOrder": 0x166E681B,
-    "TokenFreeze": 0xE774B32D,
-    "TokenUnfreeze": 0x6515FF0D,
-    "NewOrder": 0xCE6DC043,
-    "Send": 0x2A2C87FA,
-    "PubKey": 0xEB5AE987,
-    "StdTx": 0xF0625DEE,
+    "CancelOrder": "166E681B",
+    "TokenFreeze": "E774B32D",
+    "TokenUnfreeze": "6515FF0D",
+    "NewOrder": "CE6DC043",
+    "Send": "2A2C87FA",
+    "PubKey": "EB5AE987",
+    "StdTx": "F0625DEE",
 }
 TX_TYPE = {
     "MsgSend": "MsgSend",
@@ -66,7 +66,7 @@ class BinanceTransaction:
         id = generate_id(address, sequence)
         tx.update_msg(
             {
-                "sender": address,
+                "sender": encoding.to_bytes(address),
                 "id": id,
                 "ordertype": 2,  # currently only 1 type : limit =2, will change in the future
                 "symbol": symbol,
@@ -138,6 +138,6 @@ class BinanceTransaction:
             "source": "1",
         }
         stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
-        stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
+        stdTxBytes = bytes.fromhex(TYPE_PREFIX[self.type]) + stdTxBytes
         lenBytes = np.uint64(len(stdTxBytes)).tobytes()
         self.txblob = (lenBytes + stdTxBytes).hex()
