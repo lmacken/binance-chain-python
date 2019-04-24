@@ -208,8 +208,10 @@ class BinanceChainWebSocket:
         asyncio.ensure_future(self.send({"method": "keepAlive"}))
 
     def close(self) -> None:
-        """Close the websocket connection"""
+        """Close the websocket session"""
         asyncio.ensure_future(self.send({"method": "close"}))
+        if self._session:
+            asyncio.ensure_future(self._session.close())
 
 
 if __name__ == "__main__":
