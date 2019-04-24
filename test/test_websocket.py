@@ -79,8 +79,8 @@ async def test_trades(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'trades'
+    result = results[0]
+    assert result['stream'] == 'trades'
 
 
 @pytest.mark.asyncio
@@ -96,8 +96,8 @@ async def test_market_diff(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'marketDiff'
+    result = results[0]
+    assert result['stream'] == 'marketDiff'
 
 
 @pytest.mark.asyncio
@@ -113,11 +113,8 @@ async def test_market_depth(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
-    ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
-    assert ticker['stream'] == 'marketDepth'
+    result = results[0]
+    assert result['stream'] == 'marketDepth'
 
 
 @pytest.mark.asyncio
@@ -133,8 +130,8 @@ async def test_kline(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'kline_1m'
+    result = results[0]
+    assert result['stream'] == 'kline_1m'
 
 
 @pytest.mark.asyncio
@@ -150,8 +147,8 @@ async def test_tickers(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'ticker'
+    result = results[0]
+    assert result['stream'] == 'ticker'
 
 
 @pytest.mark.asyncio
@@ -167,8 +164,8 @@ async def test_all_tickers(client):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'allTickers'
+    result = results[0]
+    assert result['stream'] == 'allTickers'
 
 
 @pytest.mark.asyncio
@@ -184,8 +181,8 @@ async def test_mini_ticker(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'miniTicker'
+    result = results[0]
+    assert result['stream'] == 'miniTicker'
 
 
 @pytest.mark.asyncio
@@ -201,8 +198,8 @@ async def test_all_mini_ticker(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert ticker['stream'] == 'allMiniTickers'
+    result = results[0]
+    assert result['stream'] == 'allMiniTickers'
 
 
 @pytest.mark.asyncio
@@ -218,8 +215,8 @@ async def test_blockheight(client):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    ticker = results[0]
-    assert 'stream' in ticker
+    result = results[0]
+    assert 'stream' in result
 
 
 @pytest.mark.asyncio

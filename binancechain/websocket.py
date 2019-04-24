@@ -37,7 +37,8 @@ TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
 class BinanceChainWebSocket:
     """The Binance DEX WebSocket Manager."""
 
-    def __init__(self, testnet: bool = False) -> None:
+    def __init__(self, address: str = None, testnet: bool = False) -> None:
+        self.address = address
         self.url = TESTNET_URL if testnet else MAINNET_URL
         self._session = aiohttp.ClientSession()
         self._callbacks: Dict[str, Callable[[dict], None]] = {}
@@ -59,7 +60,12 @@ class BinanceChainWebSocket:
         on_error: Optional[Callable[[dict], None]],
     ) -> None:
         """Processes all websocket messages."""
-        async with self._session.ws_connect(self.url) as ws:
+        if self.address:  # address-specific socket
+            url = f"{self.url}/{self.address}"
+        else:
+            url = self.url
+
+        async with self._session.ws_connect(url) as ws:
             self._ws = ws
             if on_open:
                 on_open()
@@ -88,7 +94,9 @@ class BinanceChainWebSocket:
                             f"Cannot find callback for stream {stream}", file=sys.stderr
                         )
                         continue
+
                     self._callbacks[stream](data)
+
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     print(msg, file=sys.stderr)
                     break
@@ -116,7 +124,7 @@ class BinanceChainWebSocket:
         if symbols:
             payload["symbols"] = symbols
         if address:
-            payload["userAddress"] = address
+            payload["address"] = address
         if callback:
             self._callbacks[stream] = callback
         asyncio.ensure_future(self.send(payload))

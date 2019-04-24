@@ -4,35 +4,31 @@ from pprint import pprint
 
 from binancechain import BinanceChainWebSocket
 
-dex = BinanceChainWebSocket(testnet=True)
+address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+
+dex = BinanceChainWebSocket(address, testnet=True)
 
 
 def on_open():
-    dex.subscribe_all_tickers(callback=tickers)
-
-
-def tickers(msg):
-    pprint(msg)
+    dex.subscribe_user_orders(address=address, callback=user_orders)
+    dex.subscribe_user_accounts(address=address, callback=user_accounts)
+    dex.subscribe_user_transfers(address=address, callback=user_transfers)
 
 
 def user_orders(msg):
-    print(f"user_orders: {msg}")
+    pprint(msg)
 
 
 def user_accounts(msg):
-    print(f"user_accounts: {msg}")
+    pprint(msg)
 
 
 def user_transfers(msg):
-    print(f"user_transfers: {msg}")
-
-
-def mini_tickers(msg):
-    print(f"mini_tickers: {msg}")
+    pprint(msg)
 
 
 def on_error(msg):
-    print(f"Error: {msg}")
+    pprint(msg)
 
 
 if __name__ == '__main__':
