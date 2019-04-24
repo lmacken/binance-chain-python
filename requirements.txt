@@ -7,3 +7,4 @@ eth_utils
 pycryptodome
 bitcoinlib
 bech32
+eth_keyfile

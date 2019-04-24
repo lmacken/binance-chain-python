@@ -32,3 +32,10 @@ def generate_signature(key, data):
 
 def verify_signature(data, signed_data, pubkey):
     pass
+
+
+def generate_id(address, sequence):
+    prefix, words = bech32.bech32_decode(address)
+    convert_w = encoding.convertbits(words, 5, 8)
+    decodedAddress = encoding.to_bytearray(convert_w).hex()
+    return f"{decodedAddress.upper()}-{sequence}"

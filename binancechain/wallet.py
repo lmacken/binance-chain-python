@@ -2,9 +2,13 @@
     Intergrate with different methods of signing
 """
 
-from eth_keyfile import *
+from eth_keyfile import decode_keyfile_json, create_keyfile_json
 from bitcoinlib import keys, mnemonic, encoding
 from .crypto import from_path, get_address
+from ecdsa import SigningKey, SECP256k1
+import simplejson
+import hashlib
+
 
 HDPATH = "44'/714'/0'/0/0"
 
@@ -67,12 +71,31 @@ class BinanceWallet:
     def get_address(self):
         if not self.address:
             raise Exception("Wallet is not initiated")
-        return address
+        return self.address
 
-    def sign(self):
-        pass
+    def get_privatekey(self):
+        if not self.key:
+            raise Exception("Wallet is not initiated")
+        return self.key.private_hex
 
-    def derive(self, path):
+    def sign_transaction(self, msg):
+        """
+            Return signature
+        """
+        sk = SigningKey.from_secret_exponent(self.key.secret, curve=SECP256k1)
+        return (
+            self.key.public_hex,
+            sk.sign(
+                bytes(simplejson.dumps(msg, sort_keys=True), "utf-8"),
+                hashfunc=hashlib.sha256,
+            ).hex(),
+        )
+
+    def make_signature(self, msg):
+        """
+            Return StdSignMsg object
+        """
+
         pass
 
 

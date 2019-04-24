@@ -6,3 +6,5 @@ build
 .mypy_cache
 *.ipynb
 py36
+.tox
+*.egg*

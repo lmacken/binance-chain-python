@@ -3,6 +3,10 @@
 """
 import aiohttp
 from .httpclient import BinanceChain
+from bitcoinlib import encoding
+from .crypto import generate_id
+import numpy as np
+import simplejson
 
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
@@ -28,15 +32,15 @@ class BinanceTransaction:
     @staticmethod
     async def new_order(
         address,
-        symbol,
+        symbol: str,
         side: int,
-        price,
-        quantity,
+        price: float,
+        quantity: float,
         sequence=None,
-        timeInForce=1,
-        testnet=False,
-        memo="",
-        account_number=None,
+        timeInForce: int = 1,
+        testnet: bool = False,
+        memo: str = "",
+        account_number: int = None,
     ):
         """
             Return Transaction NewOrderMsg including sequence and account number, ready to be signed
@@ -47,23 +51,24 @@ class BinanceTransaction:
             account_info = await binance_chain.get_account(address)
             if not account_info:
                 raise Exception("No account information found")
-            account_number = account_info["result"]["account_number"]
+            print(account_info)
+            account_number = account_info["account_number"]
         if not sequence:
-            sequence = await binance_chain.get_account_sequence(address)
+            sequence = account_info["sequence"]
             sequence += 1
         tx = BinanceTransaction(
             testnet=testnet,
             memo=memo,
-            type=TX_TYPE["NewOrderMsg"],
+            type="NewOrder",
             account_number=account_number,
             sequence=sequence,
         )
-        id = f"{address.to_hex()}-{sequence}"  # fixme string to hex
-        tx.update(
+        id = generate_id(address, sequence)
+        tx.update_msg(
             {
                 "sender": address,
                 "id": id,
-                "orderType": 2,  # currently only 1 type : limit =2, will change in the future
+                "ordertype": 2,  # currently only 1 type : limit =2, will change in the future
                 "symbol": symbol,
                 "side": side,
                 "price": price,
@@ -90,15 +95,49 @@ class BinanceTransaction:
         pass
 
     def __init__(
-        self, memo, type, testnet=False, account_number=0, sequence=0, chain_id=CHAIN_ID
+        self,
+        memo,
+        type,
+        testnet=False,
+        account_number=0,
+        sequence=0,
+        chain_id=CHAIN_ID,
+        data=[],
     ):
-        self.type = type
-        self.memo = memo
         self.testnet = testnet
-        self.msgs = []
         self.account_number = account_number
         self.sequence = sequence
-        self.chain_id = chain_id
+        self.memo = memo
+        self.data = data
+        self.type = type
+        self.StdSignMsg = {
+            "memo": memo,
+            "msgs": [],
+            "account_number": account_number,
+            "sequence": sequence,
+            "chain_id": chain_id,
+            "source": "1",
+        }
 
-    def update(self, msg):
-        self.msgs.append(msg)
+    def update_msg(self, msg):
+        self.msg = msg
+        self.StdSignMsg["msgs"].append(msg)
+
+    def update_signature(self, pubkey, signature):
+        self.stdSignature = {
+            "account_number": self.account_number,
+            "sequence": self.sequence,
+            "pubkey": pubkey,
+            "signature": signature,
+        }
+        self.StdTx = {
+            "msgs": [self.msg],
+            "signature": [self.stdSignature],
+            "memo": self.memo,
+            "data": self.data,
+            "source": "1",
+        }
+        stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
+        stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
+        lenBytes = np.uint64(len(stdTxBytes)).tobytes()
+        self.txblob = (lenBytes + stdTxBytes).hex()

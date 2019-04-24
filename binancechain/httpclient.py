@@ -92,7 +92,7 @@ class BinanceChain:
     async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
 
-    async def post_request(self, path: str, data: dict = None) -> Any:
+    async def post_request(self, path: str, data=None) -> Any:
         return await self._request("post", path, data=data)
 
     async def get_time(self) -> dict:
@@ -237,7 +237,7 @@ class BinanceChain:
         :param sync: Synchronous broadcast (wait for DeliverTx)?
         :param body: Hex-encoded transaction
         """
-        return await self.post_request("broadcast", data={"body": body, "sync": sync})
+        return await self.post_request("broadcast", data=body)
 
     async def get_klines(
         self,
@@ -514,7 +514,7 @@ class BinanceChain:
             NEW_ORDER,ISSUE_TOKEN,BURN_TOKEN,LIST_TOKEN,CANCEL_ORDER,FREEZE_TOKEN,
             UN_FREEZE_TOKEN,TRANSFER,PROPOSAL,VOTE,MINT,DEPOSIT]
         """
-        params: Dict[Any, Any] = {'address': address}
+        params: Dict[Any, Any] = {"address": address}
         if height:
             params["blockHeight"] = height
         if start:
