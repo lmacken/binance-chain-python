@@ -42,6 +42,7 @@ class BinanceChainWebSocket:
         self,
         address: str = None,
         testnet: bool = False,
+        keepalive: bool = True,
         loop: asyncio.AbstractEventLoop = None,
     ) -> None:
         self.address = address
@@ -52,8 +53,9 @@ class BinanceChainWebSocket:
         self._events = AsyncIOEventEmitter(loop=self._loop)
         self._sub_queue: List[Tuple[str, dict]] = []
         self._open = False
+        self._keepalive = True
 
-    def on(self, event: str, func: Optional[Callable] = None, **kwargs) -> Union[None, Callable]:
+    def on(self, event: str, func: Optional[Callable] = None, **kwargs):
         """Register an event, and optional handler.
 
         This can be used as a decorator or as a normal method.
@@ -92,14 +94,16 @@ class BinanceChainWebSocket:
         async with self._session.ws_connect(url) as ws:
             self._ws = ws
             self._events.emit("open")
-
             while self._sub_queue:
                 event, kwargs = self._sub_queue.pop()
-                print("subbing", event, kwargs)
                 self.subscribe(event, **kwargs)
-
             if on_open:
                 on_open()
+
+            # Schedule keepalive calls every 30 minutes
+            if self._keepalive:
+                self._auto_keepalive_future = asyncio.ensure_future(self._auto_keepalive())
+
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     try:
@@ -244,8 +248,15 @@ class BinanceChainWebSocket:
         """Extend the connection time by another 30 minutes"""
         asyncio.ensure_future(self.send({"method": "keepAlive"}))
 
+    async def _auto_keepalive(self):
+        while True:
+            await asyncio.sleep(30 * 60)
+            self.keepalive()
+
     def close(self) -> None:
         """Close the websocket session"""
         asyncio.ensure_future(self.send({"method": "close"}))
         if self._session:
             asyncio.ensure_future(self._session.close())
+        if self._auto_keepalive_future:
+            self._auto_keepalive_future.cancel()
