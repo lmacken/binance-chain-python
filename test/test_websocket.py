@@ -23,7 +23,6 @@
 Binance DEX WebSocket Test Suite
 """
 import asyncio
-from pprint import pprint
 
 import pytest
 
@@ -49,7 +48,7 @@ async def symbols():
     rest = BinanceChain(testnet=True)
     markets = await rest.get_markets()
     for market in markets:
-        symbol = f"{markets[0]['base_asset_symbol']}_{markets[0]['quote_asset_symbol']}"
+        symbol = f"{market['base_asset_symbol']}_{market['quote_asset_symbol']}"
         symbols.append(symbol)
     yield symbols
     await rest.close()
@@ -66,9 +65,9 @@ async def test_open_close(client):
     print('closed')
 
 
-"""
 @pytest.mark.asyncio
 async def test_trades(client, symbols):
+    print(symbols)
     results = []
 
     def callback(msg):
@@ -80,10 +79,7 @@ async def test_trades(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'trades'
 
 
@@ -100,12 +96,8 @@ async def test_market_diff(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'marketDiff'
-"""
 
 
 @pytest.mark.asyncio
@@ -141,10 +133,7 @@ async def test_kline(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'kline_1m'
 
 
@@ -161,10 +150,7 @@ async def test_tickers(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'ticker'
 
 
@@ -181,10 +167,7 @@ async def test_all_tickers(client):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'allTickers'
 
 
@@ -201,10 +184,7 @@ async def test_mini_ticker(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'miniTicker'
 
 
@@ -221,10 +201,7 @@ async def test_all_mini_ticker(client, symbols):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
-    assert 'stream' in ticker
     assert ticker['stream'] == 'allMiniTickers'
 
 
@@ -241,9 +218,7 @@ async def test_blockheight(client):
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
-    assert results
     ticker = results[0]
-    assert ticker
     assert 'stream' in ticker
 
 
