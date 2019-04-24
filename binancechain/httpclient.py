@@ -83,9 +83,9 @@ class BinanceChain:
             if resp:
                 text = await resp.text()
                 if not text:
-                    print(f"Empty response from `{path}`")
+                    print(f"Empty response from `{path}`", file=sys.stderr)
                 else:
-                    print("Error:", text, file=sys.stderr)
+                    print(f"Error: {text}", file=sys.stderr)
             else:
                 raise
 
