@@ -26,7 +26,7 @@ https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
 import asyncio
 import sys
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aiohttp
 from pyee import AsyncIOEventEmitter
@@ -53,7 +53,7 @@ class BinanceChainWebSocket:
         self._events = AsyncIOEventEmitter(loop=self._loop)
         self._sub_queue: List[Tuple[str, dict]] = []
         self._keepalive = keepalive
-        self._keepalive_task = None
+        self._keepalive_task: Optional[asyncio.Future] = None
         self._open = False
 
     def on(self, event: str, func: Optional[Callable] = None, **kwargs):
