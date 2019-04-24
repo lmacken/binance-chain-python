@@ -7,6 +7,7 @@ from bitcoinlib import encoding
 from .crypto import generate_id
 import numpy as np
 import simplejson
+import marshal
 
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
@@ -66,13 +67,13 @@ class BinanceTransaction:
         id = generate_id(address, sequence)
         tx.update_msg(
             {
-                "sender": encoding.to_bytes(address),
+                "sender": address,
                 "id": id,
                 "ordertype": 2,  # currently only 1 type : limit =2, will change in the future
                 "symbol": symbol,
                 "side": side,
-                "price": price,
-                "quantity": quantity,
+                "price": int(price * (10 ^ 8)),
+                "quantity": int(quantity * (10 ^ 8)),
                 "timeinforce": timeInForce,
             }
         )
@@ -102,7 +103,7 @@ class BinanceTransaction:
         account_number=0,
         sequence=0,
         chain_id=CHAIN_ID,
-        data=[],
+        data="",
     ):
         self.testnet = testnet
         self.account_number = account_number
@@ -124,20 +125,24 @@ class BinanceTransaction:
         self.StdSignMsg["msgs"].append(msg)
 
     def update_signature(self, pubkey, signature):
+        print("SIGNATURE", pubkey, signature)
         self.stdSignature = {
             "account_number": self.account_number,
             "sequence": self.sequence,
-            "pubkey": pubkey,
+            # "pubkey": pubkey,
             "signature": signature,
         }
         self.StdTx = {
             "msgs": [self.msg],
-            "signature": [self.stdSignature],
+            "signatures": [self.stdSignature],
             "memo": self.memo,
-            "data": self.data,
-            "source": "1",
+            "source": 1,
+            "data": "",
         }
-        stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
-        stdTxBytes = bytes.fromhex(TYPE_PREFIX[self.type]) + stdTxBytes
-        lenBytes = np.uint64(len(stdTxBytes)).tobytes()
-        self.txblob = (lenBytes + stdTxBytes).hex()
+        stdTxBytes = marshal.dumps(self.StdTx).hex()
+        print("STDTXBYTES", stdTxBytes)
+        # stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
+        stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
+        stdTxBytes = TYPE_PREFIX["StdTx"] + stdTxBytes
+        lenBytes = np.uint64(len(stdTxBytes)).tobytes().hex()
+        self.txblob = lenBytes + stdTxBytes
