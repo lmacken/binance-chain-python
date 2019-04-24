@@ -2,9 +2,8 @@
 https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
 import asyncio
-import json
 import sys
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import aiohttp
 
@@ -34,7 +33,7 @@ class BinanceDexSocketManager:
         self,
         on_open: Optional[Callable[[], None]],
         on_error: Optional[Callable[[dict], None]],
-    ):
+    ) -> None:
         """Processes all websocket messages."""
         async with self._session.ws_connect(self.url) as ws:
             self.running = True
@@ -71,11 +70,17 @@ class BinanceDexSocketManager:
                     print(msg, file=sys.stderr)
                     break
 
-    async def send(self, data: dict):
+    async def send(self, data: dict) -> None:
         """Send data to the WebSocket"""
-        return await self.ws.send_str(json.dumps(data))
+        await self.ws.send_json(data)
 
-    def subscribe(self, stream, symbols=None, address=None, callback=None):
+    def subscribe(
+        self,
+        stream: str,
+        symbols: Optional[List[str]] = None,
+        address: Optional[str] = None,
+        callback: Optional[Callable[[dict], None]] = None,
+    ):
         """Subscribe to a WebSocket stream.
 
         See the documentation for more details on the available streams
@@ -87,12 +92,13 @@ class BinanceDexSocketManager:
                 file=sys.stderr,
             )
             return
-        payload = {"method": "subscribe", "topic": stream}
+        payload: Dict[Any, Any] = {"method": "subscribe", "topic": stream}
         if symbols:
             payload["symbols"] = symbols
         if address:
             payload["userAddress"] = address
-        self._callbacks[stream] = callback
+        if callback:
+            self._callbacks[stream] = callback
         asyncio.ensure_future(self.send(payload))
 
     def unsubscribe(self, stream, symbols=None) -> None:
@@ -189,11 +195,11 @@ if __name__ == "__main__":
 
     def on_open():
         address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
-        dex.subscribe_user_orders(address, user_orders)
-        dex.subscribe_user_accounts(address, user_orders)
-        dex.subscribe_user_transfers(address, user_orders)
+        #dex.subscribe_user_orders(address, user_orders)
+        #dex.subscribe_user_accounts(address, user_orders)
+        #dex.subscribe_user_transfers(address, user_orders)
 
-        # dex.subscribe("allMiniTickers", symbols=["$all"], callback=mini_tickers)
+        dex.subscribe("allMiniTickers", symbols=["$all"], callback=mini_tickers)
 
     def user_orders(msg):
         print(f"user_orders: {msg}")
