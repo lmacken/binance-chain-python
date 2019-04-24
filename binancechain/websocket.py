@@ -26,12 +26,10 @@ https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
 import asyncio
 import sys
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import aiohttp
-
-from pyee import EventEmitter
-
+from pyee import AsyncIOEventEmitter
 
 MAINNET_URL = ""
 TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
@@ -49,19 +47,24 @@ class BinanceChainWebSocket:
         self.address = address
         self.url = TESTNET_URL if testnet else MAINNET_URL
         self._session = aiohttp.ClientSession()
-        self._callbacks: Dict[str, Callable[[dict], None]] = {}
         self._ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self._loop = loop or asyncio.get_event_loop()
-        self._events = EventEmitter(scheduler=asyncio.ensure_future, loop=self._loop)
+        self._events = AsyncIOEventEmitter(loop=self._loop)
         self._sub_queue: List[Tuple[str, dict]] = []
+        self._open = False
 
-    def on(self, event, func=None, **kwargs):
-        print("on", event, func)
-        if event not in ("open", "new_listener", "error"):
-            # Trigger subscription on open
+    def on(self, event: str, func: Optional[Callable] = None, **kwargs) -> Union[None, Callable]:
+        """Register an event, and optional handler.
+
+        This can be used as a decorator or as a normal method.
+        See `examples/websockets_decorator.py` for usage.
+        """
+        # Queue up most events from startup-time decorators until after we are open
+        if not self._open and event not in ("open", "error", "new_listener"):
             self._sub_queue.append((event, kwargs))
         if func:
             self._events.on(event, func)
+            return None
         else:
             return self._events.on(event)
 
@@ -90,7 +93,8 @@ class BinanceChainWebSocket:
             self._ws = ws
             self._events.emit("open")
 
-            for event, kwargs in self._sub_queue:
+            while self._sub_queue:
+                event, kwargs = self._sub_queue.pop()
                 print("subbing", event, kwargs)
                 self.subscribe(event, **kwargs)
 
@@ -113,17 +117,14 @@ class BinanceChainWebSocket:
                         else:
                             print(f"Unhandled error msg: {data}", file=sys.stderr)
                         continue
-
                     if "stream" not in data:
                         print(f"Got msg without stream: {data}", file=sys.stderr)
                         continue
                     if "data" not in data:
                         print(f"Got msg without data: {data}", file=sys.stderr)
                         continue
-                    stream = data["stream"]
-                    self._events.emit(stream, data["data"])
-                    if stream in self._callbacks:
-                        self._callbacks[stream](data)
+
+                    self._events.emit(data["stream"], data)
 
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     print(msg, file=sys.stderr)
@@ -154,8 +155,7 @@ class BinanceChainWebSocket:
             payload["symbols"] = symbols
         if address:
             payload["address"] = address
-        if callback:
-            self._callbacks[stream] = callback
+        self._events.on(stream, callback)
         asyncio.ensure_future(self.send(payload))
 
     def unsubscribe(self, stream, symbols=None) -> None:
