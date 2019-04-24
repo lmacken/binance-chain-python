@@ -27,7 +27,7 @@ https://docs.binance.org/api-reference/dex-api/paths.html
 import sys
 import traceback
 import warnings
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
 
@@ -92,8 +92,10 @@ class BinanceChain:
     async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
 
-    async def post_request(self, path: str, data=None) -> Any:
-        return await self._request("post", path, data=data)
+    async def post_request(
+        self, path: str, data: Optional[str] = None, headers: Optional[dict] = None
+    ) -> Any:
+        return await self._request("post", path, data=data, headers=headers)
 
     async def get_time(self) -> dict:
         """Get the block time.
