@@ -18,6 +18,7 @@ class BinanceDexSocketManager:
         self.url = TESTNET_URL if testnet else MAINNET_URL
         self._session = aiohttp.ClientSession()
         self._callbacks: Dict[str, Callable[[dict], None]] = {}
+        self._ws: Optional[aiohttp.ClientWebSocketResponse] = None
 
     def start(
         self,
@@ -36,8 +37,7 @@ class BinanceDexSocketManager:
     ) -> None:
         """Processes all websocket messages."""
         async with self._session.ws_connect(self.url) as ws:
-            self.running = True
-            self.ws = ws
+            self._ws = ws
             if on_open:
                 on_open()
             async for msg in ws:
@@ -72,7 +72,10 @@ class BinanceDexSocketManager:
 
     async def send(self, data: dict) -> None:
         """Send data to the WebSocket"""
-        await self.ws.send_json(data)
+        if not self._ws:
+            print("Error: Cannot send to uninitialized websocket", file=sys.stderr)
+            return
+        await self._ws.send_json(data)
 
     def subscribe(
         self,
@@ -86,12 +89,6 @@ class BinanceDexSocketManager:
         See the documentation for more details on the available streams
         https://docs.binance.org/api-reference/dex-api/ws-streams.html
         """
-        if not self.ws:
-            print(
-                "Cannot subscribe to stream before websocket is initialized.",
-                file=sys.stderr,
-            )
-            return
         payload: Dict[Any, Any] = {"method": "subscribe", "topic": stream}
         if symbols:
             payload["symbols"] = symbols
@@ -102,12 +99,6 @@ class BinanceDexSocketManager:
         asyncio.ensure_future(self.send(payload))
 
     def unsubscribe(self, stream, symbols=None) -> None:
-        if not self.ws:
-            print(
-                "Cannot subscribe to stream before websocket is initialized.",
-                file=sys.stderr,
-            )
-            return
         payload = {"method": "unsubscribe", "topic": stream}
         if symbols:
             payload["symbols"] = symbols
@@ -195,11 +186,11 @@ if __name__ == "__main__":
 
     def on_open():
         address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
-        #dex.subscribe_user_orders(address, user_orders)
-        #dex.subscribe_user_accounts(address, user_orders)
-        #dex.subscribe_user_transfers(address, user_orders)
+        dex.subscribe_user_orders(address, user_orders)
+        dex.subscribe_user_accounts(address, user_orders)
+        dex.subscribe_user_transfers(address, user_orders)
 
-        dex.subscribe("allMiniTickers", symbols=["$all"], callback=mini_tickers)
+        # dex.subscribe("allMiniTickers", symbols=["$all"], callback=mini_tickers)
 
     def user_orders(msg):
         print(f"user_orders: {msg}")
