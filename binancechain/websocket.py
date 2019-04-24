@@ -54,6 +54,7 @@ class BinanceChainWebSocket:
         self._sub_queue: List[Tuple[str, dict]] = []
         self._open = False
         self._keepalive = True
+        self._keepalive_task = None
 
     def on(self, event: str, func: Optional[Callable] = None, **kwargs):
         """Register an event, and optional handler.
@@ -102,7 +103,7 @@ class BinanceChainWebSocket:
 
             # Schedule keepalive calls every 30 minutes
             if self._keepalive:
-                self._auto_keepalive_future = asyncio.ensure_future(self._auto_keepalive())
+                self._keepalive_task = asyncio.ensure_future(self._auto_keepalive())
 
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
@@ -258,5 +259,5 @@ class BinanceChainWebSocket:
         asyncio.ensure_future(self.send({"method": "close"}))
         if self._session:
             asyncio.ensure_future(self._session.close())
-        if self._auto_keepalive_future:
-            self._auto_keepalive_future.cancel()
+        if self._keepalive_task:
+            self._keepalive_task.cancel()
