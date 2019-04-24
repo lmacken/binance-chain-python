@@ -7,7 +7,7 @@ from pprint import pprint
 
 from binancechain import BinanceChainWebSocket
 
-ADDRESS = "tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx"
+ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
 dex = BinanceChainWebSocket(ADDRESS, testnet=True)
 
@@ -51,4 +51,6 @@ if __name__ == "__main__":
     try:
         dex.start()
     except KeyboardInterrupt:
+        pass
+    finally:
         dex.close()

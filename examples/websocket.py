@@ -35,4 +35,6 @@ if __name__ == '__main__':
     try:
         dex.start(on_open, on_error)
     except KeyboardInterrupt:
+        pass
+    finally:
         dex.close()
