@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='transaction.proto',
   package='transaction',
   syntax='proto3',
-  serialized_pb=_b('\n\x11transaction.proto\x12\x0btransaction\"q\n\x0cStdSignature\x12$\n\x07pub_key\x18\x01 \x01(\x0b\x32\x13.transaction.PubKey\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\"\x08\n\x06PubKey\"p\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12-\n\nsignatures\x18\x02 \x03(\x0b\x32\x19.transaction.StdSignature\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x04 \x01(\t\"\x87\x02\n\x04Send\x12\'\n\x06inputs\x18\x01 \x03(\x0b\x32\x17.transaction.Send.Input\x12)\n\x07outputs\x18\x02 \x03(\x0b\x32\x18.transaction.Send.Output\x1a&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\x1a@\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.Token\x1a\x41\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.Token\"6\n\x06\x46reeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"8\n\x08Unfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"T\n\x04Vote\x12\x13\n\x0bproposal_id\x18\x01 \x01(\x03\x12\x0e\n\x06voters\x18\x02 \x01(\x0c\x12\'\n\x06option\x18\x03 \x01(\x0e\x32\x17.transaction.VoteOption*:\n\nVoteOption\x12\x07\n\x03Yes\x10\x00\x12\x0b\n\x07\x41\x62stain\x10\x01\x12\x06\n\x02No\x10\x02\x12\x0e\n\nNoWithVeto\x10\x03\x62\x06proto3')
+  serialized_pb=_b('\n\x11transaction.proto\x12\x0btransaction\"\\\n\x0cStdSignature\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\"U\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12\x12\n\nsignatures\x18\x02 \x03(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x04 \x01(\t\"\x87\x02\n\x04Send\x12\'\n\x06inputs\x18\x01 \x03(\x0b\x32\x17.transaction.Send.Input\x12)\n\x07outputs\x18\x02 \x03(\x0b\x32\x18.transaction.Send.Output\x1a&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\x1a@\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.Token\x1a\x41\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12&\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x17.transaction.Send.Token\"6\n\x06\x46reeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"8\n\x08Unfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"T\n\x04Vote\x12\x13\n\x0bproposal_id\x18\x01 \x01(\x03\x12\x0e\n\x06voters\x18\x02 \x01(\x0c\x12\'\n\x06option\x18\x03 \x01(\x0e\x32\x17.transaction.VoteOption*:\n\nVoteOption\x12\x07\n\x03Yes\x10\x00\x12\x0b\n\x07\x41\x62stain\x10\x01\x12\x06\n\x02No\x10\x02\x12\x0e\n\nNoWithVeto\x10\x03\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -49,8 +49,8 @@ _VOTEOPTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=945,
-  serialized_end=1003,
+  serialized_start=887,
+  serialized_end=945,
 )
 _sym_db.RegisterEnumDescriptor(_VOTEOPTION)
 
@@ -71,8 +71,8 @@ _STDSIGNATURE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='pub_key', full_name='transaction.StdSignature.pub_key', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -110,31 +110,7 @@ _STDSIGNATURE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=34,
-  serialized_end=147,
-)
-
-
-_PUBKEY = _descriptor.Descriptor(
-  name='PubKey',
-  full_name='transaction.PubKey',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=149,
-  serialized_end=157,
+  serialized_end=126,
 )
 
 
@@ -154,7 +130,7 @@ _STDTX = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='signatures', full_name='transaction.StdTx.signatures', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      number=2, type=12, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -192,8 +168,8 @@ _STDTX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=159,
-  serialized_end=271,
+  serialized_start=128,
+  serialized_end=213,
 )
 
 
@@ -272,8 +248,8 @@ _NEWORDER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=274,
-  serialized_end=415,
+  serialized_start=216,
+  serialized_end=357,
 )
 
 
@@ -317,8 +293,8 @@ _CANCELORDER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=417,
-  serialized_end=477,
+  serialized_start=359,
+  serialized_end=419,
 )
 
 
@@ -355,8 +331,8 @@ _SEND_TOKEN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=572,
-  serialized_end=610,
+  serialized_start=514,
+  serialized_end=552,
 )
 
 _SEND_INPUT = _descriptor.Descriptor(
@@ -392,8 +368,8 @@ _SEND_INPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=612,
-  serialized_end=676,
+  serialized_start=554,
+  serialized_end=618,
 )
 
 _SEND_OUTPUT = _descriptor.Descriptor(
@@ -429,8 +405,8 @@ _SEND_OUTPUT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=678,
-  serialized_end=743,
+  serialized_start=620,
+  serialized_end=685,
 )
 
 _SEND = _descriptor.Descriptor(
@@ -466,8 +442,8 @@ _SEND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=480,
-  serialized_end=743,
+  serialized_start=422,
+  serialized_end=685,
 )
 
 
@@ -511,8 +487,8 @@ _FREEZE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=745,
-  serialized_end=799,
+  serialized_start=687,
+  serialized_end=741,
 )
 
 
@@ -556,8 +532,8 @@ _UNFREEZE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=801,
-  serialized_end=857,
+  serialized_start=743,
+  serialized_end=799,
 )
 
 
@@ -601,12 +577,10 @@ _VOTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=859,
-  serialized_end=943,
+  serialized_start=801,
+  serialized_end=885,
 )
 
-_STDSIGNATURE.fields_by_name['pub_key'].message_type = _PUBKEY
-_STDTX.fields_by_name['signatures'].message_type = _STDSIGNATURE
 _SEND_TOKEN.containing_type = _SEND
 _SEND_INPUT.fields_by_name['coins'].message_type = _SEND_TOKEN
 _SEND_INPUT.containing_type = _SEND
@@ -616,7 +590,6 @@ _SEND.fields_by_name['inputs'].message_type = _SEND_INPUT
 _SEND.fields_by_name['outputs'].message_type = _SEND_OUTPUT
 _VOTE.fields_by_name['option'].enum_type = _VOTEOPTION
 DESCRIPTOR.message_types_by_name['StdSignature'] = _STDSIGNATURE
-DESCRIPTOR.message_types_by_name['PubKey'] = _PUBKEY
 DESCRIPTOR.message_types_by_name['StdTx'] = _STDTX
 DESCRIPTOR.message_types_by_name['NewOrder'] = _NEWORDER
 DESCRIPTOR.message_types_by_name['CancelOrder'] = _CANCELORDER
@@ -632,13 +605,6 @@ StdSignature = _reflection.GeneratedProtocolMessageType('StdSignature', (_messag
   # @@protoc_insertion_point(class_scope:transaction.StdSignature)
   ))
 _sym_db.RegisterMessage(StdSignature)
-
-PubKey = _reflection.GeneratedProtocolMessageType('PubKey', (_message.Message,), dict(
-  DESCRIPTOR = _PUBKEY,
-  __module__ = 'transaction_pb2'
-  # @@protoc_insertion_point(class_scope:transaction.PubKey)
-  ))
-_sym_db.RegisterMessage(PubKey)
 
 StdTx = _reflection.GeneratedProtocolMessageType('StdTx', (_message.Message,), dict(
   DESCRIPTOR = _STDTX,
