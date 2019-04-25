@@ -42,7 +42,6 @@ class BinanceChain:
         self,
         testnet: bool = True,
         api_version: str = "v1",
-        session: aiohttp.ClientSession = None,
     ):
         """
         :param testnet: A boolean to enable testnet
@@ -51,7 +50,7 @@ class BinanceChain:
         """
         url = TESTNET_URL if testnet else MAINNET_URL
         self._server = f"{url}/api/{api_version}/"
-        self._session = aiohttp.ClientSession()
+        self._session: aiohttp.ClientSession = None
 
     def __del__(self):
         if self._session:
@@ -73,6 +72,8 @@ class BinanceChain:
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
         """
         print(method, path, kwargs)
+        if not self._session:
+            self._session = aiohttp.ClientSession()
         try:
             resp = None
             async with getattr(self._session, method)(
