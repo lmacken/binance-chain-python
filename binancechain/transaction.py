@@ -10,7 +10,18 @@ import simplejson
 import marshal
 from varint import encode
 import binascii
+from .transaction_pb2 import (
+    NewOrder,
+    CancelOrder,
+    Send,
+    Freeze,
+    Unfreeze,
+    Vote,
+    StdSignature,
+    PubKey,
+)
 
+SOURCE = "1"
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
     "CancelOrder": "166E681B",
@@ -20,135 +31,192 @@ TYPE_PREFIX = {
     "Send": "2A2C87FA",
     "PubKey": "EB5AE987",
     "StdTx": "F0625DEE",
+    "Vote": "A1CADD36",
 }
-TX_TYPE = {
-    "MsgSend": "MsgSend",
-    "NewOrderMsg": "NewOrderMsg",
-    "CancelOrderMsg": "CancelOrderMsg",
-    "StdTx": "StdTx",
-    "PubKeySecp256k1": "PubKeySecp256k1",
-    "SignatureSecp256k1": "SignatureSecp256k1",
+MSG_TYPES = {
+    "CancelOrder": CancelOrder,
+    "TokenFreeze": Freeze,
+    "TokenUnfreeze": Unfreeze,
+    "NewOrder": NewOrder,
+    "Send": Send,
+    "Vote": Vote,
 }
+
+TESTNET_CLIENT = BinanceChain(testnet=True)
+CLIENT = BinanceChain(testnet=False)
 
 
 class BinanceTransaction:
     @staticmethod
     async def new_order(
         address,
-        symbol: str,
-        side: int,
-        price: float,
-        quantity: float,
-        sequence=None,
-        timeInForce: int = 1,
-        testnet: bool = False,
-        memo: str = "",
-        account_number: int = None,
-    ):
-        """
-            Return Transaction NewOrderMsg including sequence and account number, ready to be signed
-        """
-        # todo assert vars
-        binance_chain = BinanceChain(testnet=testnet)
-        if not account_number:
-            account_info = await binance_chain.get_account(address)
-            if not account_info:
-                raise Exception("No account information found")
-            print(account_info)
-            account_number = account_info["account_number"]
-        if not sequence:
-            sequence = account_info["sequence"]
-            sequence += 1
-        tx = BinanceTransaction(
-            testnet=testnet,
-            memo=memo,
-            type="NewOrder",
-            account_number=account_number,
-            sequence=sequence,
-        )
-        id = generate_id(address, sequence)
-        tx.update_msg(
-            {
-                "sender": address,
-                "id": id,
-                "ordertype": 2,  # currently only 1 type : limit =2, will change in the future
-                "symbol": symbol,
-                "side": side,
-                "price": 100000000,
-                "quantity": 100000000,
-                "timeinforce": timeInForce,
-            }
-        )
-        return tx
-
-    @staticmethod
-    def cancel_order():
-        pass
-
-    @staticmethod
-    def transfer():
-        pass
-
-    @staticmethod
-    def free_token():
-        pass
-
-    @staticmethod
-    def unfreze_token():
-        pass
-
-    def __init__(
-        self,
-        memo,
-        type,
+        symbol,
+        side,
+        price,
+        quantity,
+        ordertype=1,
+        timeInForce=1,
         testnet=False,
-        account_number=0,
-        sequence=0,
-        chain_id=CHAIN_ID,
-        data="",
     ):
-        self.testnet = testnet
-        self.account_number = account_number
-        self.sequence = sequence
-        self.memo = memo
-        self.data = data
-        self.type = type
-        self.StdSignMsg = {
-            "memo": memo,
-            "msgs": [],
-            "account_number": account_number,
-            "sequence": sequence,
-            "chain_id": chain_id,
-            "source": "1",
-        }
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account(address)
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address, account_number=account_number, sequence=sequence
+        )
+        return transaction.create_new_order(
+            symbol=symbol,
+            side=side,
+            ordertype=ordertype,
+            price=price,
+            quantity=quantity,
+            timeinforce=timeInForce,
+        )
 
-    def update_msg(self, msg):
-        self.msg = msg
-        self.StdSignMsg["msgs"].append(msg)
+    @staticmethod
+    async def cancel_order(address, testnet=False):
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account(address)
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address, account_number=account_number, sequence=sequence
+        )
+        return transaction.create_new_order(
+            symbol=symbol,
+            side=side,
+            ordertype=ordertype,
+            price=price,
+            quantity=quantity,
+            timeinforce=timeInForce,
+        )
+
+    @staticmethod
+    async def send(address, testnet=False):
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account()
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address, account_number=account_number, sequence=sequence
+        )
+        return transaction.create_new_order(
+            symbol=symbol,
+            side=side,
+            ordertype=ordertype,
+            price=price,
+            quantity=quantity,
+            timeinforce=timeInForce,
+        )
+
+    @staticmethod
+    async def vote(address, testnet=False):
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account()
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address, account_number=account_number, sequence=sequence
+        )
+        return transaction.create_new_order(
+            symbol=symbol,
+            side=side,
+            ordertype=ordertype,
+            price=price,
+            quantity=quantity,
+            timeinforce=timeInForce,
+        )
+
+    def __init__(self, address, account_number, sequence):
+        self.account_number = account_number
+        self.address = address
+        self.sequence = sequence
+        self.StdSignMsg = json.loads(
+            json.dumps(
+                {
+                    "memo": "",
+                    "msgs": [],
+                    "account_number": account_number,
+                    "sequence": sequence,
+                    "chain_id": CHAIN_ID,
+                    "source": SOURCE,
+                },
+                sort_keys=True,
+            )
+        )
+
+    def create_new_order(
+        self, symbol, side, price, quantity, ordertype=1, timeInForce=1, sequence=None
+    ):
+        id = generate_id(self.address, self.sequence)
+        price = int(Decimal(price) * BASE)
+        quantity = int(Decimal(quantity) * Decimal(100000000))
+        self.msg = {
+            "symbol": symbol,
+            "sender": self.address,
+            "id": id,
+            "side": side,
+            "ordertype": ordertype,
+            "timeinforce": timeInForce,
+            "price": price,
+            "quantity": quantity,
+        }
+        self.StdSignMsg["msgs"].append(self.msg)
+        self.SignMessage = bytes(simplejson.dumps(msg, sort_keys=True), "utf-8")
+        self.StdMsg = self.generate_std_neworder(self.msg)
+        return self.SignMessage
+
+    def generate_std_neworder(self, msg):
+        std = NewOrder()
+        std.sender = self.address
+        std.id = generate_id(self.address, self.sequence)
+        std.ordertype: msg[
+            "ordertype"
+        ]  # currently only 1 type : limit =2, will change in the future
+        std.symbol = msg["symbol"]
+        std.side = msg["side"]
+        std.price = msg["price"]
+        std.quantity = msg["quantity"]
+        std.timeinforce = msg["timeinforce"]
+        proto_bytes = std.serializeToString()
+        type_bytes = binascii.unhexlify(encoding.to_bytes(TYPE_PREFIX["NewOrder"]))
+        return type_bytes + proto_bytes
+
+    def get_sign_message(self):
+        return self.SignMessage
 
     def update_signature(self, pubkey, signature):
         print("SIGNATURE", pubkey, signature)
-        self.stdSignature = {
-            "account_number": self.account_number,
-            "sequence": self.sequence,
-            # "pubkey": pubkey,
-            "signature": signature,
-        }
-        self.StdTx = {
-            "msgs": [self.msg],
-            "signatures": [self.stdSignature],
-            "memo": self.memo,
-            "source": 1,
-            "data": "",
-        }
-        print(self.StdTx)
-        stdTxBytes = binascii.hexlify(marshal.dumps(self.StdTx))
-        print("STDTXBYTES", len(stdTxBytes))
-        # stdTxBytes = bytes(simplejson.dumps(self.StdTx, sort_keys=True), "utf-8")
-        if self.type:
-            stdTxBytes = TYPE_PREFIX[self.type] + stdTxBytes
-            lenBytes = encode(len(stdTxBytes))
-            stdTxBytes = lenBytes + stdTxBytes
-        stdTxBytes = TYPE_PREFIX["StdTx"] + stdTxBytes
-        lenBytes = encode(len(stdTxBytes))
-        self.txblob = lenBytes + stdTxBytes
+        pubkey_bytes = pubkey_to_msg(pubkey)
+        self.stdSignature = self.generate_stdSignature(pubkey_bytes, signature)
+        self.stdTx = self.generate_StdTx()
+        return self.stdTx
+
+    def pubkey_to_msg(self, pubkey, signature):
+        key_bytes = encoding.to_bytes(pubkey)
+        return (
+            binascii.unhexlify(encoding.to_bytes(TYPE_PREFIX["PubKey"]))
+            + varint_encode(len(key_bytes))
+            + key_bytes
+        )
+
+    def generate_stdSignature(self, pubkey_bytes, signature):
+        std = StdSignature()
+        std.account_number = self.account_number
+        std.sequence = self.sequence
+        std.signature = signature
+        std.pub_key = pubkey_bytes
+        proto_bytes = std.SerializeToString()
+        return encode(len(proto_bytes)) + proto_bytes
+
+    def generate_StdTx(self):
+        std = StdTx()
+        std.data = self.data
+        std.memo = self.memo
+        std.source = self.source
+        std.signatures.extend([self.stdSignature])
+        std.msgs.extend([self.stdMsg])
+        proto_bytes = std.serializeToString()
+        type_bytes = binascii.unhexlify(TYPE_PREFIX["StdTx"])
+        return encode(len(proto_bytes) + len(type_bytes)) + type_bytes + proto_bytes

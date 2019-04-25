@@ -1,51 +1,29 @@
 syntax = "proto3";
+//import "google/protobuf/any.proto";
 
 package transaction;
 
-message NewOrder {
-  repeated NewOrderMsg msgs = 1;
-  repeated StdSignature signatures = 2;
-  string memo = 3;
-  int64 source = 4;
-  bytes data = 5;
-}
-message CancelOrder{
-  repeated CancelOrderMsg msgs=1;
-  repeated StdSignature signatures = 2;
-  string memo = 3;
-  int64 source = 4;
-  bytes data = 5;
+message StdSignature{
 
+  PubKey pub_key = 1;
+  bytes signature = 2;
+  int64 account_number = 3;
+  int64 sequence = 4;
 }
-message Send{
-  repeated SendMsg msgs=1;
+message PubKey{
+}
+
+message StdTx {
+  repeated bytes msgs = 1;
   repeated StdSignature signatures = 2;
   string memo = 3;
   int64 source = 4;
   bytes data = 5;
 }
-message TokenFreeze{
-  repeated FreezeMsg msgs=1;
-  repeated StdSignature signatures = 2;
-  string memo = 3;
-  int64 source = 4;
-  bytes data = 5;
-}
-message TokenUnfreeze{
-  repeated UnfreezeMsg msgs=1;
-  repeated StdSignature signatures = 2;
-  string memo = 3;
-  int64 source = 4;
-  bytes data = 5;
-}
-message Vote{
-  repeated VoteMsg msgs=1;
-  repeated StdSignature signatures = 2;
-  string memo = 3;
-  int64 source = 4;
-  bytes data = 5;
-}
-message NewOrderMsg {
+
+
+
+message NewOrder {
   bytes sender = 1; // order originating address
   string id = 2; // order id, this is much, please check the details below Order ID section.
   string symbol = 3; // symbol for trading pair in full name of the tokens
@@ -56,12 +34,12 @@ message NewOrderMsg {
   int64 timeinforce = 8; // 1 for Good Till Expire(GTE) order and 3 for Immediate Or Cancel (IOC)
 
 }
-message CancelOrderMsg{
+message CancelOrder{
   bytes sender = 1; // order originating address'
   string symbol = 2; // symbol for trading pair in full name of the tokens
   string refid = 4; // order id of the one to cancel
 }
-message SendMsg{
+message Send{
   message Token {
     string denom = 1;
     int64 amount = 2;
@@ -77,17 +55,17 @@ message SendMsg{
   repeated Input inputs = 1;
   repeated Output outputs = 2;
 }
-message FreezeMsg{
+message Freeze{
   bytes from = 1; // owner address
   string symbol = 2; // token symbol, in full name with "-" suffix
   int64 amount = 3; // amount of token to freeze
 }
-message UnfreezeMsg{
+message Unfreeze{
   bytes from = 1; // owner address
   string symbol = 2; // token symbol, in full name with "-" suffix
   int64 amount = 3; // amount of token to unfreeze
 }
-message VoteMsg{
+message Vote{
   int64 proposal_id = 1;
   bytes voters = 2;
   VoteOption option = 3;
@@ -98,13 +76,4 @@ enum VoteOption {
   Abstain = 1;
   No = 2;
   NoWithVeto = 3;
-}
-
-message StdSignature{
-  message PubKey{
-  }
-  PubKey pub_key = 1;
-  bytes signature = 2;
-  int64 account_number = 3;
-  int64 sequence = 4;
 }

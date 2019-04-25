@@ -10,8 +10,6 @@ import simplejson
 import marshal
 from varint import encode
 import binascii
-from .transaction.proto  import NewOrder,Cancel,Send,Freeze,Unfreeze,Vote,StdSignature,PubKey
-
 
 CHAIN_ID = "chain-bnb"
 TYPE_PREFIX = {
@@ -22,6 +20,14 @@ TYPE_PREFIX = {
     "Send": "2A2C87FA",
     "PubKey": "EB5AE987",
     "StdTx": "F0625DEE",
+}
+TX_TYPE = {
+    "MsgSend": "MsgSend",
+    "NewOrderMsg": "NewOrderMsg",
+    "CancelOrderMsg": "CancelOrderMsg",
+    "StdTx": "StdTx",
+    "PubKeySecp256k1": "PubKeySecp256k1",
+    "SignatureSecp256k1": "SignatureSecp256k1",
 }
 
 
