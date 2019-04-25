@@ -49,7 +49,7 @@ class BinanceChain:
         self._session: aiohttp.ClientSession = None
 
     def __del__(self):
-        if self._session:
+        if self._session:  # pragma: nocover
             warnings.warn(f"{repr(self)}.close() was never awaited")
 
     async def close(self):
@@ -58,7 +58,7 @@ class BinanceChain:
             try:
                 await self._session.close()
                 self._session = None
-            except Exception as e:
+            except Exception as e:  # pragma: nocover
                 traceback.print_exc()
 
     async def _request(self, method: str, path: str, **kwargs):
@@ -81,7 +81,7 @@ class BinanceChain:
                 text = await resp.text()
                 if not text:
                     print(f"Empty response from `{path}`", file=sys.stderr)
-                else:
+                else:  # pragma: nocover
                     print(f"Error: {text}", file=sys.stderr)
             else:
                 raise
