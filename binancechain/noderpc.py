@@ -24,37 +24,17 @@ Binance Chain Node RPC HTTP API
 
 https://docs.binance.org/api-reference/node-rpc.html#node-rpc
 
-
-Available endpoints that don't require arguments:
-
-/num_unconfirmed_txs
-/status
-
 Endpoints that require arguments:
 
-/abci_query?path=_&data=_&prove=_
-/block?height=_
-/block_result?height=_
-/blockchain?minHeight=_&maxHeight=_
-/broadcast_tx_async?tx=_
-/broadcast_tx_commit?tx=_
-/broadcast_tx_sync?tx=_
-/commit?height=_
-/consensus_params?height=_
-/dial_seeds?seeds=_
-/dial_persistent_peers?persistent_peers=_
 /subscribe?query=_
-/tx?hash=_&prove=_
-/tx_search?query=_&prove=_&page=_&per_page=_
-/unconfirmed_txs?limit=_
 /unsubscribe?query=_
 /unsubscribe_all?
-/validators?height=_
 """
+import itertools
 import sys
 import traceback
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 
@@ -66,19 +46,15 @@ TESTNET_URL = "https://seed-pre-s3.binance.org/"
 class BinanceChainNodeRPC:
     """ Binance Chain Node RPC HTTP API Client """
 
-    def __init__(
-        self,
-        url: str = None,
-        testnet: bool = True,
-        session: aiohttp.ClientSession = None,
-    ):
+    def __init__(self, url: str = None, testnet: bool = True):
         """
         :param testnet: A boolean to enable testnet
         :param session: An optional HTTP session to use
         """
         if not url:
             self.url = TESTNET_URL if testnet else MAINNET_URL
-        self._session = session or aiohttp.ClientSession()
+        self._id = itertools.count()
+        self._session: aiohttp.ClientSession = None
 
     def __del__(self):
         if self._session:
@@ -100,6 +76,8 @@ class BinanceChainNodeRPC:
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
         """
         print(method, path, kwargs)
+        if not self._session:
+            self._session = aiohttp.ClientSession()
         try:
             resp = None
             async with getattr(self._session, method)(
@@ -125,10 +103,22 @@ class BinanceChainNodeRPC:
     async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
 
-    async def post_request(
-        self, path: str, data: Optional[str] = None, headers: Optional[dict] = None
-    ) -> Any:
-        return await self._request("post", path, data=data, headers=headers)
+    async def post_request(self, method: str, *params) -> dict:
+        payload = {
+            "method": method,
+            "params": params,
+            "jsonrpc": "2.0",
+            "id": str(next(self._id)),
+        }
+        print("post", self.url, payload)
+        if not self._session:
+            self._session = aiohttp.ClientSession()
+        async with self._session.post(self.url, json=payload) as resp:
+            try:
+                return await resp.json()
+            except Exception as e:
+                print(f"Error: Invalid response: {resp}")
+                return resp
 
     async def get_abci_info(self) -> dict:
         """Get some info about the application."""
@@ -169,3 +159,98 @@ class BinanceChainNodeRPC:
         hash, app hash, block height and time.
         """
         return await self.get_request("status")
+
+    async def abci_query(
+        self, path: str, data: str = None, height: str = "0", prove: bool = False
+    ) -> dict:
+        """Query the application for some information.
+
+        Available Query Paths:
+
+            /store/acc/key
+            /tokens/info
+            /tokens/list
+            /dex/pairs
+            /dex/orderbook
+            /param/fees
+        """
+        return await self.post_request("abci_query", path, data, height, prove)
+
+    async def block(self, height: Optional[int] = None) -> dict:
+        """Query the block at a given height.
+
+        :param height: height of blockchain
+        """
+        return await self.post_request("block", height)
+
+    async def block_by_hash(self, hash: str) -> dict:
+        """Query a block by it's hash.
+        :param hash: the block hash
+        """
+        return await self.post_request("block_by_hash", hash)
+
+    async def block_results(self, height: Optional[str] = None) -> dict:
+        """Gets ABCIResults at a given height."""
+        return await self.post_request("block_results", height)
+
+    async def blockchain(self, min_height: str, max_height: str) -> dict:
+        """Get block headers for minHeight <= height <= maxHeight.
+        Block headers are returned in descending order (highest first).
+        """
+        return await self.post_request("blockchain", min_height, max_height)
+
+    async def broadcast_tx_async(self, tx: str) -> dict:
+        """
+        This method just returns the transaction hash right away and there is no
+        return from CheckTx or DeliverTx.
+        """
+        return await self.post_request("broadcast_tx_async", tx)
+
+    async def broadcast_tx_sync(self, tx: str) -> dict:
+        """
+        The transaction will be broadcasted and returns with the response from CheckTx.
+        """
+        return await self.post_request("broadcast_tx_sync", tx)
+
+    async def broadcast_tx_commit(self, tx: str) -> dict:
+        """
+        The transaction will be broadcasted and returns with the response from
+        CheckTx and DeliverTx.
+
+        If CheckTx or DeliverTx fail, no error will be returned, but the
+        returned result will contain a non-OK ABCI code.
+        """
+        return await self.post_request("broadcast_tx_commit", tx)
+
+    async def commit(self, height: Optional[str] = None) -> dict:
+        """Get block commit at a given height.
+        If no height is provided, it will fetch the commit for the latest block.
+        """
+        return await self.post_request("commit", height)
+
+    async def consensus_params(self, height: Optional[str] = None) -> dict:
+        """Get consensus params at a given height."""
+        return await self.post_request("consensus_params", height)
+
+    async def tx(self, hash: str, prove: bool = False) -> dict:
+        """Allows you to query the transaction results."""
+        return await self.post_request("tx", hash, prove)
+
+    async def tx_search(
+        self, query: str, prove: bool = False, page: int = 1, per_page: int = 30
+    ) -> dict:
+        """Allows you to query for multiple transactions results.
+        You could search transaction by its index. It returns a list of
+        transactions (maximum ?per_page entries) and the total count.
+        """
+        return await self.post_request(
+            "tx_search", query, prove, str(page), str(per_page)
+        )
+
+    async def unconfirmed_txs(self, limit: int = None) -> dict:
+        """Get unconfirmed transactions."""
+        return await self.post_request("unconfirmed_txs", limit)
+
+    async def validators(self, height: str = None) -> dict:
+        """Get information on the validators"""
+        return await self.post_request("validators", height)
