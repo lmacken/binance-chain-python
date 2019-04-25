@@ -25,7 +25,6 @@ Binance DEX SDK Test Suite
 from pprint import pprint
 
 import pytest
-
 from binancechain import BinanceChain
 
 
@@ -111,56 +110,53 @@ async def test_get_fees(client):
     #   assert key in fee, fee
 
 
-"""
-TODO: actual testnet tx stuff
-
 @pytest.mark.asyncio
 async def test_get_transaction(client):
-    h = "E81BAB8E555819E4211D62E2E536B6D5812D3D91C105F998F5C6EB3AB8136482"
+    h = "F9016F01A1098BF8024C28C8400AE010FC32DC8A393ADB26E56F37BC8B0C5D66"
     tx = await client.get_transaction(h)
-    pprint(tx)
-    assert False
-    for key in ("fee", "fee_for", "msg_type"):
+    for key in ("ok", "log", "hash", "data"):
         assert key in tx
+    assert tx['ok']
 
 
+@pytest.mark.asyncio
+async def test_get_closed_orders(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    orders = await client.get_closed_orders(address)
+    assert 'order' in orders
+
+
+@pytest.mark.asyncio
+async def test_get_open_orders(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    orders = await client.get_open_orders(address)
+    pprint(orders)
+    assert 'order' in orders
+
+
+@pytest.mark.asyncio
+async def test_get_transactions(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    transactions = await client.get_transactions(address=address)
+    assert 'tx' in transactions
+
+
+@pytest.mark.asyncio
+async def test_get_order(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    orders = await client.get_closed_orders(address)
+    closed_order = orders['order'][0]
+    order_id = closed_order['orderId']
+    order = await client.get_order(order_id)
+    assert order == closed_order
+
+"""
 @pytest.mark.asyncio
 async def test_broadcast(client):
     body = ...
     tx = await client.broadcast(body)
     pprint(tx)
 
-@pytest.mark.asyncio
-async def test_get_closed_orders(client):
-    address = ...
-    orders = await client.get_closed_orders(address)
-    pprint(order)
-    assert False
-    #for kline in klines:
-    #    assert len(kline) == 9
-
-@pytest.mark.asyncio
-async def test_get_open_orders(client):
-    address = ...
-    orders = await client.get_open_orders(address)
-    pprint(order)
-    assert False
-    #for kline in klines:
-    #    assert len(kline) == 9
-
-@pytest.mark.asyncio
-async def test_get_order(client):
-    id = ...
-    orders = await client.get_order(id)
-    pprint(order)
-    assert False
-
-@pytest.mark.asyncio
-async def test_get_transactions(client):
-    address = ...
-    transactions = await client.get_transactions(address=address)
-    pprint(fees)
-    assert False
 """
 
 

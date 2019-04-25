@@ -38,11 +38,7 @@ TESTNET_URL = "https://testnet-dex.binance.org"
 class BinanceChain:
     """ Binance Chain HTTP API Client """
 
-    def __init__(
-        self,
-        testnet: bool = True,
-        api_version: str = "v1",
-    ):
+    def __init__(self, testnet: bool = True, api_version: str = "v1"):
         """
         :param testnet: A boolean to enable testnet
         :param api_version: The API version to use
@@ -312,15 +308,23 @@ class BinanceChain:
         """
         params = {
             "address": address,
-            "end": end,
-            "limit": limit,
-            "offset": offset,
-            "side": side,
-            "start": start,
-            "status": status,
-            "symbol": symbol,
-            "total": total,
         }
+        if end:
+            params['end'] = end
+        if limit:
+            params["limit"] = limit
+        if offset:
+            params['offset'] = offset
+        if side:
+            params['side'] = side
+        if start:
+            params['start'] = start
+        if status:
+            params['status'] = status
+        if symbol:
+            params['symbol'] = symbol
+        if total:
+            params['total'] = total
         return await self.get_request("orders/closed", params=params)
 
     async def get_open_orders(
@@ -344,14 +348,16 @@ class BinanceChain:
         :param total: total number required, 0 for not required and 1 for
             required; default not required, return total=-1 in response
         """
-        prms = {
-            "address": address,
-            "limit": limit,
-            "offset": offset,
-            "symbol": symbol,
-            "total": total,
-        }
-        return await self.get_request("orders/open", params=prms)
+        params = {"address": address}
+        if limit:
+            params["limit"] = limit
+        if offset:
+            params["offset"] = offset
+        if symbol:
+            params["symbol"] = symbol
+        if total:
+            params["total"] = total
+        return await self.get_request("orders/open", params=params)
 
     async def get_order(self, id: str) -> dict:
         """Get an order.
