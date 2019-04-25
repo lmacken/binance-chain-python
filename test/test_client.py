@@ -120,6 +120,20 @@ async def test_get_transaction(client):
 
 
 @pytest.mark.asyncio
+async def test_get_account(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    account = await client.get_account(address)
+    assert 'address' in account
+
+
+@pytest.mark.asyncio
+async def test_get_account_sequence(client):
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    account = await client.get_account_sequence(address)
+    assert 'sequence' in account
+
+
+@pytest.mark.asyncio
 async def test_get_closed_orders(client):
     address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
     orders = await client.get_closed_orders(address)
