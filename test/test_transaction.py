@@ -55,7 +55,6 @@ async def test_new_order(wallet, client):
     assert txid
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
-    print(tx)
     assert tx
 
 
@@ -72,11 +71,9 @@ async def test_cancel_order(wallet, client):
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
     broadcast = await client.broadcast(hex_data)
-    print(broadcast)
     txid = broadcast[0]["hash"]
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
-    print(tx)
     assert tx
 
 
@@ -127,11 +124,9 @@ async def test_freeze_token(wallet, client):
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
     broadcast = await client.broadcast(hex_data)
-    print(broadcast)
     txid = broadcast[0]["hash"]
     await asyncio.sleep(1)
     tx = await client.get_transaction(txid)
-    print(tx)
 
 
 @pytest.mark.asyncio
@@ -143,31 +138,27 @@ async def test_unfreeze_token(wallet, client):
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
     broadcast = await client.broadcast(hex_data)
-    print(broadcast)
     txid = broadcast[0]["hash"]
     await asyncio.sleep(1)
     tx = await client.get_transaction(txid)
-    print(tx)
+
+
+# @pytest.mark.asyncio
+# async def test_vote_token(wallet, client):
+#     address = wallet.get_address()
+#     transaction = await BinanceTransaction.vote_transaction(
+#         voter=address, proposal_id=PROPOSAL_ID, option=VOTES.Yes, client=client
+#     )
+#     pubkey, signature = wallet.sign(transaction.get_sign_message())
+#     hex_data = transaction.update_signature(pubkey, signature)
+#     broadcast = await client.broadcast(hex_data)
+#     txid = broadcast[0]["hash"]
+#     await asyncio.sleep(1)
+#     tx = await client.get_transaction(txid)
 
 
 @pytest.mark.asyncio
-async def test_vote_token(wallet, client):
-    address = wallet.get_address()
-    transaction = await BinanceTransaction.vote_transaction(
-        voter=address, proposal_id=PROPOSAL_ID, option=VOTES.Yes, client=client
-    )
-    pubkey, signature = wallet.sign(transaction.get_sign_message())
-    hex_data = transaction.update_signature(pubkey, signature)
-    broadcast = await client.broadcast(hex_data)
-    print(broadcast)
-    txid = broadcast[0]["hash"]
-    await asyncio.sleep(1)
-    tx = await client.get_transaction(txid)
-    print(tx)
-
-
-@pytest.mark.asyncio
-async def test_transaction_object(wallet, client):
+async def test_transaction_object_new_order(wallet, client):
     address = wallet.get_address()
     transaction = BinanceTransaction(wallet=wallet, client=client)
     new_order = await transaction.create_new_order(
@@ -178,4 +169,44 @@ async def test_transaction_object(wallet, client):
         quantity=1,
         ordertype=ORDERTYPE.Limit,
     )
-    print(new_order)
+    assert new_order, "No result of transfer found"
+    assert new_order[0]["hash"], "No txid found"
+
+
+@pytest.mark.asyncio
+async def test_transaction_object_cancel(wallet, client):
+    address = wallet.get_address()
+    open_orders = await client.get_open_orders(address)
+    order = open_orders["order"][0]
+    refid = order["orderId"]
+    symbol = order["symbol"]
+    transaction = BinanceTransaction(wallet=wallet, client=client)
+    cancel_order = await transaction.cancel_order(symbol=symbol, refid=refid)
+    assert cancel_order, "No result of transfer found"
+    assert cancel_order[0]["hash"], "No txid found"
+
+
+@pytest.mark.asyncio
+async def test_transaction_object_transfer(wallet, wallet_two, client):
+    transaction = BinanceTransaction(wallet=wallet, client=client)
+    transfer = await transaction.transfer(
+        to_address=wallet_two.get_address(), symbol="BNB", amount=0.1
+    )
+    assert transfer, "No result of transfer found"
+    assert transfer[0]["hash"], "No txid found"
+
+
+@pytest.mark.asyncio
+async def test_transaction_object_freeze(wallet, client):
+    transaction = BinanceTransaction(wallet=wallet, client=client)
+    freeze = await transaction.freeze_token(symbol="BNB", amount=0.1)
+    assert freeze, "No result of transfer found"
+    assert freeze[0]["hash"], "No txid found"
+
+
+@pytest.mark.asyncio
+async def test_transaction_object_unfreeze(wallet, client):
+    transaction = BinanceTransaction(wallet=wallet, client=client)
+    unfreeze = await transaction.unfreeze_token(symbol="BNB", amount=0.1)
+    assert unfreeze, "No result of transfer found"
+    assert unfreeze[0]["hash"], "No txid found"

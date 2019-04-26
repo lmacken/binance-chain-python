@@ -53,7 +53,7 @@ class BinanceTransaction:
     async def new_order_transaction(
         address,
         symbol,
-        side,
+        side: SIDE,
         price,
         quantity,
         ordertype=ORDERTYPE.Limit,
@@ -242,7 +242,7 @@ class BinanceTransaction:
     async def transfer(self, to_address, symbol, amount):
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.transfer_transaction(
-            address=self.address,
+            from_address=self.address,
             client=self.client,
             account_number=account_number,
             sequence=sequence,
@@ -329,9 +329,9 @@ class TransactionBase:
             "symbol": symbol,
             "sender": self.address,
             "id": id,
-            "side": side,
-            "ordertype": ordertype,
-            "timeinforce": timeInForce,
+            "side": side.value,
+            "ordertype": ordertype.value,
+            "timeinforce": timeInForce.value,
             "price": price,
             "quantity": quantity,
         }
