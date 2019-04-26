@@ -24,6 +24,7 @@ Binance DEX SDK Test Suite
 """
 from pprint import pprint
 
+import aiohttp
 import pytest
 from binancechain import BinanceChain, BinanceChainException
 
@@ -244,3 +245,4 @@ async def test_invalid_request(client):
         assert False, resp
     except BinanceChainException as e:
         assert e.response.status == 403
+        assert isinstance(e.__cause__, aiohttp.ContentTypeError)
