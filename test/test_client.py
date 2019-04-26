@@ -104,10 +104,8 @@ async def test_get_markets(client):
 @pytest.mark.asyncio
 async def test_get_fees(client):
     fees = await client.get_fees()
-    pprint(fees)
-    # for fee in fees:
-    # for key in ("fee_for",):
-    #   assert key in fee, fee
+    assert fees
+    assert 'fee' in fees[0]
 
 
 @pytest.mark.asyncio
