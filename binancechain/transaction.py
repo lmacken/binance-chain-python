@@ -3,39 +3,38 @@
 """
 import binascii
 import json
-import marshal
-
-import numpy as np
-
-import aiohttp
 import simplejson
 from bitcoinlib import encoding
 from varint import encode
-
-from .crypto import generate_id
+from decimal import Decimal
+from .crypto import generate_id, address_decode
 from .httpclient import BinanceChain
+from .enums import *
 from .transaction_pb2 import (
     CancelOrder,
     Freeze,
     NewOrder,
-    PubKey,
     Send,
     StdSignature,
     Unfreeze,
     Vote,
+    StdTx,
+    Input,
+    Output,
+    Token,
 )
 
 SOURCE = "1"
-CHAIN_ID = "chain-bnb"
+CHAIN_ID = "Binance-Chain-Nile"
 TYPE_PREFIX = {
-    "CancelOrder": "166E681B",
-    "TokenFreeze": "E774B32D",
-    "TokenUnfreeze": "6515FF0D",
-    "NewOrder": "CE6DC043",
-    "Send": "2A2C87FA",
-    "PubKey": "EB5AE987",
-    "StdTx": "F0625DEE",
-    "Vote": "A1CADD36",
+    "CancelOrder": b"166E681B",
+    "TokenFreeze": b"E774B32D",
+    "TokenUnfreeze": b"6515FF0D",
+    "NewOrder": b"CE6DC043",
+    "Send": b"2A2C87FA",
+    "PubKey": b"EB5AE987",
+    "StdTx": b"F0625DEE",
+    "Vote": b"A1CADD36",
 }
 MSG_TYPES = {
     "CancelOrder": CancelOrder,
@@ -48,17 +47,18 @@ MSG_TYPES = {
 
 TESTNET_CLIENT = BinanceChain(testnet=True)
 CLIENT = BinanceChain(testnet=False)
+BASE = 100000000
 
 
 class BinanceTransaction:
     @staticmethod
-    async def new_order(
+    async def new_order_transaction(
         address,
         symbol,
         side,
         price,
         quantity,
-        ordertype=1,
+        ordertype=2,
         timeInForce=1,
         testnet=False,
     ):
@@ -69,17 +69,19 @@ class BinanceTransaction:
         transaction = BinanceTransaction(
             address, account_number=account_number, sequence=sequence
         )
-        return transaction.create_new_order(
+        transaction.create_new_order(
             symbol=symbol,
             side=side,
             ordertype=ordertype,
             price=price,
             quantity=quantity,
-            timeinforce=timeInForce,
+            timeInForce=timeInForce,
         )
+        return transaction
 
     @staticmethod
-    async def cancel_order(address, testnet=False):
+    async def cancel_order_transaction(address, symbol, refid, testnet=False):
+        print(address, symbol, refid)
         client = TESTNET_CLIENT if testnet else CLIENT
         account_info = await client.get_account(address)
         account_number = account_info["account_number"]
@@ -87,71 +89,85 @@ class BinanceTransaction:
         transaction = BinanceTransaction(
             address, account_number=account_number, sequence=sequence
         )
-        return transaction.create_new_order(
-            symbol=symbol,
-            side=side,
-            ordertype=ordertype,
-            price=price,
-            quantity=quantity,
-            timeinforce=timeInForce,
-        )
+        transaction.cancel_order(symbol=symbol, refid=refid)
+        return transaction
 
     @staticmethod
-    async def send(address, testnet=False):
+    async def transfer_transaction(
+        from_address, to_address, token, amount, testnet=False
+    ):
         client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account()
+        account_info = await client.get_account(from_address)
         account_number = account_info["account_number"]
         sequence = account_info["sequence"]
         transaction = BinanceTransaction(
-            address, account_number=account_number, sequence=sequence
+            address=from_address, account_number=account_number, sequence=sequence
         )
-        return transaction.create_new_order(
-            symbol=symbol,
-            side=side,
-            ordertype=ordertype,
-            price=price,
-            quantity=quantity,
-            timeinforce=timeInForce,
-        )
+        transaction.transfer(to_address=to_address, token=token, amount=amount)
+        return transaction
 
     @staticmethod
-    async def vote(address, testnet=False):
+    async def freeze_token_transaction(address, symbol, amount, testnet=False):
         client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account()
+        account_info = await client.get_account(address)
         account_number = account_info["account_number"]
         sequence = account_info["sequence"]
         transaction = BinanceTransaction(
-            address, account_number=account_number, sequence=sequence
+            address=address, account_number=account_number, sequence=sequence
         )
-        return transaction.create_new_order(
-            symbol=symbol,
-            side=side,
-            ordertype=ordertype,
-            price=price,
-            quantity=quantity,
-            timeinforce=timeInForce,
-        )
+        transaction.freeze_token(symbol=symbol, amount=amount)
+        return transaction
 
-    def __init__(self, address, account_number, sequence):
+    @staticmethod
+    async def unfreeze_token_transaction(address, symbol, amount, testnet=False):
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account(address)
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address=address, account_number=account_number, sequence=sequence
+        )
+        transaction.unfreeze_token(symbol=symbol, amount=amount)
+        return transaction
+
+    @staticmethod
+    async def vote_transaction(voter, proposal_id, option, testnet=False):
+        client = TESTNET_CLIENT if testnet else CLIENT
+        account_info = await client.get_account(voter)
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        transaction = BinanceTransaction(
+            address=voter, account_number=account_number, sequence=sequence
+        )
+        transaction.vote(proposal_id=proposal_id, option=option)
+        print("transaction here", transaction)
+        return transaction
+
+    def __init__(self, address, account_number, sequence, memo="", data=""):
         self.account_number = account_number
+        self.data = data.encode()
+        self.memo = memo
         self.address = address
         self.sequence = sequence
-        self.StdSignMsg = json.loads(
-            json.dumps(
-                {
-                    "memo": "",
-                    "msgs": [],
-                    "account_number": account_number,
-                    "sequence": sequence,
-                    "chain_id": CHAIN_ID,
-                    "source": SOURCE,
-                },
-                sort_keys=True,
-            )
-        )
+        self.StdSignMsg = {
+            "memo": self.memo,
+            "msgs": [],
+            "account_number": str(self.account_number),
+            "sequence": str(self.sequence),
+            "chain_id": CHAIN_ID,
+            "source": str(SOURCE),
+            "data": None,
+        }
 
     def create_new_order(
-        self, symbol, side, price, quantity, ordertype=1, timeInForce=1, sequence=None
+        self,
+        symbol,
+        side: SIDE,
+        price,
+        quantity,
+        sequence=None,
+        ordertype: ORDERTYPE = ORDERTYPE.Limit,
+        timeInForce: TIMEINFORCE = TIMEINFORCE.GTE,
     ):
         id = generate_id(self.address, self.sequence)
         price = int(Decimal(price) * BASE)
@@ -166,61 +182,159 @@ class BinanceTransaction:
             "price": price,
             "quantity": quantity,
         }
-        self.StdSignMsg["msgs"].append(self.msg)
-        self.SignMessage = bytes(simplejson.dumps(msg, sort_keys=True), "utf-8")
-        self.StdMsg = self.generate_std_neworder(self.msg)
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        self.stdMsg = self.generate_stdNewOrderMsg(self.msg)
         return self.SignMessage
 
-    def generate_std_neworder(self, msg):
+    def generate_stdNewOrderMsg(self, msg):
         std = NewOrder()
-        std.sender = self.address
+        std.sender = address_decode(self.address)
         std.id = generate_id(self.address, self.sequence)
-        std.ordertype: msg[
+        std.ordertype = msg[
             "ordertype"
         ]  # currently only 1 type : limit =2, will change in the future
-        std.symbol = msg["symbol"]
+        std.symbol = msg["symbol"].encode()
         std.side = msg["side"]
         std.price = msg["price"]
         std.quantity = msg["quantity"]
         std.timeinforce = msg["timeinforce"]
-        proto_bytes = std.serializeToString()
-        type_bytes = binascii.unhexlify(encoding.to_bytes(TYPE_PREFIX["NewOrder"]))
+        proto_bytes = std.SerializeToString()
+        type_bytes = encoding.to_bytes(TYPE_PREFIX["NewOrder"])
         return type_bytes + proto_bytes
+
+    def cancel_order(self, symbol, refid):
+        self.msg = {"sender": self.address, "symbol": symbol, "refid": refid}
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = CancelOrder()
+        std.symbol = symbol
+        std.sender = address_decode(self.address)
+        std.refid = refid
+        self.stdMsg = (
+            encoding.to_bytes(TYPE_PREFIX["CancelOrder"]) + std.SerializeToString()
+        )
+        return self.SignMessage
+
+    def transfer(self, to_address, token, amount):
+        amount = int(Decimal(amount) * BASE)
+        self.msg = {
+            "inputs": [
+                {"address": self.address, "coins": [{"denom": token, "amount": amount}]}
+            ],
+            "outputs": [
+                {"address": to_address, "coins": [{"denom": token, "amount": amount}]}
+            ],
+        }
+        self.StdSignMsg["msgs"] = [self.msg]
+
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Send()
+        input = Input()
+        output = Output()
+        token_proto = Token()
+        token_proto.amount = amount
+        token_proto.denom = token.encode()
+        input.address = address_decode(self.address)
+        input.coins.extend([token_proto])
+        output.address = address_decode(to_address)
+        output.coins.extend([token_proto])
+        std.inputs.extend([input])
+        std.outputs.extend([output])
+        print(std)
+        self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Send"]) + std.SerializeToString()
+        return self.SignMessage
+
+    def freeze_token(self, symbol, amount):
+        amount = int(Decimal(amount) * BASE)
+        self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Freeze()
+        setattr(std, "from", address_decode(self.address))
+        std.symbol = symbol
+        std.amount = amount
+        self.stdMsg = (
+            encoding.to_bytes(TYPE_PREFIX["TokenFreeze"]) + std.SerializeToString()
+        )
+        return self.SignMessage
+
+    def unfreeze_token(self, symbol, amount):
+        amount = int(Decimal(amount) * BASE)
+        self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Freeze()
+        setattr(std, "from", address_decode(self.address))
+        std.symbol = symbol
+        std.amount = amount
+        self.stdMsg = (
+            encoding.to_bytes(TYPE_PREFIX["TokenUnfreeze"]) + std.SerializeToString()
+        )
+        return self.SignMessage
+
+    def vote(self, proposal_id, option):
+        self.msg = {
+            "proposal_id": proposal_id,
+            "voter": self.address,
+            "option": option.value,
+        }
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Vote()
+        std.voter = address_decode(self.address)
+        std.proposal_id = proposal_id
+        std.option = option.value
+        print(std)
+        print(self.SignMessage)
+        self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Vote"]) + std.SerializeToString()
+        return self.SignMessage
 
     def get_sign_message(self):
         return self.SignMessage
 
     def update_signature(self, pubkey, signature):
-        print("SIGNATURE", pubkey, signature)
-        pubkey_bytes = pubkey_to_msg(pubkey)
-        self.stdSignature = self.generate_stdSignature(pubkey_bytes, signature)
-        self.stdTx = self.generate_StdTx()
-        return self.stdTx
+        pubkey_bytes = self.pubkey_to_msg(pubkey, signature)
+        self.stdSignature = self.generate_stdSignatureMsg(pubkey_bytes, signature)
+        self.stdTx = self.generate_StdTxMsg()
+        return binascii.hexlify(self.stdTx)
 
     def pubkey_to_msg(self, pubkey, signature):
-        key_bytes = encoding.to_bytes(pubkey)
+        key_bytes = pubkey
         return (
-            binascii.unhexlify(encoding.to_bytes(TYPE_PREFIX["PubKey"]))
-            + varint_encode(len(key_bytes))
+            encoding.to_bytes(TYPE_PREFIX["PubKey"])
+            + encode(len(key_bytes))
             + key_bytes
         )
 
-    def generate_stdSignature(self, pubkey_bytes, signature):
+    def generate_stdSignatureMsg(self, pubkey_bytes, signature):
         std = StdSignature()
+        std.pub_key = pubkey_bytes
+        std.signature = signature
         std.account_number = self.account_number
         std.sequence = self.sequence
-        std.signature = signature
-        std.pub_key = pubkey_bytes
         proto_bytes = std.SerializeToString()
-        return encode(len(proto_bytes)) + proto_bytes
+        return proto_bytes
 
-    def generate_StdTx(self):
+    def generate_StdTxMsg(self):
         std = StdTx()
-        std.data = self.data
-        std.memo = self.memo
-        std.source = self.source
-        std.signatures.extend([self.stdSignature])
         std.msgs.extend([self.stdMsg])
-        proto_bytes = std.serializeToString()
-        type_bytes = binascii.unhexlify(TYPE_PREFIX["StdTx"])
+        std.signatures.extend([self.stdSignature])
+        std.memo = self.memo
+        std.source = 1
+        std.data = self.data
+        proto_bytes = std.SerializeToString()
+        type_bytes = encoding.to_bytes(TYPE_PREFIX["StdTx"])
         return encode(len(proto_bytes) + len(type_bytes)) + type_bytes + proto_bytes

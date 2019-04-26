@@ -1,79 +1,77 @@
 syntax = "proto3";
-//import "google/protobuf/any.proto";
 
 package transaction;
 
-message StdSignature{
-
-  PubKey pub_key = 1;
-  bytes signature = 2;
-  int64 account_number = 3;
-  int64 sequence = 4;
-}
-message PubKey{
-}
 
 message StdTx {
   repeated bytes msgs = 1;
-  repeated StdSignature signatures = 2;
+  repeated bytes signatures = 2;
   string memo = 3;
   int64 source = 4;
   bytes data = 5;
 }
+message StdSignature{
+  bytes pub_key = 1;
+  bytes signature = 2;
+  int64 account_number = 3;
+  int64 sequence = 4;
+}
+message Msg{
 
-
+}
 
 message NewOrder {
-  bytes sender = 1; // order originating address
-  string id = 2; // order id, this is much, please check the details below Order ID section.
-  string symbol = 3; // symbol for trading pair in full name of the tokens
-  int64 ordertype = 4; // only accept 2 for now, meaning limit order
-  int64  side = 5; // 1 for buy and 2 fory sell
-  int64 price = 6; // price of the order, which is the real price multiplied by 1e8 (10^8) and rounded to integer
-  int64 quantity = 7; // quantity of the order, which is the real price multiplied by 1e8 (10^8) and rounded to integer
-  int64 timeinforce = 8; // 1 for Good Till Expire(GTE) order and 3 for Immediate Or Cancel (IOC)
+  bytes sender = 1;
+  string id = 2;
+  string symbol = 3;
+  int64 ordertype = 4;
+  int64  side = 5;
+  int64 price = 6;
+  int64 quantity = 7;
+  int64 timeinforce = 8;
 
 }
 message CancelOrder{
-  bytes sender = 1; // order originating address'
-  string symbol = 2; // symbol for trading pair in full name of the tokens
-  string refid = 4; // order id of the one to cancel
+  bytes sender = 1;
+  string symbol = 2;
+  string refid = 3;
 }
 message Send{
-  message Token {
-    string denom = 1;
-    int64 amount = 2;
-  }
-  message Input {
-    bytes address = 1;
-    repeated Token coins = 2;
-  }
-  message Output {
-    bytes address = 1;
-    repeated Token coins = 2;
-  }
   repeated Input inputs = 1;
   repeated Output outputs = 2;
 }
+message Token {
+  string denom = 1;
+  int64 amount = 2;
+}
+message Input {
+  bytes address = 1;
+  repeated Token coins = 2;
+}
+message Output {
+  bytes address = 1;
+  repeated Token coins = 2;
+}
 message Freeze{
-  bytes from = 1; // owner address
-  string symbol = 2; // token symbol, in full name with "-" suffix
-  int64 amount = 3; // amount of token to freeze
+  bytes from = 1;
+  string symbol = 2;
+  int64 amount = 3;
 }
 message Unfreeze{
-  bytes from = 1; // owner address
-  string symbol = 2; // token symbol, in full name with "-" suffix
-  int64 amount = 3; // amount of token to unfreeze
+  bytes from = 1;
+  string symbol = 2;
+  int64 amount = 3;
 }
 message Vote{
   int64 proposal_id = 1;
-  bytes voters = 2;
+  bytes voter = 2;
   VoteOption option = 3;
 }
 
 enum VoteOption {
-  Yes = 0;
-  Abstain = 1;
-  No = 2;
-  NoWithVeto = 3;
+  Unknown = 0;
+  Yes = 1;
+  Abstain = 2;
+  No = 3;
+  NoWithVeto = 4;
 }

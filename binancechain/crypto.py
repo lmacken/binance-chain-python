@@ -26,6 +26,12 @@ def get_address(prefix, key):
     return address
 
 
+def address_decode(address):
+    prefix, words = bech32.bech32_decode(address)
+    convert = encoding.convertbits(words, 5, 8)
+    return bytes(convert)
+
+
 def generate_signature(key, data):
     pass
 
@@ -38,4 +44,4 @@ def generate_id(address, sequence):
     prefix, words = bech32.bech32_decode(address)
     convert_w = encoding.convertbits(words, 5, 8)
     decodedAddress = encoding.to_bytearray(convert_w).hex()
-    return f"{decodedAddress.upper()}-{sequence}"
+    return f"{decodedAddress.upper()}-{sequence+1}"
