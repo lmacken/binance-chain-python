@@ -24,23 +24,18 @@ Binance Chain HTTP API
 
 https://docs.binance.org/api-reference/dex-api/paths.html
 """
-import sys
-import traceback
+import logging
 import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
 
+from .exceptions import BinanceChainException
+
+log = logging.getLogger(__name__)
+
 MAINNET_URL = ""
 TESTNET_URL = "https://testnet-dex.binance.org"
-
-
-class BinanceChainException(Exception):
-    def __init__(self, response: aiohttp.ClientResponse):
-        self.response = response
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} {self.response}>"
 
 
 class BinanceChain:
