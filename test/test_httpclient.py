@@ -25,7 +25,7 @@ Binance DEX SDK Test Suite
 from pprint import pprint
 
 import pytest
-from binancechain import BinanceChain
+from binancechain import BinanceChain, BinanceChainException
 
 
 @pytest.fixture
@@ -234,3 +234,13 @@ async def test_get_depth(client):
     symbol = f"{market['base_asset_symbol']}_{market['quote_asset_symbol']}"
     depth = await client.get_depth(symbol)
     assert 'asks' in depth and 'bids' in depth
+
+
+@pytest.mark.asyncio
+async def test_invalid_request(client):
+    client._server = "https://binance.org/"
+    try:
+        resp = await client.post_request('INVALID')
+        assert False, resp
+    except BinanceChainException as e:
+        assert e.response.status == 403

@@ -1,4 +1,4 @@
-from .httpclient import BinanceChain
+from .httpclient import BinanceChain, BinanceChainException
 from .noderpc import BinanceChainNodeRPC
 from .transaction import BinanceTransaction
 from .wallet import BinanceWallet

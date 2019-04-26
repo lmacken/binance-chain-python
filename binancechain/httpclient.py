@@ -35,6 +35,14 @@ MAINNET_URL = ""
 TESTNET_URL = "https://testnet-dex.binance.org"
 
 
+class BinanceChainException(Exception):
+    def __init__(self, response: aiohttp.ClientResponse):
+        self.response = response
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.response}>"
+
+
 class BinanceChain:
     """ Binance Chain HTTP API Client """
 
@@ -66,6 +74,7 @@ class BinanceChain:
         :method: `get` or `post`
         :path: the remote endpoint to call
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
+        :raises: `BinanceChainException`, which has a `response` attribute.
         """
         print(method, path, kwargs)
         if not self._session:
@@ -77,14 +86,7 @@ class BinanceChain:
             ) as resp:
                 return await resp.json()
         except Exception as e:
-            if resp:
-                text = await resp.text()
-                if not text:
-                    print(f"Empty response from `{path}`", file=sys.stderr)
-                else:  # pragma: nocover
-                    print(f"Error: {text}", file=sys.stderr)
-            else:
-                raise
+            raise BinanceChainException(resp) from e
 
     async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
