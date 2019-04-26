@@ -257,3 +257,16 @@ async def test_decorator_async(client):
     async def callback():
         client.close()
     await client.start_async()
+
+
+@pytest.mark.asyncio
+async def test_decorator_sub_queue(client):
+    results = []
+
+    @client.on("allTickers", symbols=["$all"])
+    async def callback(msg):
+        results.append(msg)
+        client.close()
+
+    await client.start_async()
+    assert results
