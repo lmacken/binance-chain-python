@@ -63,7 +63,6 @@ async def test_new_order(wallet, client):
 async def test_cancel_order(wallet, client):
     address = wallet.get_address()
     open_orders = await client.get_open_orders(address)
-    print(len(open_orders))
     order = open_orders["order"][0]
     refid = order["orderId"]
     symbol = order["symbol"]
@@ -106,7 +105,6 @@ async def test_transfer_order(wallet, wallet_two, client):
         amount=0.1,
         client=client,
     )
-    print("transaaction", transaction)
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
     broadcast = await client.broadcast(hex_data)
@@ -170,17 +168,14 @@ async def test_vote_token(wallet, client):
 
 @pytest.mark.asyncio
 async def test_transaction_object(wallet, client):
-    try:
-        address = wallet.get_address()
-        transaction = BinanceTransaction(wallet=wallet, client=client)
-        new_order = await transaction.create_new_order(
-            symbol=PAIR,
-            side=SIDE.Buy,
-            timeInForce=TIMEINFORCE.GTE,
-            price=0.01,
-            quantity=1,
-            ordertype=ORDERTYPE.Limit,
-        )
-        print(new_order)
-    except Exception as e:
-        print(e)
+    address = wallet.get_address()
+    transaction = BinanceTransaction(wallet=wallet, client=client)
+    new_order = await transaction.create_new_order(
+        symbol=PAIR,
+        side=SIDE.Buy,
+        timeInForce=TIMEINFORCE.GTE,
+        price=0.01,
+        quantity=1,
+        ordertype=ORDERTYPE.Limit,
+    )
+    print(new_order)

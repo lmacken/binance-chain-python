@@ -56,8 +56,8 @@ class BinanceTransaction:
         side,
         price,
         quantity,
-        ordertype=2,
-        timeInForce=1,
+        ordertype=ORDERTYPE.Limit,
+        timeInForce=TIMEINFORCE.GTE,
         testnet=False,
         account_number=None,
         sequence=None,
@@ -197,7 +197,7 @@ class BinanceTransaction:
 
     def __init__(self, wallet, client=None, testnet=False):
         self.wallet = wallet
-        self.address = wallet.get_address
+        self.address = wallet.get_address()
         if not client:
             self.client = BinanceChain(testnet=testnet)
         else:
