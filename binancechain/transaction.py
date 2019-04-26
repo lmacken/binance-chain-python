@@ -312,7 +312,7 @@ class BinanceTransaction:
         return binascii.hexlify(self.stdTx)
 
     def pubkey_to_msg(self, pubkey, signature):
-        key_bytes = pubkey
+        key_bytes = encoding.to_bytes(pubkey)
         return (
             encoding.to_bytes(TYPE_PREFIX["PubKey"])
             + encode(len(key_bytes))
@@ -322,7 +322,7 @@ class BinanceTransaction:
     def generate_stdSignatureMsg(self, pubkey_bytes, signature):
         std = StdSignature()
         std.pub_key = pubkey_bytes
-        std.signature = signature
+        std.signature = encoding.to_bytes(signature)
         std.account_number = self.account_number
         std.sequence = self.sequence
         proto_bytes = std.SerializeToString()

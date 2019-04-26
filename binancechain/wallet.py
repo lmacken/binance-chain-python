@@ -17,10 +17,6 @@ MAINET_PREFIX = "bnb"
 
 
 class BinanceWallet:
-    def create_wallet_privatekey(privatekey, testnet=False):
-        key = keys.HDKey(import_key=privatekey)
-        return BinanceWallet(key=key, testnet=testnet)
-
     @staticmethod
     def create_wallet(password="", testnet=False):
         root_key = keys.HDKey(passphrase=password)
@@ -28,7 +24,7 @@ class BinanceWallet:
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def create_wallet_keystore(password=""):
+    def create_keystore(password=""):
         m = mnemonic.Mnemonic()
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
@@ -43,7 +39,7 @@ class BinanceWallet:
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet)
+        return BinanceWallet(key=key, testnet=testnet, mnemonic=mnem)
 
     @staticmethod
     def recover_from_keystore(keystore, password="", testnet=False):
@@ -59,27 +55,33 @@ class BinanceWallet:
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def recover_from_mnemonic(words, testnet=False):
+    def recover_from_mnemonic(words, password="", testnet=False):
         m = mnemonic.Mnemonic(language="english")
-        root_key = keys.HDKey.from_seed(m.to_seed(words=words))
+        root_key = keys.HDKey.from_seed(m.to_seed(words=words, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet)
+        return BinanceWallet(key=key, testnet=testnet, mnemonic=words)
 
-    def __init__(self, key, testnet=False):
+    def __init__(self, key, mnemonic=None, testnet=False):
         self.testnet = testnet
         self.prefix = TESTNET_PREFIX if testnet else MAINET_PREFIX
         self.key = key
         self.address = get_address(prefix=self.prefix, key=key)
+        self.mnemonic = mnemonic
 
     def get_address(self):
-        if not self.address:
-            raise Exception("Wallet is not initiated")
         return self.address
 
     def get_privatekey(self):
-        if not self.key:
-            raise Exception("Wallet is not initiated")
         return self.key.private_hex
+
+    def get_publickey(self):
+        return self.key.public_hex
+
+    def get_mnemonic(self):
+        if not self.mnemonic:
+            raise Exception("No Mnemonic available for this wallet")
+        else:
+            return self.mnemonic
 
     def sign(self, msg):
         """
@@ -88,10 +90,7 @@ class BinanceWallet:
         priv = PrivateKey(self.key.private_byte)
         sig = priv.ecdsa_sign(msg)
         h = priv.ecdsa_serialize_compact(sig)
-        return self.key.public_byte, h
-        # sig = keys.sign(msg, self.key)
-        # print("SIGNATURE", sig.as_bytes, sig.as_hex)
-        # return self.key.public_byte, sig.as_der_encoded[-64:]
+        return self.key.public_hex, encoding.to_hexstring(h)
 
     def verify_signature(self, msg, signature):
         pass

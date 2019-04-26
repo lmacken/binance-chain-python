@@ -65,7 +65,6 @@ async def test_cancel_order(wallet, chain):
     )
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
-    print(hex_data)
     broadcast = await chain.broadcast(hex_data)
     print(broadcast)
     txid = broadcast[0]["hash"]
