@@ -104,10 +104,8 @@ async def test_get_markets(client):
 @pytest.mark.asyncio
 async def test_get_fees(client):
     fees = await client.get_fees()
-    pprint(fees)
-    # for fee in fees:
-    # for key in ("fee_for",):
-    #   assert key in fee, fee
+    assert fees
+    assert 'fee' in fees[0]
 
 
 @pytest.mark.asyncio
@@ -224,10 +222,15 @@ async def test_trades(client):
 
 @pytest.mark.asyncio
 async def test_get_block_exchange_fee(client):
-    fees = await client.get_block_exchange_fee()
-    pprint(fees)
-    # TODO: returns None w/o an address
-    # assert False
-    # for fee in fees:
-    #    for key in ("askPrice", "askQuantity", "bidPrice", "bidQuantity"):
-    #        assert key in ticker
+    address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+    fees = await client.get_block_exchange_fee(address)
+    assert 'blockExchangeFee' in fees
+
+
+@pytest.mark.asyncio
+async def test_get_depth(client):
+    markets = await client.get_markets()
+    market = markets[0]
+    symbol = f"{market['base_asset_symbol']}_{market['quote_asset_symbol']}"
+    depth = await client.get_depth(symbol)
+    assert 'asks' in depth and 'bids' in depth
