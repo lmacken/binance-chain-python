@@ -43,7 +43,7 @@ class BinanceChain:
 
     def __init__(self, testnet: bool = True, api_version: str = "v1"):
         """
-        :param testnet: A boolean to enable testnet
+        :param testnet: Use testnet instead of mainnet
         :param api_version: The API version to use
         :param session: An optional HTTP session to use
         """
@@ -58,11 +58,8 @@ class BinanceChain:
     async def close(self):
         """ Clean up our connections """
         if self._session:
-            try:
-                await self._session.close()
-                self._session = None
-            except Exception as e:  # pragma: nocover
-                traceback.print_exc()
+            await self._session.close()
+            self._session = None
 
     async def _request(self, method: str, path: str, **kwargs):
         """
@@ -71,7 +68,6 @@ class BinanceChain:
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
         :raises: `BinanceChainException`, which has a `response` attribute.
         """
-        print(method, path, kwargs)
         if not self._session:
             self._session = aiohttp.ClientSession()
         try:
@@ -84,11 +80,13 @@ class BinanceChain:
             raise BinanceChainException(resp) from e
 
     async def get_request(self, path: str, params: dict = None) -> Any:
+        """Perform a GET request"""
         return await self._request("get", path, params=params)
 
     async def post_request(
         self, path: str, data: Optional[str] = None, headers: Optional[dict] = None
     ) -> Any:
+        """Perform a POST request"""
         return await self._request("post", path, data=data, headers=headers)
 
     async def get_time(self) -> dict:
@@ -264,10 +262,10 @@ class BinanceChain:
         :param end: end time in Milliseconds
         """
         params = {"symbol": symbol, "interval": interval, "limit": limit}
-        if start:
-            params["startTime"] = start
-        if end:
-            params["endTime"] = end
+        if start is not None:
+            params["startTime"] = int(start)
+        if end is not None:
+            params["endTime"] = int(end)
         return await self.get_request("klines", params=params)
 
     async def get_closed_orders(
@@ -306,21 +304,21 @@ class BinanceChain:
         params = {
             "address": address,
         }
-        if end:
-            params['end'] = end
-        if limit:
+        if end is not None:
+            params['end'] = int(end)
+        if limit is not None:
             params["limit"] = limit
-        if offset:
+        if offset is not None:
             params['offset'] = offset
-        if side:
+        if side is not None:
             params['side'] = side
-        if start:
-            params['start'] = start
-        if status:
+        if start is not None:
+            params['start'] = int(start)
+        if status is not None:
             params['status'] = status
-        if symbol:
+        if symbol is not None:
             params['symbol'] = symbol
-        if total:
+        if total is not None:
             params['total'] = total
         return await self.get_request("orders/closed", params=params)
 
@@ -346,13 +344,13 @@ class BinanceChain:
             required; default not required, return total=-1 in response
         """
         params = {"address": address}
-        if limit:
+        if limit is not None:
             params["limit"] = limit
-        if offset:
+        if offset is not None:
             params["offset"] = offset
-        if symbol:
+        if symbol is not None:
             params["symbol"] = symbol
-        if total:
+        if total is not None:
             params["total"] = total
         return await self.get_request("orders/open", params=params)
 
@@ -420,27 +418,27 @@ class BinanceChain:
             required; default not required, return total=-1 in response
         """
         params: Dict[Any, Any] = {}
-        if address:
+        if address is not None:
             params["address"] = address
-        if buyerOrderId:
+        if buyerOrderId is not None:
             params["buyerOrderId"] = buyerOrderId
-        if height:
+        if height is not None:
             params["height"] = height
-        if limit:
+        if limit is not None:
             params["limit"] = limit
-        if offset:
+        if offset is not None:
             params["offset"] = offset
-        if sellerOrderId:
+        if sellerOrderId is not None:
             params["sellerOrderId"] = sellerOrderId
-        if side:
+        if side is not None:
             params["side"] = side
-        if start:
+        if start is not None:
             params["start"] = start
-        if end:
+        if end is not None:
             params["end"] = end
-        if symbol:
+        if symbol is not None:
             params["symbol"] = symbol
-        if total:
+        if total is not None:
             params["total"] = total
         return await self.get_request("trades", params=params)
 
@@ -474,17 +472,17 @@ class BinanceChain:
             required; default not required, return total=-1 in response
         """
         params: Dict[Any, Any] = {}
-        if address:
+        if address is not None:
             params["address"] = address
-        if end:
+        if end is not None:
             params["end"] = end
-        if limit:
+        if limit is not None:
             params["limit"] = limit
-        if offset:
+        if offset is not None:
             params["offset"] = offset
-        if start:
+        if start is not None:
             params["start"] = start
-        if total:
+        if total is not None:
             params["total"] = total
         return await self.get_request("block-exchange-fee", params=params)
 
@@ -523,20 +521,20 @@ class BinanceChain:
             UN_FREEZE_TOKEN,TRANSFER,PROPOSAL,VOTE,MINT,DEPOSIT]
         """
         params: Dict[Any, Any] = {"address": address}
-        if height:
+        if height is not None:
             params["blockHeight"] = height
-        if start:
+        if start is not None:
             params["startTime"] = start
-        if end:
+        if end is not None:
             params["endTime"] = end
-        if limit:
+        if limit is not None:
             params["limit"] = limit
-        if offset:
+        if offset is not None:
             params["offset"] = offset
-        if side:
+        if side is not None:
             params["side"] = side
-        if tx_asset:
+        if tx_asset is not None:
             params["txAsset"] = tx_asset
-        if tx_type:
+        if tx_type is not None:
             params["txType"] = tx_type
         return await self.get_request("transactions", params=params)

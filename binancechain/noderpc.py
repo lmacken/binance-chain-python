@@ -65,11 +65,8 @@ class BinanceChainNodeRPC:
     async def close(self):
         """ Clean up our connections """
         if self._session:
-            try:
-                await self._session.close()
-                self._session = None
-            except Exception as e:
-                traceback.print_exc()
+            await self._session.close()
+            self._session = None
 
     async def _request(self, method: str, path: str, **kwargs):
         """
@@ -77,7 +74,6 @@ class BinanceChainNodeRPC:
         :path: the remote endpoint to call
         :kwargs: Extra arguments to pass to the request, like `params` or `data`.
         """
-        print(method, path, kwargs)
         if not self._session:
             self._session = aiohttp.ClientSession()
         try:

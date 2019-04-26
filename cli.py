@@ -24,11 +24,13 @@
 Binance Chain CLI
 """
 import asyncio
+import logging
 from pprint import pprint
 
 import click
-
 from binancechain import BinanceChain
+
+log = logging.getLogger(__name__)
 
 
 def run(coro):
