@@ -45,8 +45,6 @@ MSG_TYPES = {
     "Vote": Vote,
 }
 
-TESTNET_CLIENT = BinanceChain(testnet=True)
-CLIENT = BinanceChain(testnet=False)
 BASE = 100000000
 
 
@@ -61,15 +59,20 @@ class BinanceTransaction:
         ordertype=2,
         timeInForce=1,
         testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
     ):
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(address)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(address)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address, account_number=account_number, sequence=sequence
         )
-        transaction.create_new_order(
+        transaction.get_new_order_msg(
             symbol=symbol,
             side=side,
             ordertype=ordertype,
@@ -80,69 +83,219 @@ class BinanceTransaction:
         return transaction
 
     @staticmethod
-    async def cancel_order_transaction(address, symbol, refid, testnet=False):
-        print(address, symbol, refid)
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(address)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+    async def cancel_order_transaction(
+        address,
+        symbol,
+        refid,
+        testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
+    ):
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(address)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address, account_number=account_number, sequence=sequence
         )
-        transaction.cancel_order(symbol=symbol, refid=refid)
+        transaction.get_cancel_order_msg(symbol=symbol, refid=refid)
         return transaction
 
     @staticmethod
     async def transfer_transaction(
-        from_address, to_address, token, amount, testnet=False
+        from_address,
+        to_address,
+        symbol,
+        amount,
+        testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
     ):
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(from_address)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(from_address)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address=from_address, account_number=account_number, sequence=sequence
         )
-        transaction.transfer(to_address=to_address, token=token, amount=amount)
+        transaction.get_transfer_msg(
+            to_address=to_address, symbol=symbol, amount=amount
+        )
         return transaction
 
     @staticmethod
-    async def freeze_token_transaction(address, symbol, amount, testnet=False):
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(address)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+    async def freeze_token_transaction(
+        address,
+        symbol,
+        amount,
+        testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
+    ):
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(address)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address=address, account_number=account_number, sequence=sequence
         )
-        transaction.freeze_token(symbol=symbol, amount=amount)
+        transaction.get_freeze_token_msg(symbol=symbol, amount=amount)
         return transaction
 
     @staticmethod
-    async def unfreeze_token_transaction(address, symbol, amount, testnet=False):
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(address)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+    async def unfreeze_token_transaction(
+        address,
+        symbol,
+        amount,
+        testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
+    ):
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(address)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address=address, account_number=account_number, sequence=sequence
         )
-        transaction.unfreeze_token(symbol=symbol, amount=amount)
+        transaction.get_unfreeze_token_msg(symbol=symbol, amount=amount)
         return transaction
 
     @staticmethod
-    async def vote_transaction(voter, proposal_id, option, testnet=False):
-        client = TESTNET_CLIENT if testnet else CLIENT
-        account_info = await client.get_account(voter)
-        account_number = account_info["account_number"]
-        sequence = account_info["sequence"]
-        transaction = BinanceTransaction(
+    async def vote_transaction(
+        voter,
+        proposal_id,
+        option,
+        testnet=False,
+        account_number=None,
+        sequence=None,
+        client=None,
+    ):
+        if not client:
+            client = BinanceChain(testnet=testnet)
+        if not account_number or not sequence:
+            account_info = await client.get_account(voter)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        transaction = TransactionBase(
             address=voter, account_number=account_number, sequence=sequence
         )
-        transaction.vote(proposal_id=proposal_id, option=option)
-        print("transaction here", transaction)
+        transaction.get_vote_msg(proposal_id=proposal_id, option=option)
         return transaction
 
+    def __init__(self, wallet, client=None, testnet=False):
+        self.wallet = wallet
+        self.address = wallet.get_address
+        if not client:
+            self.client = BinanceChain(testnet=testnet)
+        else:
+            self.client = client
+
+    async def get_account_info(self):
+        account_info = await self.client.get_account(self.address)
+        account_number = account_info["account_number"]
+        sequence = account_info["sequence"]
+        return account_number, sequence
+
+    async def create_new_order(
+        self, symbol, side, ordertype, price, quantity, timeInForce
+    ):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.new_order_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            symbol=symbol,
+            side=side,
+            ordertype=ordertype,
+            price=price,
+            quantity=quantity,
+            timeInForce=timeInForce,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def cancel_order(self, symbol, refid):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.cancel_order_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            symbol=symbol,
+            refid=refid,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def transfer(self, to_address, symbol, amount):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.transfer_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            to_address=to_address,
+            symbol=symbol,
+            amount=amount,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def freeze_token(self, symbol, amount):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.freeze_token_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            symbol=symbol,
+            amount=amount,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def unfreeze_token(self, symbol, amount):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.unfreeze_token_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            symbol=symbol,
+            amount=amount,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def vote(self, proposal_id, option):
+        account_number, sequence = await self.get_account_info()
+        transaction = await BinanceTransaction.vote_transaction(
+            address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            proposal_id=proposal_id,
+            option=option,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def sign_and_broadcast(self, transaction):
+        pub, sig = self.wallet.sign(transaction.get_sign_message())
+        hex_data = transaction.update_signature(pub, sig)
+        broadcast_info = await self.client.broadcast(hex_data)
+        return broadcast_info
+
+
+class TransactionBase:
     def __init__(self, address, account_number, sequence, memo="", data=""):
         self.account_number = account_number
         self.data = data.encode()
@@ -159,7 +312,7 @@ class BinanceTransaction:
             "data": None,
         }
 
-    def create_new_order(
+    def get_new_order_msg(
         self,
         symbol,
         side: SIDE,
@@ -205,7 +358,7 @@ class BinanceTransaction:
         type_bytes = encoding.to_bytes(TYPE_PREFIX["NewOrder"])
         return type_bytes + proto_bytes
 
-    def cancel_order(self, symbol, refid):
+    def get_cancel_order_msg(self, symbol, refid):
         self.msg = {"sender": self.address, "symbol": symbol, "refid": refid}
         self.StdSignMsg["msgs"] = [self.msg]
         self.SignMessage = json.dumps(
@@ -220,14 +373,17 @@ class BinanceTransaction:
         )
         return self.SignMessage
 
-    def transfer(self, to_address, token, amount):
+    def get_transfer_msg(self, to_address, symbol, amount):
         amount = int(Decimal(amount) * BASE)
         self.msg = {
             "inputs": [
-                {"address": self.address, "coins": [{"denom": token, "amount": amount}]}
+                {
+                    "address": self.address,
+                    "coins": [{"denom": symbol, "amount": amount}],
+                }
             ],
             "outputs": [
-                {"address": to_address, "coins": [{"denom": token, "amount": amount}]}
+                {"address": to_address, "coins": [{"denom": symbol, "amount": amount}]}
             ],
         }
         self.StdSignMsg["msgs"] = [self.msg]
@@ -240,18 +396,17 @@ class BinanceTransaction:
         output = Output()
         token_proto = Token()
         token_proto.amount = amount
-        token_proto.denom = token.encode()
+        token_proto.denom = symbol.encode()
         input.address = address_decode(self.address)
         input.coins.extend([token_proto])
         output.address = address_decode(to_address)
         output.coins.extend([token_proto])
         std.inputs.extend([input])
         std.outputs.extend([output])
-        print(std)
         self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Send"]) + std.SerializeToString()
         return self.SignMessage
 
-    def freeze_token(self, symbol, amount):
+    def get_freeze_token_msg(self, symbol, amount):
         amount = int(Decimal(amount) * BASE)
         self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
         self.StdSignMsg["msgs"] = [self.msg]
@@ -267,7 +422,7 @@ class BinanceTransaction:
         )
         return self.SignMessage
 
-    def unfreeze_token(self, symbol, amount):
+    def get_unfreeze_token_msg(self, symbol, amount):
         amount = int(Decimal(amount) * BASE)
         self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
         self.StdSignMsg["msgs"] = [self.msg]
@@ -283,7 +438,7 @@ class BinanceTransaction:
         )
         return self.SignMessage
 
-    def vote(self, proposal_id, option):
+    def get_vote_msg(self, proposal_id, option):
         self.msg = {
             "proposal_id": proposal_id,
             "voter": self.address,
@@ -297,8 +452,6 @@ class BinanceTransaction:
         std.voter = address_decode(self.address)
         std.proposal_id = proposal_id
         std.option = option.value
-        print(std)
-        print(self.SignMessage)
         self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Vote"]) + std.SerializeToString()
         return self.SignMessage
 
@@ -338,3 +491,6 @@ class BinanceTransaction:
         proto_bytes = std.SerializeToString()
         type_bytes = encoding.to_bytes(TYPE_PREFIX["StdTx"])
         return encode(len(proto_bytes) + len(type_bytes)) + type_bytes + proto_bytes
+
+    def ___repr__(self):
+        return "test string transaction"
