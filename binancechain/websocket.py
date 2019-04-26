@@ -83,8 +83,8 @@ class BinanceChainWebSocket:
 
     async def start_async(
         self,
-        on_open: Optional[Callable[[], None]],
-        on_error: Optional[Callable[[dict], None]],
+        on_open: Optional[Callable[[], None]] = None,
+        on_error: Optional[Callable[[dict], None]] = None,
     ) -> None:
         """Processes all websocket messages."""
         if self.address:  # address-specific socket

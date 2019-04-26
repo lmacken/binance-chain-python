@@ -241,3 +241,19 @@ async def test_unsubscribe(client):
 
     await client.start_async(on_open=on_open, on_error=on_error)
     assert results
+
+
+@pytest.mark.asyncio
+async def test_decorator(client):
+    @client.on('open')
+    def callback():
+        client.close()
+    await client.start_async()
+
+
+@pytest.mark.asyncio
+async def test_decorator_async(client):
+    @client.on('open')
+    async def callback():
+        client.close()
+    await client.start_async()
