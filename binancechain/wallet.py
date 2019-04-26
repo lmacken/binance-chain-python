@@ -6,11 +6,14 @@ from eth_keyfile import decode_keyfile_json, create_keyfile_json
 from bitcoinlib import keys, mnemonic, encoding
 from .crypto import from_path, get_address
 from ecdsa import SigningKey, SECP256k1
+from secp256k1 import PrivateKey
 import simplejson
 import hashlib
 
 
 HDPATH = "44'/714'/0'/0/0"
+TESTNET_PREFIX = "tbnb"
+MAINET_PREFIX = "bnb"
 
 
 class BinanceWallet:
@@ -64,7 +67,7 @@ class BinanceWallet:
 
     def __init__(self, key, testnet=False):
         self.testnet = testnet
-        self.prefix = "tbnb" if testnet else "bnb"
+        self.prefix = TESTNET_PREFIX if testnet else MAINET_PREFIX
         self.key = key
         self.address = get_address(prefix=self.prefix, key=key)
 
@@ -78,22 +81,17 @@ class BinanceWallet:
             raise Exception("Wallet is not initiated")
         return self.key.private_hex
 
-    def sign_transaction(self, msg):
+    def sign(self, msg):
         """
             Return signature
         """
-        sk = SigningKey.from_secret_exponent(self.key.secret, curve=SECP256k1)
-        return (
-            self.key.public_hex,
-            sk.sign(
-                bytes(simplejson.dumps(msg, sort_keys=True), "utf-8"),
-                hashfunc=hashlib.sha256,
-            ).hex(),
-        )
+        priv = PrivateKey(self.key.private_byte)
+        sig = priv.ecdsa_sign(msg)
+        h = priv.ecdsa_serialize_compact(sig)
+        return self.key.public_byte, h
+        # sig = keys.sign(msg, self.key)
+        # print("SIGNATURE", sig.as_bytes, sig.as_hex)
+        # return self.key.public_byte, sig.as_der_encoded[-64:]
 
-    def make_signature(self, msg):
-        """
-            Return StdSignMsg object
-        """
-
+    def verify_signature(self, msg, signature):
         pass
