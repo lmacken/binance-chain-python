@@ -77,6 +77,7 @@ class BinanceChain:
             ) as resp:
                 return await resp.json()
         except Exception as e:
+            log.exception(f"Request error: {method} {path} {kwargs}")
             raise BinanceChainException(resp) from e
 
     async def get_request(self, path: str, params: dict = None) -> Any:
