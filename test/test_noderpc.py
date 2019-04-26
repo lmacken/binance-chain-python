@@ -23,7 +23,9 @@
 Binance Chain Node RPC Test Suite
 """
 import pytest
-from binancechain import BinanceChainNodeRPC
+import aiohttp
+
+from binancechain import BinanceChainNodeRPC, BinanceChainException
 
 
 @pytest.fixture
@@ -171,3 +173,32 @@ async def test_unconfirmed_txs(noderpc):
 async def test_validators(noderpc):
     resp = await noderpc.validators()
     assert "result" in resp
+
+
+@pytest.mark.asyncio
+async def test_invalid_post_request(noderpc):
+    noderpc.url = "https://binance.org/invalid"
+    try:
+        resp = await noderpc.post_request('INVALID')
+        assert False, resp
+    except BinanceChainException as e:
+        assert e.response.status == 403
+        assert isinstance(e.__cause__, aiohttp.ContentTypeError)
+
+
+@pytest.mark.asyncio
+async def test_invalid_get_request(noderpc):
+    try:
+        resp = await noderpc.get_request('INVALID')
+        assert False, resp
+    except BinanceChainException as e:
+        assert e.response.status == 404
+        assert isinstance(e.__cause__, aiohttp.ContentTypeError)
+
+
+@pytest.mark.asyncio
+async def test_del_without_close_warning():
+    noderpc = BinanceChainNodeRPC(testnet=True)
+    await noderpc.get_status()
+    with pytest.warns(UserWarning):
+        del(noderpc)

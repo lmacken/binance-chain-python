@@ -239,10 +239,18 @@ async def test_get_depth(client):
 
 @pytest.mark.asyncio
 async def test_invalid_request(client):
-    client._server = "https://binance.org/"
+    client.url += "/INVALID/"
     try:
         resp = await client.post_request('INVALID')
         assert False, resp
     except BinanceChainException as e:
         assert e.response.status == 403
         assert isinstance(e.__cause__, aiohttp.ContentTypeError)
+
+
+@pytest.mark.asyncio
+async def test_del_without_close_warning():
+    client = BinanceChain(testnet=True)
+    await client.get_time()
+    with pytest.warns(UserWarning):
+        del(client)

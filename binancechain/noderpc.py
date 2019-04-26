@@ -38,6 +38,8 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
+from .exceptions import BinanceChainException
+
 MAINNET_URL = ""
 # TODO: get this dynamically?
 TESTNET_URL = "https://seed-pre-s3.binance.org/"
@@ -83,22 +85,9 @@ class BinanceChainNodeRPC:
             async with getattr(self._session, method)(
                 self.url + path, **kwargs
             ) as resp:
-                data = None
-                try:
-                    data = await resp.json()
-                except Exception as e:
-                    print(f"Error: Unable to parse JSON: {resp}", file=sys.stderr)
-                    return resp
-                return data
+                return await resp.json()
         except Exception as e:
-            if resp:
-                text = await resp.text()
-                if not text:
-                    print(f"Empty response from `{path}`", file=sys.stderr)
-                else:
-                    print(f"Error: {text}", file=sys.stderr)
-            else:
-                raise
+            raise BinanceChainException(resp) from e
 
     async def get_request(self, path: str, params: dict = None) -> Any:
         return await self._request("get", path, params=params)
@@ -110,15 +99,13 @@ class BinanceChainNodeRPC:
             "jsonrpc": "2.0",
             "id": str(next(self._id)),
         }
-        print("post", self.url, payload)
         if not self._session:
             self._session = aiohttp.ClientSession()
-        async with self._session.post(self.url, json=payload) as resp:
-            try:
+        try:
+            async with self._session.post(self.url, json=payload) as resp:
                 return await resp.json()
-            except Exception as e:
-                print(f"Error: Invalid response: {resp}")
-                return resp
+        except Exception as e:
+            raise BinanceChainException(resp) from e
 
     async def get_abci_info(self) -> dict:
         """Get some info about the application."""
