@@ -6,7 +6,7 @@
 ![PyPI](https://img.shields.io/pypi/v/binancechain.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/binancechain.svg)
 
-An asyncio-driven Python API for the Binance Chain.
+An unofficial asyncio Python API for the Binance Chain.
 
 ## Installation
 
