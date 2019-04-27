@@ -34,7 +34,7 @@ from .exceptions import BinanceChainException
 
 log = logging.getLogger(__name__)
 
-MAINNET_URL = ""
+MAINNET_URL = "https://dex.binance.org"
 TESTNET_URL = "https://testnet-dex.binance.org"
 
 
