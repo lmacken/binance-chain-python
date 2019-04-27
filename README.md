@@ -247,19 +247,19 @@ See the WebSocket [examples](https://github.com/lmacken/binance-chain-python/tre
 
 ### Create or recover wallet and keystore
 ```python
-wallet = Wallet.create_wallet(password="", testnet=False)
+wallet = Wallet.create_wallet(password=None, testnet=False)
 
-wallet = Wallet.create_wallet_mnemonic(language="english", password="", testnet=False)
+wallet = Wallet.create_wallet_mnemonic(language="english", password=None, testnet=False)
 
 keystore = Wallet.create_keystore(password=None)
 
 wallet = Wallet(key="HDKEY object", testnet=False)
 
-wallet = Wallet.wallet_from_keystore(keystore=keystore, password="", testnet=False)
+wallet = Wallet.wallet_from_keystore(keystore=keystore, password=None, testnet=False)
 
-wallet = Wallet.wallet_from_mnemonic(words="mnemonic words", password="", testnet=False)
+wallet = Wallet.wallet_from_mnemonic(words="mnemonic words", password=None, testnet=False)
 
-wallet = Wallet.wallet_from_privatekey(privatekey="private_key", password="", testnet=False)
+wallet = Wallet.wallet_from_privatekey(privatekey="private_key", password=None, testnet=False)
 ```
 
 ### Using the wallet
