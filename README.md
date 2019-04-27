@@ -2,6 +2,7 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/lmacken/binance-chain-python/badge.svg)](https://coveralls.io/github/lmacken/binance-chain-python)
 
+An asyncio-driven Python API for the Binance Chain.
 
 ## Installation
 
@@ -39,6 +40,31 @@
 
 ### WEBSOCKET
 -------------------
+
+#### Decorator API
+
+```python
+from binancechain import BinanceChainWebSocket
+
+ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
+
+dex = BinanceChainWebSocket(ADDRESS, testnet=True)
+
+@dex.on("open")
+async def on_open():
+    print('Binance Chain WebSocket open')
+
+@dex.on("allTickers", symbols=["$all"])
+async def on_ticker(msg):
+    print(msg)
+
+try:
+    dex.start()
+except:
+    dex.close()
+    raise
+```
+
 
 ### BINANCE CHAIN WALLET
 ----------------
