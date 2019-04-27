@@ -22,18 +22,14 @@ An unofficial asyncio Python API for the Binance Chain.
 - Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
 - Clean and consistent syntax formatting with [Black](https://github.com/ambv/black)
 - Example CLI tool that just outputs raw JSON responses (`python -m binancechain.cli`)
+- Event-driven WebSocket using [pyee](https://github.com/jfhbrook/pyee)
+- Automatically sends `keepAlive` WebSocket messages every 30 minutes
 
 ### Utilizes popular crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)
 - [bech32](https://github.com/sipa/bech32)
 - [secp256k1](https://github.com/ludbb/secp256k1-py)
 - [eth_keyfile](https://github.com/ethereum/eth-keyfile)
-
-### WebSocket
-
-- Decorator and callback API for simple WebSocket usage
-- Automatically sends `keepAlive` messages every 30 minutes
-- Event-driven using [pyee](https://github.com/jfhbrook/pyee)
 
 ## API SECTIONS
 
