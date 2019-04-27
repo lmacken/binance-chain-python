@@ -10,33 +10,32 @@ An asyncio-driven Python API for the Binance Chain.
 
     pip install git+https://github.com/lmacken/binance-chain-python.git
 
-## Implementation
+## Implementation Details
 - [aiohttp](https://aiohttp.readthedocs.io)
-- Extensive pytest suite
-- SPDX license identifiers
+- [Extensive pytest suite](https://github.com/lmacken/binance-chain-python/tree/master/test)
+- [SPDX license identifiers](https://spdx.org/)
 - Python3.6+ f-strings
 - Type annotations
-- Exception-chaining with `raise from`
+- Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
 - Consistent syntax formatting with [Black](https://github.com/ambv/black)
-#### Wallet and Transaction
+
+#### Utilizes external crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)
-- [secp236k1](https://github.com/ludbb/secp256k1-py)
+- [bech32](https://github.com/sipa/bech32)
+- [secp256k1](https://github.com/ludbb/secp256k1-py)
 - [eth_keyfile](https://github.com/ethereum/eth-keyfile)
 
+### WebSocket
+
+- Decorator and callback API for simple WebSocket usage
+- Automatically sends `keepAlive` messages every 30 minutes
+- Event-driven, using [pyee](https://github.com/jfhbrook/pyee)
+
+
 ------------------
-
-## WebSocket
-
-  - `aiohttp <https://aiohttp.readthedocs.io>` powered
-  - Event-driven, using `pyee <https://github.com/jfhbrook/pyee>`
-  - Decorator API for simple usage
-  - Automatically sends `keepAlive` messages every 30 minutes
-
-## TODO
- - Rate limiter
 
 ### REST API
-------------------
+
 #### Get information from chain
 ```python
 client = HTTPClient(testnet=True)
@@ -121,11 +120,14 @@ transactions = await client.get_transactions(
 broadcast_info = await client.broadcast(data)
 
 ```
-### NODE RPC
+
 ------------------
 
-### WEBSOCKET
+### NODE RPC
+
 -------------------
+
+### WEBSOCKET
 
 #### Decorator API
 
@@ -153,8 +155,10 @@ finally:
 ```
 
 
-### BINANCE CHAIN WALLET
 ----------------
+
+### BINANCE CHAIN WALLET
+
 #### Create or recover wallet and keystore
 ```python
 from binancechain import Wallet
@@ -191,8 +195,9 @@ pub, signature = wallet.sign(msg)
 is_valid = wallet.verify_signature(msg, signature)
 ```
 
-### BINANCE CHAIN TRANSACTION
 -------------------
+
+### BINANCE CHAIN TRANSACTION
 
 #### Using Transaction with wallet and client, handle signing and broadcast internally
 ```python
@@ -292,8 +297,9 @@ unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
 b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'
 ```
 
-### Running the test suite
 ----------------------
+
+### Running the test suite
 
 ```bash
 git clone https://github.com/lmacken/binance-chain-python.git
@@ -301,3 +307,10 @@ pip install -r test-requirements.txt`
 python setup.py develop
 pytest
 ```
+
+----------------------
+
+### Contributors
+
+[@lmacken](https://github.com/lmacken)
+[@propulsor](https://github.com/propulsor)
