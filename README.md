@@ -47,6 +47,61 @@ from binancechain import HTTPClient, NodeRPC, WebSocket, Wallet, Transaction, Bi
 
 ------------------
 
+## WEBSOCKET
+
+### Decorator API
+
+```python
+dex = WebSocket(address, testnet=True)
+
+@dex.on("open")
+async def on_open(): …
+
+@dex.on("allTickers", symbols=["$all"])
+async def on_ticker(msg): …
+
+@dex.on("kline_1m", symbols=["000-0E1_BNB"])
+async def on_kline(kline): …
+
+@dex.on("orders")
+async def user_orders(msg): …
+
+@dex.on("accounts")
+async def user_accounts(msg): …
+
+@dex.on("transfers")
+async def user_transfers(msg): …
+
+@dex.on("error")
+async def on_error(msg): …
+
+dex.start() # or dex.start_async() coroutine
+```
+### Callback API
+```python
+dex = WebSocket(address, testnet=True)
+
+def on_open():
+    dex.subscribe_user_orders(callback=user_orders)
+    dex.subscribe_user_accounts(callback=user_accounts)
+    dex.subscribe_user_transfers(callback=user_transfers)
+    dex.subscribe_trades(callback=callback, symbols=symbols)
+    dex.subscribe_market_depth(callback=callback, symbols=symbols)
+    dex.subscribe_market_diff(callback=callback, symbols=symbols)
+    dex.subscribe_klines(callback=callback, symbols=symbols)
+    dex.subscribe_ticker(callback=callback, symbols=symbols)
+    dex.subscribe_all_tickers(callback=callback)
+    dex.subscribe_mini_ticker(callback=callback, symbols=symbols)
+    dex.subscribe_all_mini_tickers(callback=callback)
+    dex.subscribe_blockheight(callback=callback)
+
+dex.start(on_open, on_error)
+```
+
+See the WebSocket [examples](https://github.com/lmacken/binance-chain-python/tree/master/examples) for more information.
+
+----------------
+
 ## REST API
 
 ### Query information
@@ -187,61 +242,6 @@ tx_onchain = await noderpc.broadcast_tx_sync(hash)
 tx_confirmed = await noderpc.commit(height=None)
 ```
 -------------------
-
-## WEBSOCKET
-
-### Decorator API
-
-```python
-dex = WebSocket(address, testnet=True)
-
-@dex.on("open")
-async def on_open(): …
-
-@dex.on("allTickers", symbols=["$all"])
-async def on_ticker(msg): …
-
-@dex.on("kline_1m", symbols=["000-0E1_BNB"])
-async def on_kline(kline): …
-
-@dex.on("orders")
-async def user_orders(msg): …
-
-@dex.on("accounts")
-async def user_accounts(msg): …
-
-@dex.on("transfers")
-async def user_transfers(msg): …
-
-@dex.on("error")
-async def on_error(msg): …
-
-dex.start() # or dex.start_async() coroutine
-```
-### Callback API
-```python
-dex = WebSocket(address, testnet=True)
-
-def on_open():
-    dex.subscribe_user_orders(callback=user_orders)
-    dex.subscribe_user_accounts(callback=user_accounts)
-    dex.subscribe_user_transfers(callback=user_transfers)
-    dex.subscribe_trades(callback=callback, symbols=symbols)
-    dex.subscribe_market_depth(callback=callback, symbols=symbols)
-    dex.subscribe_market_diff(callback=callback, symbols=symbols)
-    dex.subscribe_klines(callback=callback, symbols=symbols)
-    dex.subscribe_ticker(callback=callback, symbols=symbols)
-    dex.subscribe_all_tickers(callback=callback)
-    dex.subscribe_mini_ticker(callback=callback, symbols=symbols)
-    dex.subscribe_all_mini_tickers(callback=callback)
-    dex.subscribe_blockheight(callback=callback)
-
-dex.start(on_open, on_error)
-```
-
-See the WebSocket [examples](https://github.com/lmacken/binance-chain-python/tree/master/examples) for more information.
-
-----------------
 
 ## BINANCE CHAIN WALLET
 
