@@ -8,3 +8,4 @@ build
 py36
 .tox
 *.egg*
+.coverage
