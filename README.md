@@ -30,7 +30,7 @@ An asyncio-driven Python API for the Binance Chain.
 
 - Decorator and callback API for simple WebSocket usage
 - Automatically sends `keepAlive` messages every 30 minutes
-- Event-driven, using [pyee](https://github.com/jfhbrook/pyee)
+- Event-driven using [pyee](https://github.com/jfhbrook/pyee)
 
 ------------------
 
