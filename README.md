@@ -39,25 +39,91 @@ Best Practices
 
 
 
-###Using the REST API
+### Using the REST API
 ------------------
 
-###Using the Node API
+### Using the Node API
 ------------------
 
-###Using the WebSocket
+### Using the WebSocket
 -------------------
 
-###Using the Wallet
+### BINANCEWALLET
 ----------------
+#### Create or recover wallet and keystore
+```
+from binancechain import BinanceWallet
+```
+- Create new wallet
+```
+wallet = BinanceWallet.create_wallet(password="", testnet=False)
 
+wallet = BinanceWallet.create_wallet_mnemonic(
+    language="english", password="", testnet=False
+)
+```
 
-###Using Transactions
+- Create Keystore
+```
+keystore = BinanceWallet.create_keystore(password="")
+```
+
+- Create wallet from HD key
+
+```
+wallet = BinanceWallet(key="HDKEY object", testnet=False)
+```
+
+- Get wallet from keystore
+```
+wallet = BinanceWallet.wallet_from_keystore(
+    keystore=keystore, password="", testnet=False
+)
+```
+- Get wallet from mnemonic
+```
+wallet = BinanceWallet.wallet_from_mnemonic(
+    words="mnemonic words", password="", testnet=False
+)
+```
+- Get wallet from private key
+```
+wallet = BinanceWallet.wallet_from_privatekey(
+    privatekey="private_key", password="", testnet=False
+)
+```
+
+#### Using wallet
+```
+from binancechain import BinanceWallet
+
+wallet = BinanceWallet.create_wallet(password="", testnet=True)
+```
+- Get bnb address
+```
+address = wallet.get_adress()
+```
+- Get public and private key
+```
+priv = wallet.get_privatekey()
+
+pub = wallet.get_publickey()
+```
+- Sign message and verify signature
+```
+pub,signature = wallet.sign("msg")
+
+is_valid:bool = wallet.verify_signature("msg",signature)
+```
+
+### Using Transactions
 -------------------
+
 #### Using Transaction with wallet and client, handle signing and broadcast internally
 ```
 from binancechain import BinanceTransaction BinanceWallet
-from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE
+from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
+
 #if client is passed in , testnet arg will be ignored
 transaction = BinanceTransaction(wallet=wallet, client=client)
 
@@ -82,9 +148,9 @@ transaction = BinanceTransaction(wallet=wallet, client=client)
 
   broadcast_info = await transaction.vote(
       proposal_id="", option=VOTES.Yes
-  )  # only validator can vote
+  )
 ```
-#### Using Static Transaction methods, only generate the transaction message. This message can be signed and broadcast somewhere else
+#### Create Transaction Message. This message can be signed and broadcast somewhere else
 
 ```
 limit_buy_transaction = await BinanceTransaction.new_order_transaction(
@@ -124,7 +190,7 @@ limit_buy_transaction = await BinanceTransaction.new_order_transaction(
 - Example transaction message :
 `b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'`
 
-###Running the test suite
+### Running the test suite
 ----------------------
 
     `git clone ...`
