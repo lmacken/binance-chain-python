@@ -394,6 +394,6 @@ pytest
 
 ## Donate
 
-*BNB*: `bnb1qx8u39hqcykjy5puv582gvqy5520dsz7fdh9ak`
+BNB: `bnb1qx8u39hqcykjy5puv582gvqy5520dsz7fdh9ak`
 
-*BTC*: `39n2J2hWY5FHCnGwNgRSZTe4TdFKcQea9v`
+BTC: `39n2J2hWY5FHCnGwNgRSZTe4TdFKcQea9v`
