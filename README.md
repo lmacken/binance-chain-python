@@ -60,9 +60,10 @@ async def on_ticker(msg):
 
 try:
     dex.start()
-except:
+except KeyboardInterrupt:
+    pass
+finally:
     dex.close()
-    raise
 ```
 
 
