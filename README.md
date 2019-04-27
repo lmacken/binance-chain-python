@@ -33,6 +33,8 @@ An asyncio-driven Python API for the Binance Chain.
 - Automatically sends `keepAlive` messages every 30 minutes
 - Event-driven using [pyee](https://github.com/jfhbrook/pyee)
 
+## API SECTIONS
+
 - [REST API](https://github.com/lmacken/binance-chain-python#rest-api)
 - [NODE RPC](https://github.com/lmacken/binance-chain-python#node-rpc)
 - [WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket-1)
