@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aiohttp
 from pyee import AsyncIOEventEmitter
 
-MAINNET_URL = ""
+MAINNET_URL = "wss://dex.binance.org/api/ws"
 TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
 
 
