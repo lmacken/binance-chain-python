@@ -33,11 +33,11 @@ An asyncio-driven Python API for the Binance Chain.
 - Automatically sends `keepAlive` messages every 30 minutes
 - Event-driven using [pyee](https://github.com/jfhbrook/pyee)
 
-[REST API](https://github.com/lmacken/binance-chain-python#rest-api)
-[NODE RPC](https://github.com/lmacken/binance-chain-python#node-rpc)
-[WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket-1)
-[WALLET](https://github.com/lmacken/binance-chain-python#binance-chain-wallet)
-[TRANSACTION](https://github.com/lmacken/binance-chain-python#binance-chain-transaction)
+- [REST API](https://github.com/lmacken/binance-chain-python#rest-api)
+- [NODE RPC](https://github.com/lmacken/binance-chain-python#node-rpc)
+- [WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket-1)
+- [WALLET](https://github.com/lmacken/binance-chain-python#binance-chain-wallet)
+- [TRANSACTION](https://github.com/lmacken/binance-chain-python#binance-chain-transaction)
 ------------------
 
 ## REST API
@@ -193,22 +193,22 @@ dex = WebSocket(address, testnet=True)
 async def on_open(): …
 
 @dex.on("allTickers", symbols=["$all"])
-async def on_ticker(msg): … 
+async def on_ticker(msg): …
 
 @dex.on("kline_1m", symbols=["000-0E1_BNB"])
-async def on_kline(kline): … 
+async def on_kline(kline): …
 
 @dex.on("orders")
-async def user_orders(msg): … 
+async def user_orders(msg): …
 
 @dex.on("accounts")
-async def user_accounts(msg): … 
+async def user_accounts(msg): …
 
 @dex.on("transfers")
-async def user_transfers(msg): … 
+async def user_transfers(msg): …
 
 @dex.on("error")
-async def on_error(msg): … 
+async def on_error(msg): …
 
 dex.start() # or dex.start_async() coroutine
 ```
