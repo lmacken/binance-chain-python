@@ -3,12 +3,14 @@
 [![Build Status](https://travis-ci.org/lmacken/binance-chain-python.svg?branch=master&color=green)](https://travis-ci.org/lmacken/binance-chain-python)
 [![Coverage Status](https://coveralls.io/repos/github/lmacken/binance-chain-python/badge.svg)](https://coveralls.io/github/lmacken/binance-chain-python)
 ![GitHub](https://img.shields.io/github/license/lmacken/binance-chain-python.svg)
+![PyPI](https://img.shields.io/pypi/v/binancechain.svg)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/binancechain.svg)
 
 An asyncio-driven Python API for the Binance Chain.
 
 ## Installation
 
-    pip install git+https://github.com/lmacken/binance-chain-python.git
+    pip install binancechain
 
 ## Implementation Details
 
