@@ -20,7 +20,7 @@ An asyncio-driven Python API for the Binance Chain.
 - Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
 - Clean and consistent syntax formatting with [Black](https://github.com/ambv/black)
 
-#### Utilizes popular crypto libraries
+### Utilizes popular crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)
 - [bech32](https://github.com/sipa/bech32)
 - [secp256k1](https://github.com/ludbb/secp256k1-py)
@@ -32,12 +32,11 @@ An asyncio-driven Python API for the Binance Chain.
 - Automatically sends `keepAlive` messages every 30 minutes
 - Event-driven, using [pyee](https://github.com/jfhbrook/pyee)
 
-
 ------------------
 
-### REST API
+## REST API
 
-#### Get information from chain
+### Get information from chain
 ```python
 client = HTTPClient(testnet=True)
 
@@ -116,7 +115,7 @@ transactions = await client.get_transactions(
     tx_type=None,
 )
 ```
-#### Broadcast data
+### Broadcast data
 ```python
 broadcast_info = await client.broadcast(data)
 
@@ -124,13 +123,13 @@ broadcast_info = await client.broadcast(data)
 
 ------------------
 
-### NODE RPC
+## NODE RPC
 
 -------------------
 
-### WEBSOCKET
+## WEBSOCKET
 
-#### Decorator API
+### Decorator API
 
 ```python
 from binancechain import nWebSocket
@@ -158,9 +157,9 @@ finally:
 
 ----------------
 
-### BINANCE CHAIN WALLET
+## BINANCE CHAIN WALLET
 
-#### Create or recover wallet and keystore
+### Create or recover wallet and keystore
 ```python
 from binancechain import Wallet
 
@@ -179,7 +178,7 @@ wallet = Wallet.wallet_from_mnemonic(words="mnemonic words", password="", testne
 wallet = Wallet.wallet_from_privatekey(privatekey="private_key", password="", testnet=False)
 ```
 
-#### Using the wallet
+### Using the wallet
 ```python
 from binancechain import Wallet
 
@@ -198,9 +197,9 @@ is_valid = wallet.verify_signature(msg, signature)
 
 -------------------
 
-### BINANCE CHAIN TRANSACTION
+## BINANCE CHAIN TRANSACTION
 
-#### Using Transaction with wallet and client, handle signing and broadcast internally
+### Using Transaction with wallet and client, handle signing and broadcast internally
 ```python
 from binancechain import Transaction, Wallet
 
@@ -231,7 +230,7 @@ broadcast_info = await transaction.vote(
     proposal_id="", option=VOTES.Yes
 )
 ```
-#### Create Transaction Message. This message can be signed and broadcast somewhere else
+### Create Transaction Message. This message can be signed and broadcast somewhere else
 
 ```python
 limit_buy_transaction = await Transaction.new_order_transaction(
@@ -300,7 +299,7 @@ b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":
 
 ----------------------
 
-### Running the test suite
+## Running the test suite
 
 ```bash
 git clone https://github.com/lmacken/binance-chain-python.git
@@ -311,7 +310,7 @@ pytest
 
 ----------------------
 
-### Contributors
+## Contributors
 
 [@lmacken](https://github.com/lmacken)
 [@propulsor](https://github.com/propulsor)
