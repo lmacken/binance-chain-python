@@ -31,16 +31,16 @@
 ## TODO
  - Rate limiter
 
-### Using the REST API
+### REST API
 ------------------
 
-### Using the Node API
+### NODE RPC
 ------------------
 
-### Using the WebSocket
+### WEBSOCKET
 -------------------
 
-### BINANCEWALLET
+### BINANCE CHAIN WALLET
 ----------------
 #### Create or recover wallet and keystore
 ```python
@@ -55,15 +55,12 @@ wallet = BinanceWallet.create_wallet_mnemonic(language="english", password="", t
 
 - Create Keystore
 ```python
-keystore = BinanceWallet.create_keystore(password="")
+keystore = BinanceWallet.create_keystore(password=None)
 ```
-
-- Create wallet from HD key
-
+- Create wallet from HDKey
 ```python
 wallet = BinanceWallet(key="HDKEY object", testnet=False)
 ```
-
 - Get wallet from keystore
 ```python
 wallet = BinanceWallet.wallet_from_keystore(keystore=keystore, password="", testnet=False)
@@ -95,25 +92,25 @@ pub = wallet.get_publickey()
 ```
 - Sign message and verify signature
 ```python
-pub,signature = wallet.sign("msg")
+pub, signature = wallet.sign(msg)
 
-is_valid:bool = wallet.verify_signature("msg",signature)
+is_valid = wallet.verify_signature(msg, signature)
 ```
 
-### Using Transactions
+### BINANCE CHAIN TRANSACTION
 -------------------
 
 #### Using Transaction with wallet and client, handle signing and broadcast internally
 ```python
 from binancechain import BinanceTransaction BinanceWallet
+
 from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
 
 #if client is passed in , testnet arg will be ignored
-transaction = BinanceTransaction(wallet=wallet, client=client)
 
-  transfer = await transaction.transfer(
-      to_address=wallet_two.get_address(), symbol="BNB", amount=0.1
-  )
+transaction = BinanceTransaction(wallet=wallet, client=None,testnet=False)
+
+  transfer = await transaction.transfer(to_address, symbol, amount)
 
   broadcast_info = await transaction.create_new_order(
       symbol="binance_pair",
@@ -124,11 +121,11 @@ transaction = BinanceTransaction(wallet=wallet, client=client)
       timeInForce=TIMEINFORCE.GTE,
   )
 
-  broadcast_info = await transaction.cancel_order(symbol="pair", refid="")
+  broadcast_info = await transaction.cancel_order(symbol="pair", refid)
 
-  broadcast_info = await transaction.freeze_token(symbol="token", amount=1)
+  broadcast_info = await transaction.freeze_token(symbol="token", amount)
 
-  broadcast_info = await transaction.unfreeze_token(symbol="token", amount=1)
+  broadcast_info = await transaction.unfreeze_token(symbol="token", amount)
 
   broadcast_info = await transaction.vote(
       proposal_id="", option=VOTES.Yes
@@ -171,8 +168,11 @@ limit_buy_transaction = await BinanceTransaction.new_order_transaction(
       address="ownder_address", symbol="token", amount=1, testnet=True
   )
 ```
-- Example transaction message:
-`b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'`
+- Example transaction message :
+
+```
+b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'
+```
 
 ### Running the test suite
 ----------------------

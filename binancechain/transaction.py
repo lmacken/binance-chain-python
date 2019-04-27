@@ -3,7 +3,6 @@
 """
 import binascii
 import json
-import simplejson
 from bitcoinlib import encoding
 from varint import encode
 from decimal import Decimal
