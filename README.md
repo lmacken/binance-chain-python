@@ -19,6 +19,7 @@ An asyncio-driven Python API for the Binance Chain.
 - Python3.6+ f-strings for faster string interpolation
 - Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
 - Clean and consistent syntax formatting with [Black](https://github.com/ambv/black)
+- Example CLI tool that just outputs raw JSON responses (`python -m binancechain.cli`)
 
 ### Utilizes popular crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)
