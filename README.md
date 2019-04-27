@@ -280,7 +280,7 @@ is_valid = wallet.verify_signature(msg, signature)
 ```python
 from binancechain import Transaction, Wallet
 
-from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
+from binancechain.enums import Ordertype, Side, Timeinforce, Votes
 
 #if client is passed in , testnet arg will be ignored
 
