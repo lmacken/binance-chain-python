@@ -181,17 +181,13 @@ tx_confirmed = await noderpc.commit(height=None)
 ```python
 from binancechain import WebSocket
 
-ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
-
-dex = WebSocket(ADDRESS, testnet=True)
+dex = WebSocket(address, testnet=True)
 
 @dex.on("open")
 async def on_open():
-    print('Binance Chain WebSocket open')
 
 @dex.on("allTickers", symbols=["$all"])
 async def on_ticker(msg):
-    print(msg)
 
 try:
     dex.start()
@@ -200,7 +196,19 @@ except KeyboardInterrupt:
 finally:
     dex.close()
 ```
+### Callback API
+```python
+from binancechain import WebSocket
 
+dex = WebSocket(address, testnet=True)
+
+def on_open():
+    dex.subscribe_user_orders(address=address, callback=user_orders)
+    dex.subscribe_user_accounts(address=address, callback=user_accounts)
+    dex.subscribe_user_transfers(address=address, callback=user_transfers)
+
+dex.start(on_open, on_error)
+```
 
 ----------------
 
