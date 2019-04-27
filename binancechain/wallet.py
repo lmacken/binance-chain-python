@@ -15,13 +15,19 @@ MAINET_PREFIX = "bnb"
 
 class BinanceWallet:
     @staticmethod
-    def create_wallet(password="", testnet=False):
+    def create_wallet(password: str = "", testnet: bool = False) -> BinanceWallet:
+        """
+        Create brand new wallet
+        """
         root_key = keys.HDKey(passphrase=password)
         key = from_path(root_key=root_key, path=HDPATH)
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def create_keystore(password=""):
+    def create_keystore(password: str = "") -> dict:
+        """
+            Create Keystore object
+        """
         m = mnemonic.Mnemonic()
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
@@ -31,7 +37,9 @@ class BinanceWallet:
         )
 
     @staticmethod
-    def create_wallet_mnemonic(language="english", password="", testnet=False):
+    def create_wallet_mnemonic(
+        language: str = "english", password: str = "", testnet: bool = False
+    ) -> BinanceWallet:
         m = mnemonic.Mnemonic(language)
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
@@ -39,7 +47,9 @@ class BinanceWallet:
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def wallet_from_keystore(keystore, password="", testnet=False):
+    def wallet_from_keystore(
+        keystore: dict, password: str = "", testnet: bool = False
+    ) -> BinanceWallet:
         private_key = decode_keyfile_json(
             keystore, password=encoding.to_bytes(password)
         )
@@ -47,30 +57,34 @@ class BinanceWallet:
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def wallet_from_privatekey(privatekey, password="", testnet=False):
+    def wallet_from_privatekey(
+        privatekey: str, password: str = "", testnet: bool = False
+    ) -> BinanceWallet:
         key = keys.HDKey(import_key=privatekey, passphrase=password)
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def wallet_from_mnemonic(words, password="", testnet=False):
+    def wallet_from_mnemonic(
+        words: str, password: str = "", testnet: bool = False
+    ) -> BinanceWallet:
         m = mnemonic.Mnemonic(language="english")
         root_key = keys.HDKey.from_seed(m.to_seed(words=words, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
         return BinanceWallet(key=key, testnet=testnet)
 
-    @staticmethod
-    def wallet_from_seed(seed, testnet=False):
-        root_key = keys.HDKey.from_seed(seed)
-        key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet, mnemonic=words)
+    # @staticmethod
+    # def wallet_from_seed(seed, testnet=False):
+    #     root_key = keys.HDKey.from_seed(seed)
+    #     key = from_path(root_key=root_key, path=HDPATH)
+    #     return BinanceWallet(key=key, testnet=testnet, mnemonic=words)
 
-    def __init__(self, key, testnet=False):
+    def __init__(self, key: str, testnet: bool = False):
         self.testnet = testnet
         self.prefix = TESTNET_PREFIX if testnet else MAINET_PREFIX
         self.key = key
         self.address = get_address(prefix=self.prefix, key=key)
 
-    def get_address(self):
+    def get_address(self) -> str:
         return self.address
 
     def get_privatekey(self):
