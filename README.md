@@ -33,9 +33,9 @@ An unofficial asyncio Python API for the Binance Chain.
 
 ## API SECTIONS
 
+- [WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket)
 - [REST API](https://github.com/lmacken/binance-chain-python#rest-api)
 - [NODE RPC](https://github.com/lmacken/binance-chain-python#node-rpc)
-- [WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket-1)
 - [WALLET](https://github.com/lmacken/binance-chain-python#binance-chain-wallet)
 - [TRANSACTION](https://github.com/lmacken/binance-chain-python#binance-chain-transaction)
 
