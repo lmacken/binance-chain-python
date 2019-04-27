@@ -2,6 +2,8 @@ tox
 
 pytest-asyncio
 pytest-cov
+coveralls
 
 # for the static typechecker
 mypy
+
