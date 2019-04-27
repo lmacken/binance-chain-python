@@ -141,6 +141,8 @@ class WebSocket:
             payload["symbols"] = symbols
         if address:
             payload["address"] = address
+        elif self.address:
+            payload["address"] = self.address
         self._events.on(stream, callback)
         asyncio.ensure_future(self.send(payload))
 

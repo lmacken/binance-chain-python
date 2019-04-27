@@ -27,17 +27,17 @@ async def on_kline(kline):
     print(f"kline: {str(kline)[:75]}")
 
 
-@dex.on("orders", address=ADDRESS)
+@dex.on("orders")
 async def user_orders(msg):
     pprint(msg)
 
 
-@dex.on("accounts", address=ADDRESS)
+@dex.on("accounts")
 async def user_accounts(msg):
     pprint(msg)
 
 
-@dex.on("transfers", address=ADDRESS)
+@dex.on("transfers")
 async def user_transfers(msg):
     pprint(msg)
 
