@@ -46,15 +46,7 @@ An unofficial asyncio Python API for the Binance Chain.
 ### NAMESPACE
 
 ```python
-import binancechain
-
-binancechain.HTTPClient
-binancechain.NodeRPC
-binancechain.WebSocket
-binancechain.Wallet
-binancechain.Transaction
-
-binancechain.BinanceChainException
+from binancechain import HTTPClient, NodeRPC, WebSocket, Wallet, Transaction, BinanceChainException
 ```
 
 ------------------
