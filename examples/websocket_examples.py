@@ -2,11 +2,11 @@
 
 from pprint import pprint
 
-from binancechain import BinanceChainWebSocket
+from binancechain import WebSocket
 
 address = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
-dex = BinanceChainWebSocket(address, testnet=True)
+dex = WebSocket(address, testnet=True)
 
 
 def on_open():

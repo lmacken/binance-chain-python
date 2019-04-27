@@ -5,11 +5,11 @@ An example of the event-driven decorator WebSocket API
 
 from pprint import pprint
 
-from binancechain import BinanceChainWebSocket
+from binancechain import WebSocket
 
 ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
-dex = BinanceChainWebSocket(ADDRESS, testnet=True)
+dex = WebSocket(ADDRESS, testnet=True)
 
 
 @dex.on("open")
