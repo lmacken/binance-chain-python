@@ -11,15 +11,16 @@ An asyncio-driven Python API for the Binance Chain.
     pip install git+https://github.com/lmacken/binance-chain-python.git
 
 ## Implementation Details
-- [aiohttp](https://aiohttp.readthedocs.io)
-- [Extensive pytest suite](https://github.com/lmacken/binance-chain-python/tree/master/test)
-- [SPDX license identifiers](https://spdx.org/)
-- Python3.6+ f-strings
-- Type annotations
-- Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
-- Consistent syntax formatting with [Black](https://github.com/ambv/black)
 
-#### Utilizes external crypto libraries
+- [Extensive test suite](https://github.com/lmacken/binance-chain-python/tree/master/test)
+- [aiohttp](https://aiohttp.readthedocs.io) NodeRPC and HTTPClients, which handles connection-pooling automatically.
+- [SPDX license identifiers](https://spdx.org/)
+- Python [type hints](https://docs.python.org/3/library/typing.html) for ease of development
+- Python3.6+ f-strings for faster string interpolation
+- Exception-chaining with [`raise from`](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
+- Clean and consistent syntax formatting with [Black](https://github.com/ambv/black)
+
+#### Utilizes popular external crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)
 - [bech32](https://github.com/sipa/bech32)
 - [secp256k1](https://github.com/ludbb/secp256k1-py)
