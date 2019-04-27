@@ -8,5 +8,5 @@ pycryptodome
 bitcoinlib
 bech32
 eth_keyfile
-
+secp256k1
 pyee

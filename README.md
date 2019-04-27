@@ -54,34 +54,26 @@ Best Practices
 ```
 from binancechain import BinanceWallet
 
-wallet = BinanceWallet.create_wallet(password="", testnet=False)
+wallet = BinanceWallet.create_wallet(password=None, testnet=False)
 
-wallet = BinanceWallet.create_wallet_mnemonic(
-    language="english", password="", testnet=False
-)
+wallet = BinanceWallet.create_wallet_mnemonic(language="english", password=None, testnet=False)
 
-keystore = BinanceWallet.create_keystore(password="")
+keystore = BinanceWallet.create_keystore(password=None)
 
 wallet = BinanceWallet(key="HDKEY object", testnet=False)
 
-wallet = BinanceWallet.wallet_from_keystore(
-    keystore=keystore, password="", testnet=False
-)
+wallet = BinanceWallet.wallet_from_keystore(keystore, password=None, testnet=False)
 
-wallet = BinanceWallet.wallet_from_mnemonic(
-    words="mnemonic words", password="", testnet=False
-)
+wallet = BinanceWallet.wallet_from_mnemonic(words="mnemonic words", password=None, testnet=False)
 
-wallet = BinanceWallet.wallet_from_privatekey(
-    privatekey="private_key", password="", testnet=False
-)
+wallet = BinanceWallet.wallet_from_privatekey(privatekey, password=None, testnet=False)
 ```
 
 #### Using wallet
 ```
 from binancechain import BinanceWallet
 
-wallet = BinanceWallet.create_wallet(password="", testnet=True)
+wallet = BinanceWallet.create_wallet(password=None, testnet=True)
 
 address = wallet.get_adress()
 
@@ -89,9 +81,9 @@ priv = wallet.get_privatekey()
 
 pub = wallet.get_publickey()
 
-pub,signature = wallet.sign(b'"msg")
+pub,signature = wallet.sign(msg)
 
-is_valid:bool = wallet.verify_signature(b'"msg",signature)
+is_valid:bool = wallet.verify_signature(msg, signature)
 ```
 
 ### BINANCE CHAIN TRANSACTION
@@ -105,11 +97,9 @@ from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
 
 #if client is passed in , testnet arg will be ignored
 
-transaction = BinanceTransaction(wallet=wallet, client=client)
+transaction = BinanceTransaction(wallet=wallet, client=None,testnet=False)
 
-  transfer = await transaction.transfer(
-      to_address=wallet_two.get_address(), symbol="BNB", amount=0.1
-  )
+  transfer = await transaction.transfer(to_address, symbol, amount)
 
   broadcast_info = await transaction.create_new_order(
       symbol="binance_pair",
@@ -120,11 +110,11 @@ transaction = BinanceTransaction(wallet=wallet, client=client)
       timeInForce=TIMEINFORCE.GTE,
   )
 
-  broadcast_info = await transaction.cancel_order(symbol="pair", refid="")
+  broadcast_info = await transaction.cancel_order(symbol="pair", refid)
 
-  broadcast_info = await transaction.freeze_token(symbol="token", amount=1)
+  broadcast_info = await transaction.freeze_token(symbol="token", amount)
 
-  broadcast_info = await transaction.unfreeze_token(symbol="token", amount=1)
+  broadcast_info = await transaction.unfreeze_token(symbol="token", amount)
 
   broadcast_info = await transaction.vote(
       proposal_id="", option=VOTES.Yes
@@ -169,7 +159,9 @@ limit_buy_transaction = await BinanceTransaction.new_order_transaction(
 ```
 - Example transaction message :
 
-```b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'```
+```
+b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":"","msgs":[{"inputs":[{"address":"tbnb1r5jc35v338tlphnjx65wy7tecm6vm82tftfkt7","coins":[{"amount":10000000,"denom":"BNB"}]}],"outputs":[{"address":"tbnb1nhvpuq0u5pgpry0x2ap2hqv9n5jfkj90eps6qx","coins":[{"amount":10000000,"denom":"BNB"}]}]}],"sequence":"35","source":"1"}'
+```
 
 ### Running the test suite
 ----------------------

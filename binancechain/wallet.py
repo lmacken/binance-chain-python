@@ -6,8 +6,6 @@ from eth_keyfile import decode_keyfile_json, create_keyfile_json
 from bitcoinlib import keys, mnemonic, encoding
 from .crypto import from_path, get_address
 from secp256k1 import PrivateKey, PublicKey
-import simplejson
-import hashlib
 
 
 HDPATH = "44'/714'/0'/0/0"
