@@ -3,13 +3,11 @@
 An example of the event-driven decorator WebSocket API
 """
 
-from pprint import pprint
-
-from binancechain import WebSocket
+import binancechain
 
 ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
-dex = WebSocket(ADDRESS, testnet=True)
+dex = binancechain.WebSocket(ADDRESS, testnet=True)
 
 
 @dex.on("open")
@@ -29,22 +27,22 @@ async def on_kline(kline):
 
 @dex.on("orders")
 async def user_orders(msg):
-    pprint(msg)
+    print(msg)
 
 
 @dex.on("accounts")
 async def user_accounts(msg):
-    pprint(msg)
+    print(msg)
 
 
 @dex.on("transfers")
 async def user_transfers(msg):
-    pprint(msg)
+    print(msg)
 
 
 @dex.on("error")
 async def on_error(msg):
-    pprint(msg)
+    print(msg)
 
 
 if __name__ == "__main__":
