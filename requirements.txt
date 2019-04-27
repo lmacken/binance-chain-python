@@ -1,9 +1,1 @@
-wheel
-bech32
-aiohttp
-bitcoinlib
-eth_keyfile
-secp256k1
-pyee
-varint
-protobuf
+.

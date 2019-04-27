@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name="binancechain",
-    version="0.1",
+    version="0.1.1",
     description="Binance Chain SDK",
     author="Luke Macken & Kim Bui",
     author_email="",
@@ -21,5 +21,16 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
+    ],
+    install_requires=[
+        "wheel",
+        "bech32",
+        "aiohttp",
+        "bitcoinlib",
+        "eth_keyfile",
+        "secp256k1",
+        "pyee",
+        "varint",
+        "protobuf",
     ],
 )
