@@ -185,17 +185,27 @@ from binancechain import WebSocket
 dex = WebSocket(address, testnet=True)
 
 @dex.on("open")
-async def on_open():
+async def on_open(): …
 
 @dex.on("allTickers", symbols=["$all"])
-async def on_ticker(msg):
+async def on_ticker(msg): … 
 
-try:
-    dex.start()
-except KeyboardInterrupt:
-    pass
-finally:
-    dex.close()
+@dex.on("kline_1m", symbols=["000-0E1_BNB"])
+async def on_kline(kline): … 
+
+@dex.on("orders")
+async def user_orders(msg): … 
+
+@dex.on("accounts")
+async def user_accounts(msg): … 
+
+@dex.on("transfers")
+async def user_transfers(msg): … 
+
+@dex.on("error")
+async def on_error(msg): … 
+
+dex.start() # or dex.start_async() coroutine
 ```
 ### Callback API
 ```python
@@ -210,6 +220,8 @@ def on_open():
 
 dex.start(on_open, on_error)
 ```
+
+See the WebSocket [examples](https://github.com/lmacken/binance-chain-python/tree/master/examples) for more information.
 
 ----------------
 
