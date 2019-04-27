@@ -10,9 +10,9 @@ dex = binancechain.WebSocket(address, testnet=True)
 
 
 def on_open():
-    dex.subscribe_user_orders(address=address, callback=user_orders)
-    dex.subscribe_user_accounts(address=address, callback=user_accounts)
-    dex.subscribe_user_transfers(address=address, callback=user_transfers)
+    dex.subscribe_user_orders(callback=user_orders)
+    dex.subscribe_user_accounts(callback=user_accounts)
+    dex.subscribe_user_transfers(callback=user_transfers)
 
 
 def user_orders(msg):

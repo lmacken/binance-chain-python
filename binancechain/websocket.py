@@ -153,19 +153,19 @@ class WebSocket:
         asyncio.ensure_future(self.send(payload))
 
     def subscribe_user_orders(
-        self, address: str, callback: Callable[[dict], None]
+        self, callback: Callable[[dict], None], address: Optional[str] = None
     ) -> None:
         """Subscribe to individual order updates."""
         self.subscribe("orders", address=address, callback=callback)
 
     def subscribe_user_accounts(
-        self, address: str, callback: Callable[[dict], None]
+        self, callback: Callable[[dict], None], address: Optional[str] = None
     ) -> None:
         """Subscribe to account updates."""
         self.subscribe("accounts", address=address, callback=callback)
 
     def subscribe_user_transfers(
-        self, address: str, callback: Callable[[dict], None]
+        self, callback: Callable[[dict], None], address: Optional[str] = None
     ) -> None:
         """
         Subscribe to transfer updates if `address` is involved (as sender or
