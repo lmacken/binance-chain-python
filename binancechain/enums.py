@@ -1,3 +1,6 @@
+# Copyright 2019, Luke Macken, Kim Bui, and the binance-chain-python contributors
+# SPDX-License-Identifier: MIT
+
 from enum import Enum
 
 

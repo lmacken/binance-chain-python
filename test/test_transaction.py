@@ -1,3 +1,5 @@
+# Copyright 2019, Luke Macken, Kim Bui, and the binance-chain-python contributors
+# SPDX-License-Identifier: MIT
 """
 Binance DEX SDK Test Suite for Transaction builder
 """
