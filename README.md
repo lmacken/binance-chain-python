@@ -132,7 +132,7 @@ broadcast_info = await client.broadcast(data)
 ### Decorator API
 
 ```python
-from binancechain import nWebSocket
+from binancechain import WebSocket
 
 ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
