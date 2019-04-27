@@ -136,7 +136,7 @@ from binancechain import WebSocket
 
 ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
-dex = BinanceChainWebSocket(ADDRESS, testnet=True)
+dex = WebSocket(ADDRESS, testnet=True)
 
 @dex.on("open")
 async def on_open():
