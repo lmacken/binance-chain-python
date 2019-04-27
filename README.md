@@ -37,7 +37,7 @@ An asyncio-driven Python API for the Binance Chain.
 
 ## REST API
 
-### Get information from chain
+### Query information
 ```python
 client = HTTPClient(testnet=True)
 
@@ -116,15 +116,16 @@ transactions = await client.get_transactions(
     tx_type=None,
 )
 ```
-### Broadcast data
+### Broadcast transaction
 ```python
-broadcast_info = await client.broadcast(data)
+broadcast_info = await client.broadcast(hash)
 
 ```
 
 ------------------
 
 ## NODE RPC
+### Query Information
 ```python
 noderpc = NodeRPC(testnet=True)
 
@@ -156,14 +157,16 @@ concensus_params = await noderpc.consensus_params("1")
 
 validators = await noderpc.validators(height=None)
 
-transactrion = await noderpc.tx(txid, prove=False)
+transaction = await noderpc.tx(txid, prove=False)
 
 tx_search = await noderpc.tx_search(query, prove=False, page=1, per_page=30)
 
 pending_transactions = await noderpc.unconfirmed_txs(limit=None)
 
 pendings_number = await noderpc.get_num_unconfirmed_txs()
-
+```
+### Broadcast transaction
+```python
 tx_hash = await noderpc.broadcast_tx_async(hash)
 
 tx_onchain = await noderpc.broadcast_tx_sync(hash)

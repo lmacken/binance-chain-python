@@ -32,7 +32,7 @@ async def nodeRPC_examples():
 
     validators = await noderpc.validators(height=None)
 
-    transactrion = await noderpc.tx(txid, prove=False)
+    transaction = await noderpc.tx(txid, prove=False)
 
     tx_search = await noderpc.tx_search(query, prove=False, page=1, per_page=30)
 
