@@ -4,7 +4,7 @@ import setuptools
 from distutils.core import setup
 
 setup(
-    name="Binance Chain SDK",
+    name="binancechain",
     version="1.0",
     description="Binance Chain SDK",
     author="Luke Macken & Kim Bui",
