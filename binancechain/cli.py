@@ -9,7 +9,7 @@ import logging
 from pprint import pprint
 
 import click
-from binancechain import BinanceChain
+from .httpclient import HTTPClient
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def run(coro):
 
 def dex_run(method, **kwargs):
     """ Run a method on the Binance DEX client """
-    dex = BinanceChain()
+    dex = HTTPClient()
     result = run(getattr(dex, method)(**kwargs))
     pprint(result)
     run(dex.close())
