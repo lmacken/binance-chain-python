@@ -46,7 +46,7 @@ An asyncio-driven Python API for the Binance Chain.
 #### Decorator API
 
 ```python
-from binancechain import BinanceChainWebSocket
+from binancechain import nWebSocket
 
 ADDRESS = "tbnb18d6rnpmkxzqv3767xaaev5zzn06p42nya8zu79"
 
@@ -73,54 +73,35 @@ finally:
 ----------------
 #### Create or recover wallet and keystore
 ```python
-from binancechain import BinanceWallet
-```
-- Create new wallet
-```python
-wallet = BinanceWallet.create_wallet(password="", testnet=False)
+from binancechain import Wallet
 
-wallet = BinanceWallet.create_wallet_mnemonic(language="english", password="", testnet=False)
-```
+wallet = Wallet.create_wallet(password="", testnet=False)
 
-- Create Keystore
-```python
-keystore = BinanceWallet.create_keystore(password=None)
-```
-- Create wallet from HDKey
-```python
-wallet = BinanceWallet(key="HDKEY object", testnet=False)
-```
-- Get wallet from keystore
-```python
-wallet = BinanceWallet.wallet_from_keystore(keystore=keystore, password="", testnet=False)
-```
-- Get wallet from mnemonic
-```python
-wallet = BinanceWallet.wallet_from_mnemonic(words="mnemonic words", password="", testnet=False)
-```
-- Get wallet from private key
-```python
-wallet = BinanceWallet.wallet_from_privatekey(privatekey="private_key", password="", testnet=False)
+wallet = Wallet.create_wallet_mnemonic(language="english", password="", testnet=False)
+
+keystore = Wallet.create_keystore(password=None)
+
+wallet = Wallet(key="HDKEY object", testnet=False)
+
+wallet = Wallet.wallet_from_keystore(keystore=keystore, password="", testnet=False)
+
+wallet = Wallet.wallet_from_mnemonic(words="mnemonic words", password="", testnet=False)
+
+wallet = Wallet.wallet_from_privatekey(privatekey="private_key", password="", testnet=False)
 ```
 
 #### Using the wallet
 ```python
-from binancechain import BinanceWallet
+from binancechain import Wallet
 
-wallet = BinanceWallet.create_wallet(password="", testnet=True)
-```
-- Get bnb address
-```python
+wallet = Wallet.create_wallet(password="", testnet=True)
+
 address = wallet.get_adress()
-```
-- Get public and private key
-```python
+
 priv = wallet.get_privatekey()
 
 pub = wallet.get_publickey()
-```
-- Sign message and verify signature
-```python
+
 pub, signature = wallet.sign(msg)
 
 is_valid = wallet.verify_signature(msg, signature)
@@ -131,13 +112,13 @@ is_valid = wallet.verify_signature(msg, signature)
 
 #### Using Transaction with wallet and client, handle signing and broadcast internally
 ```python
-from binancechain import BinanceTransaction BinanceWallet
+from binancechain import Transaction Wallet
 
 from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
 
 #if client is passed in , testnet arg will be ignored
 
-transaction = BinanceTransaction(wallet=wallet, client=None,testnet=False)
+transaction = Transaction(wallet=wallet, client=None,testnet=False)
 
   transfer = await transaction.transfer(to_address, symbol, amount)
 
@@ -163,7 +144,7 @@ transaction = BinanceTransaction(wallet=wallet, client=None,testnet=False)
 #### Create Transaction Message. This message can be signed and broadcast somewhere else
 
 ```python
-limit_buy_transaction = await BinanceTransaction.new_order_transaction(
+limit_buy_transaction = await Transaction.new_order_transaction(
       address="owner address",
       symbol="pair",
       side=SIDE.Buy,
@@ -171,10 +152,13 @@ limit_buy_transaction = await BinanceTransaction.new_order_transaction(
       price=1,
       quantity=1,
       timeInForce=TIMEINFORCE.GTE,
-      testnet=True,
+      account_number= None,
+      sequence= None,
+      client= None,
+      testnet = False, # will be ignored if client is passed in
   )
 
-  limit_sell_transaction = await BinanceTransaction.new_order_transaction(
+  limit_sell_transaction = await Transaction.new_order_transaction(
       address="owner address",
       symbol="pair",
       side=SIDE.Buy,
@@ -182,19 +166,40 @@ limit_buy_transaction = await BinanceTransaction.new_order_transaction(
       price=1,
       quantity=1,
       timeInForce=TIMEINFORCE.GTE,
-      testnet=True,
+      account_number= None,
+      sequence= None,
+      client= None,
+      testnet = False, # will be ignored if client is passed in
   )
 
-  cancel_order_transaction = await BinanceTransaction.cancel_order(
-      address="owner_address", symbol="pair", refid="", testnet=True
+  cancel_order_transaction = await Transaction.cancel_order(
+      address="owner_address",
+      symbol="pair",
+      refid="",
+      account_number= None,
+      sequence= None,
+      client= None,
+      testnet = False, # will be ignored if client is passed in
   )
 
-  freeze_token_transaction = await BinanceTransaction.freeze_token(
-      address="ownder_address", symbol="token", amount=1, testnet=True
+  freeze_token_transaction = await Transaction.freeze_token(
+      address="ownder_address",
+      symbol="token",
+      amount=1,
+      account_number= None,
+      sequence= None,
+      client= None,
+      testnet = False, # will be ignored if client is passed in
   )
 
-  unfreeze_token_tranasaction = await BinanceTransaction.unfreeze_token_transaction(
-      address="ownder_address", symbol="token", amount=1, testnet=True
+  unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
+      address="ownder_address",
+      symbol="token",
+      amount=1,
+      account_number= None,
+      sequence= None,
+      client= None,
+      testnet = False, # will be ignored if client is passed in
   )
 ```
 - Example transaction message :
