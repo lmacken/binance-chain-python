@@ -45,7 +45,7 @@ MAINNET_URL = ""
 TESTNET_URL = "https://seed-pre-s3.binance.org/"
 
 
-class BinanceChainNodeRPC:
+class NodeRPC:
     """ Binance Chain Node RPC HTTP API Client """
 
     def __init__(self, url: str = None, testnet: bool = True):

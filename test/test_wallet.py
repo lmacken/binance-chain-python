@@ -7,7 +7,7 @@ import pytest
 import asyncio
 import json
 from decimal import Decimal
-from binancechain import BinanceWallet, BinanceChain
+from binancechain import Wallet, HTTPClient
 
 MNEMONIC_2 = "tennis utility midnight pattern that foot security tent punch glance still night virus loop trade velvet rent glare ramp cushion defy grass section cage"
 MNEMONIC = "apart conduct congress bless remember picnic aerobic nothing dinner guilt catch brain sunny vocal advice castle horror shift reject valley evoke fork syrup code"
@@ -38,20 +38,20 @@ TRANSACTION_MSG = b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","
 
 @pytest.fixture
 async def chain():
-    chain = BinanceChain(testnet=True)
+    chain = HTTPClient(testnet=True)
     yield chain
     await chain.close()
 
 
 @pytest.fixture
 async def wallet():
-    wallet = BinanceWallet.wallet_from_privatekey(privatekey=PRIVATEKEY, password="")
+    wallet = Wallet.wallet_from_privatekey(privatekey=PRIVATEKEY, password="")
     yield wallet
 
 
 @pytest.mark.asyncio
 async def test_create_wallet(chain):
-    wallet = BinanceWallet.create_wallet()
+    wallet = Wallet.create_wallet()
     address = wallet.get_address()
     print(wallet)
     assert address, "Failed to get address from wallet"
@@ -59,32 +59,32 @@ async def test_create_wallet(chain):
 
 @pytest.mark.asyncio
 async def test_create_wallet_mnemonic(chain):
-    wallet = BinanceWallet.create_wallet_mnemonic(password=PASSWORD)
+    wallet = Wallet.create_wallet_mnemonic(password=PASSWORD)
     address = wallet.get_address()
     assert address, "Failed to get address from wallet"
 
 
 @pytest.mark.asyncio
 async def test_create_keystore(chain):
-    keystore = BinanceWallet.create_keystore(password=PASSWORD)
+    keystore = Wallet.create_keystore(password=PASSWORD)
     assert keystore, "Failed to create keystore"
 
 
 @pytest.mark.asyncio
 async def test_wallet_from_keystore(chain):
-    keystore = BinanceWallet.create_keystore(password=PASSWORD)
+    keystore = Wallet.create_keystore(password=PASSWORD)
     assert keystore, "Failed to create keystore"
-    wallet = BinanceWallet.wallet_from_keystore(keystore=keystore, password=PASSWORD)
+    wallet = Wallet.wallet_from_keystore(keystore=keystore, password=PASSWORD)
     address = wallet.get_address()
     assert address, "Failed to get address from recovered wallet"
 
 
 @pytest.mark.asyncio
 async def test_not_recover_wallet_keystore_with_wrong_password(chain):
-    keystore = BinanceWallet.create_keystore(password=PASSWORD)
+    keystore = Wallet.create_keystore(password=PASSWORD)
     assert keystore, "Failed to create keystore"
     try:
-        wallet = BinanceWallet.wallet_from_keystore(keystore=keystore, password="")
+        wallet = Wallet.wallet_from_keystore(keystore=keystore, password="")
     except ValueError as e:
         print(e)
         assert True
@@ -92,7 +92,7 @@ async def test_not_recover_wallet_keystore_with_wrong_password(chain):
 
 @pytest.mark.asyncio
 async def test_wallet_from_mnemonic(chain):
-    wallet = BinanceWallet.wallet_from_mnemonic(MNEMONIC, password="")
+    wallet = Wallet.wallet_from_mnemonic(MNEMONIC, password="")
     address = wallet.get_address()
     privatekey = wallet.get_privatekey()
     assert address, "Failed to get address from wallet"
@@ -103,7 +103,7 @@ async def test_wallet_from_mnemonic(chain):
 
 @pytest.mark.asyncio
 async def test_wallet_from_privatekey(chain):
-    wallet = BinanceWallet.wallet_from_privatekey(privatekey=PRIVATEKEY, password="")
+    wallet = Wallet.wallet_from_privatekey(privatekey=PRIVATEKEY, password="")
     address = wallet.get_address()
     assert address, "Failed to get address from wallet"
     assert address == ADDRESS, "Not getting the same address from recover"

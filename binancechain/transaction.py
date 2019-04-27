@@ -8,7 +8,7 @@ from bitcoinlib import encoding
 from varint import encode
 from decimal import Decimal
 from .crypto import generate_id, address_decode
-from .httpclient import BinanceChain
+from .httpclient import HTTPClient
 from .enums import Ordertype, Side, Timeinforce, Votes
 from .transaction_pb2 import (
     CancelOrder,
@@ -265,7 +265,8 @@ class TransactionBase:
     def ___repr__(self):
         return "test string transaction"
 
-class BinanceTransaction:
+
+class Transaction:
     @staticmethod
     async def new_order_transaction(
         address: str,
@@ -282,7 +283,7 @@ class BinanceTransaction:
     ) -> TransactionBase:
         """ Create New Order TransactionBase object"""
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
@@ -314,7 +315,7 @@ class BinanceTransaction:
             Create Cancel order TransactionBase object
         """
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
@@ -340,7 +341,7 @@ class BinanceTransaction:
             Create transfer Transaction Base object
         """
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(from_address)
             account_number = account_info["account_number"]
@@ -367,7 +368,7 @@ class BinanceTransaction:
         Create free_token TransactionBase object
         """
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
@@ -392,7 +393,7 @@ class BinanceTransaction:
         Create unfreeze token TransactionBase object
         """
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
@@ -417,7 +418,7 @@ class BinanceTransaction:
         Create vote TransactionBase object
         """
         if not client:
-            client = BinanceChain(testnet=testnet)
+            client = HTTPClient(testnet=testnet)
         if not account_number or not sequence:
             account_info = await client.get_account(voter)
             account_number = account_info["account_number"]
@@ -432,7 +433,7 @@ class BinanceTransaction:
         self.wallet = wallet
         self.address = wallet.get_address()
         if not client:
-            self.client = BinanceChain(testnet=testnet)
+            self.client = HTTPClient(testnet=testnet)
         else:
             self.client = client
 
@@ -456,7 +457,7 @@ class BinanceTransaction:
             Create,sign and broadcast new_order tranasction
         """
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.new_order_transaction(
+        transaction = await Transaction.new_order_transaction(
             address=self.address,
             client=self.client,
             account_number=account_number,
@@ -473,7 +474,7 @@ class BinanceTransaction:
     async def cancel_order(self, symbol: str, refid: str) -> Any:
         """Create, sign and broadcast cancel_order transaction"""
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.cancel_order_transaction(
+        transaction = await Transaction.cancel_order_transaction(
             address=self.address,
             client=self.client,
             account_number=account_number,
@@ -486,7 +487,7 @@ class BinanceTransaction:
     async def transfer(self, to_address: str, symbol: str, amount: number_type) -> Any:
         """Create, sign and broadcast transfer transaction"""
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.transfer_transaction(
+        transaction = await Transaction.transfer_transaction(
             from_address=self.address,
             client=self.client,
             account_number=account_number,
@@ -500,7 +501,7 @@ class BinanceTransaction:
     async def freeze_token(self, symbol: str, amount: number_type) -> Any:
         """Create, sign and broadcast free_token transaction"""
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.freeze_token_transaction(
+        transaction = await Transaction.freeze_token_transaction(
             address=self.address,
             client=self.client,
             account_number=account_number,
@@ -513,7 +514,7 @@ class BinanceTransaction:
     async def unfreeze_token(self, symbol: str, amount: number_type) -> Any:
         """Create, sign and broadcast unfreeze_token transaction"""
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.unfreeze_token_transaction(
+        transaction = await Transaction.unfreeze_token_transaction(
             address=self.address,
             client=self.client,
             account_number=account_number,
@@ -525,7 +526,7 @@ class BinanceTransaction:
 
     async def vote(self, proposal_id: str, option: Votes):
         account_number, sequence = await self.get_account_info()
-        transaction = await BinanceTransaction.vote_transaction(
+        transaction = await Transaction.vote_transaction(
             voter=self.address,
             client=self.client,
             account_number=account_number,

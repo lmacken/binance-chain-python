@@ -35,7 +35,7 @@ MAINNET_URL = ""
 TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
 
 
-class BinanceChainWebSocket:
+class WebSocket:
     """The Binance DEX WebSocket Manager."""
 
     def __init__(

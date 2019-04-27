@@ -26,7 +26,7 @@ import asyncio
 
 import pytest
 
-from binancechain import BinanceChain, BinanceChainWebSocket
+from binancechain import HTTPClient, WebSocket
 
 
 def on_error(msg):
@@ -37,7 +37,7 @@ def on_error(msg):
 async def client():
     # If we create fresh websockets too fast it may error?
     await asyncio.sleep(1)
-    client = BinanceChainWebSocket(testnet=True)
+    client = WebSocket(testnet=True)
     yield client
     client.close()
 
@@ -45,7 +45,7 @@ async def client():
 @pytest.fixture
 async def symbols():
     symbols = []
-    rest = BinanceChain(testnet=True)
+    rest = HTTPClient(testnet=True)
     markets = await rest.get_markets()
     for market in markets:
         symbol = f"{market['base_asset_symbol']}_{market['quote_asset_symbol']}"

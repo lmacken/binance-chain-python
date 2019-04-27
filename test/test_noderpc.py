@@ -25,12 +25,12 @@ Binance Chain Node RPC Test Suite
 import pytest
 import aiohttp
 
-from binancechain import BinanceChainNodeRPC, BinanceChainException
+from binancechain import NodeRPC, BinanceChainException
 
 
 @pytest.fixture
 async def noderpc():
-    noderpc = BinanceChainNodeRPC(testnet=True)
+    noderpc = NodeRPC(testnet=True)
     yield noderpc
     await noderpc.close()
 
@@ -198,7 +198,7 @@ async def test_invalid_get_request(noderpc):
 
 @pytest.mark.asyncio
 async def test_del_without_close_warning():
-    noderpc = BinanceChainNodeRPC(testnet=True)
+    noderpc = NodeRPC(testnet=True)
     await noderpc.get_status()
     with pytest.warns(UserWarning):
         del(noderpc)

@@ -38,7 +38,7 @@ MAINNET_URL = "https://dex.binance.org"
 TESTNET_URL = "https://testnet-dex.binance.org"
 
 
-class BinanceChain:
+class HTTPClient:
     """ Binance Chain HTTP API Client """
 
     def __init__(self, testnet: bool = True, api_version: str = "v1"):

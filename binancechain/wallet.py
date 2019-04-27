@@ -13,7 +13,7 @@ TESTNET_PREFIX = "tbnb"
 MAINET_PREFIX = "bnb"
 
 
-class BinanceWallet:
+class Wallet:
     @staticmethod
     def create_wallet(password: str = "", testnet: bool = False):
         """
@@ -21,7 +21,7 @@ class BinanceWallet:
         """
         root_key = keys.HDKey(passphrase=password)
         key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet)
 
     @staticmethod
     def create_keystore(password: str = "") -> dict:
@@ -47,7 +47,7 @@ class BinanceWallet:
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet)
 
     @staticmethod
     def wallet_from_keystore(keystore: dict, password: str = "", testnet: bool = False):
@@ -56,7 +56,7 @@ class BinanceWallet:
             keystore, password=encoding.to_bytes(password)
         )
         key = keys.HDKey(private_key)
-        return BinanceWallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet)
 
     @staticmethod
     def wallet_from_privatekey(
@@ -64,7 +64,7 @@ class BinanceWallet:
     ):
         """Recover Binance Wallet from privatekey"""
         key = keys.HDKey(import_key=privatekey, passphrase=password)
-        return BinanceWallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet)
 
     @staticmethod
     def wallet_from_mnemonic(words: str, password: str = "", testnet: bool = False):
@@ -72,13 +72,13 @@ class BinanceWallet:
         m = mnemonic.Mnemonic(language="english")
         root_key = keys.HDKey.from_seed(m.to_seed(words=words, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return BinanceWallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet)
 
     # @staticmethod
     # def wallet_from_seed(seed, testnet=False):
     #     root_key = keys.HDKey.from_seed(seed)
     #     key = from_path(root_key=root_key, path=HDPATH)
-    #     return BinanceWallet(key=key, testnet=testnet, mnemonic=words)
+    #     return Wallet(key=key, testnet=testnet, mnemonic=words)
 
     def __init__(self, key: str, testnet: bool = False):
         self.testnet = testnet

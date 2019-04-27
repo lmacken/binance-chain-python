@@ -27,12 +27,13 @@ from datetime import datetime, timedelta
 
 import aiohttp
 import pytest
-from binancechain import BinanceChain, BinanceChainException
+
+from binancechain import HTTPClient, BinanceChainException
 
 
 @pytest.fixture
 async def client():
-    client = BinanceChain(testnet=True)
+    client = HTTPClient(testnet=True)
     yield client
     await client.close()
 
@@ -349,7 +350,7 @@ async def test_invalid_request(client):
 
 @pytest.mark.asyncio
 async def test_del_without_close_warning():
-    client = BinanceChain(testnet=True)
+    client = HTTPClient(testnet=True)
     await client.get_time()
     with pytest.warns(UserWarning):
         del (client)
