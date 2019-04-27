@@ -55,9 +55,8 @@ from binancechain import HTTPClient, NodeRPC, WebSocket, Wallet, Transaction, Bi
 
 ### Query information
 ```python
-import binancechain
 
-client = binancechain.HTTPClient(testnet=True)
+client = HTTPClient(testnet=True)
 
 server_time = await client.get_time()
 
@@ -198,7 +197,7 @@ tx_confirmed = await noderpc.commit(height=None)
 ### Decorator API
 
 ```python
-dex = binancechain.WebSocket(address, testnet=True)
+dex = WebSocket(address, testnet=True)
 
 @dex.on("open")
 async def on_open(): …
@@ -225,7 +224,7 @@ dex.start() # or dex.start_async() coroutine
 ```
 ### Callback API
 ```python
-dex = binancechain.WebSocket(address, testnet=True)
+dex = WebSocket(address, testnet=True)
 
 def on_open():
     dex.subscribe_user_orders(callback=user_orders)
@@ -243,8 +242,6 @@ See the WebSocket [examples](https://github.com/lmacken/binance-chain-python/tre
 
 ### Create or recover wallet and keystore
 ```python
-from binancechain import Wallet
-
 wallet = Wallet.create_wallet(password="", testnet=False)
 
 wallet = Wallet.create_wallet_mnemonic(language="english", password="", testnet=False)
@@ -283,8 +280,6 @@ is_valid = wallet.verify_signature(msg, signature)
 
 ### Using Transaction with wallet and client, handle signing and broadcast internally
 ```python
-from binancechain import Transaction, Wallet
-
 from binancechain.enums import Ordertype, Side, Timeinforce, Votes
 
 #if client is passed in , testnet arg will be ignored
