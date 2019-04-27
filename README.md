@@ -13,7 +13,7 @@ An asyncio-driven Python API for the Binance Chain.
 ## Implementation Details
 
 - [Extensive test suite](https://github.com/lmacken/binance-chain-python/tree/master/test)
-- [aiohttp](https://aiohttp.readthedocs.io) NodeRPC and HTTPClients, which handles connection-pooling automatically.
+- [aiohttp](https://aiohttp.readthedocs.io) for all HTTP requests, which automatically performs connection-pooling
 - [SPDX license identifiers](https://spdx.org/)
 - Python [type hints](https://docs.python.org/3/library/typing.html) for ease of development
 - Python3.6+ f-strings for faster string interpolation
