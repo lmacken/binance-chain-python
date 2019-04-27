@@ -226,6 +226,15 @@ def on_open():
     dex.subscribe_user_orders(callback=user_orders)
     dex.subscribe_user_accounts(callback=user_accounts)
     dex.subscribe_user_transfers(callback=user_transfers)
+    dex.subscribe_trades(callback=callback, symbols=symbols)
+    dex.subscribe_market_depth(callback=callback, symbols=symbols)
+    dex.subscribe_market_diff(callback=callback, symbols=symbols)
+    dex.subscribe_klines(callback=callback, symbols=symbols)
+    dex.subscribe_ticker(callback=callback, symbols=symbols)
+    dex.subscribe_all_tickers(callback=callback)
+    dex.subscribe_mini_ticker(callback=callback, symbols=symbols)
+    dex.subscribe_all_mini_tickers(callback=callback)
+    dex.subscribe_blockheight(callback=callback)
 
 dex.start(on_open, on_error)
 ```
@@ -255,10 +264,6 @@ wallet = Wallet.wallet_from_privatekey(privatekey="private_key", password="", te
 
 ### Using the wallet
 ```python
-from binancechain import Wallet
-
-wallet = Wallet.create_wallet(password="", testnet=True)
-
 address = wallet.get_adress()
 
 priv = wallet.get_privatekey()
