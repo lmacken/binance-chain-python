@@ -11,16 +11,17 @@ An asyncio-driven Python API for the Binance Chain.
     pip install git+https://github.com/lmacken/binance-chain-python.git
 
 ## Implementation
-
-- Python3 asyncio + [aiohttp](https://aiohttp.readthedocs.io)
-- [bitcoinlib](https://github.com/1200wd/bitcoinlib)
-- [secp236k1](https://github.com/ludbb/secp256k1-py)
+- [aiohttp](https://aiohttp.readthedocs.io)
 - Extensive pytest suite
 - SPDX license identifiers
 - Python3.6+ f-strings
 - Type annotations
 - Exception-chaining with `raise from`
 - Consistent syntax formatting with [Black](https://github.com/ambv/black)
+#### Wallet and Transaction
+- [bitcoinlib](https://github.com/1200wd/bitcoinlib)
+- [secp236k1](https://github.com/ludbb/secp256k1-py)
+- [eth_keyfile](https://github.com/ethereum/eth-keyfile)
 
 ------------------
 
@@ -40,84 +41,84 @@ An asyncio-driven Python API for the Binance Chain.
 ```python
 client = HTTPClient(testnet=True)
 
-  server_time = await client.get_time()
+server_time = await client.get_time()
 
-  node_info = await client.get_node_info()
+node_info = await client.get_node_info()
 
-  validators = await client.get_validators()
+validators = await client.get_validators()
 
-  peers = await client.get_peers()
+peers = await client.get_peers()
 
-  account_info = await client.get_account_info(address)
+account_info = await client.get_account_info(address)
 
-  sequence_info = await client.get_account_sequence(address)
+sequence_info = await client.get_account_sequence(address)
 
-  transaction = await client.get_transaction(hash)
+transaction = await client.get_transaction(hash)
 
-  token_list = await client.get_token_list()
+token_list = await client.get_token_list()
 
-  markets = await client.get_markets(limit=500, offset=0)
+markets = await client.get_markets(limit=500, offset=0)
 
-  fees = await client.get_fees()
+fees = await client.get_fees()
 
-  depth = await client.get_depth(symbol, limit=100)
+depth = await client.get_depth(symbol, limit=100)
 
-  klines = await client.get_klines(symbol, interval, limit=300, start=None, end=None)
+klines = await client.get_klines(symbol, interval, limit=300, start=None, end=None)
 
-  closed_orders = await client.get_closed_orders(
-      address,
-      end=None,
-      limit=None,
-      offset=None,
-      side=None,
-      start=None,
-      status=None,
-      symbol=None,
-      total=None,
-  )
+closed_orders = await client.get_closed_orders(
+    address,
+    end=None,
+    limit=None,
+    offset=None,
+    side=None,
+    start=None,
+    status=None,
+    symbol=None,
+    total=None,
+)
 
-  open_orders = await client.get_open_orders(
-      self, address, limit=None, offset=None, symbol=None, total=None
-  )
+open_orders = await client.get_open_orders(
+    self, address, limit=None, offset=None, symbol=None, total=None
+)
 
-  order = await client.get_order(id)
+order = await client.get_order(id)
 
-  ticker = await client.get_ticker(symbol)
+ticker = await client.get_ticker(symbol)
 
-  trades = await client.get_trades(
-      address=None,
-      buyerOrderId=None,
-      height=None,
-      limit=None,
-      offset=None,
-      quoteAsset=None,
-      sellerOrderId=None,
-      side=None,
-      start=None,
-      end=None,
-      total=None,
-      symbol=None,
-  )
+trades = await client.get_trades(
+    address=None,
+    buyerOrderId=None,
+    height=None,
+    limit=None,
+    offset=None,
+    quoteAsset=None,
+    sellerOrderId=None,
+    side=None,
+    start=None,
+    end=None,
+    total=None,
+    symbol=None,
+)
 
-  block_fee = await client.block_exchange_fee(
-      address=None, end=None, limit=None, offset=None, start=None, total=None
-  )
+block_fee = await client.block_exchange_fee(
+    address=None, end=None, limit=None, offset=None, start=None, total=None
+)
 
-  transactions = await client.get_transactions(
-      address,
-      height=None,
-      end=None,
-      limit=None,
-      offset=None,
-      side=None,
-      start=None,
-      tx_asset=None,
-      tx_type=None,
-  )
+transactions = await client.get_transactions(
+    address,
+    height=None,
+    end=None,
+    limit=None,
+    offset=None,
+    side=None,
+    start=None,
+    tx_asset=None,
+    tx_type=None,
+)
 ```
 #### Broadcast data
 ```python
-  broadcast_info = await client.broadcast(data)
+broadcast_info = await client.broadcast(data)
 
 ```
 ### NODE RPC
@@ -203,26 +204,26 @@ from binancechain.enums import ORDERTYPE, SIDE, TIMEINFORCE, VOTES
 
 transaction = Transaction(wallet=wallet, client=None,testnet=False)
 
-  transfer = await transaction.transfer(to_address, symbol, amount)
+transfer = await transaction.transfer(to_address, symbol, amount)
 
-  broadcast_info = await transaction.create_new_order(
-      symbol="binance_pair",
-      side=SIDE.Buy,
-      ordertype=ORDERTYPE.Limit,
-      price=1,
-      quantity=1,
-      timeInForce=TIMEINFORCE.GTE,
-  )
+broadcast_info = await transaction.create_new_order(
+    symbol="binance_pair",
+    side=SIDE.Buy,
+    ordertype=ORDERTYPE.Limit,
+    price=1,
+    quantity=1,
+    timeInForce=TIMEINFORCE.GTE,
+)
 
-  broadcast_info = await transaction.cancel_order(symbol="pair", refid)
+broadcast_info = await transaction.cancel_order(symbol="pair", refid)
 
-  broadcast_info = await transaction.freeze_token(symbol="token", amount)
+broadcast_info = await transaction.freeze_token(symbol="token", amount)
 
-  broadcast_info = await transaction.unfreeze_token(symbol="token", amount)
+broadcast_info = await transaction.unfreeze_token(symbol="token", amount)
 
-  broadcast_info = await transaction.vote(
-      proposal_id="", option=VOTES.Yes
-  )
+broadcast_info = await transaction.vote(
+    proposal_id="", option=VOTES.Yes
+)
 ```
 #### Create Transaction Message. This message can be signed and broadcast somewhere else
 
@@ -241,49 +242,49 @@ limit_buy_transaction = await Transaction.new_order_transaction(
       testnet = False, # will be ignored if client is passed in
   )
 
-  limit_sell_transaction = await Transaction.new_order_transaction(
-      address="owner address",
-      symbol="pair",
-      side=SIDE.Buy,
-      ordertype=ORDERTYPE.Limit,
-      price=1,
-      quantity=1,
-      timeInForce=TIMEINFORCE.GTE,
-      account_number= None,
-      sequence= None,
-      client= None,
-      testnet = False, # will be ignored if client is passed in
-  )
+limit_sell_transaction = await Transaction.new_order_transaction(
+    address="owner address",
+    symbol="pair",
+    side=SIDE.Buy,
+    ordertype=ORDERTYPE.Limit,
+    price=1,
+    quantity=1,
+    timeInForce=TIMEINFORCE.GTE,
+    account_number= None,
+    sequence= None,
+    client= None,
+    testnet = False, # will be ignored if client is passed in
+)
 
-  cancel_order_transaction = await Transaction.cancel_order(
-      address="owner_address",
-      symbol="pair",
-      refid="",
-      account_number= None,
-      sequence= None,
-      client= None,
-      testnet = False, # will be ignored if client is passed in
-  )
+cancel_order_transaction = await Transaction.cancel_order(
+    address="owner_address",
+    symbol="pair",
+    refid="",
+    account_number= None,
+    sequence= None,
+    client= None,
+    testnet = False, # will be ignored if client is passed in
+)
 
-  freeze_token_transaction = await Transaction.freeze_token(
-      address="ownder_address",
-      symbol="token",
-      amount=1,
-      account_number= None,
-      sequence= None,
-      client= None,
-      testnet = False, # will be ignored if client is passed in
-  )
+freeze_token_transaction = await Transaction.freeze_token(
+    address="ownder_address",
+    symbol="token",
+    amount=1,
+    account_number= None,
+    sequence= None,
+    client= None,
+    testnet = False, # will be ignored if client is passed in
+)
 
-  unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
-      address="ownder_address",
-      symbol="token",
-      amount=1,
-      account_number= None,
-      sequence= None,
-      client= None,
-      testnet = False, # will be ignored if client is passed in
-  )
+unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
+    address="ownder_address",
+    symbol="token",
+    amount=1,
+    account_number= None,
+    sequence= None,
+    client= None,
+    testnet = False, # will be ignored if client is passed in
+)
 ```
 - Example transaction message :
 
