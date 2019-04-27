@@ -1,4 +1,4 @@
-from .enums import *
+from .enums import Ordertype, Side, Votes, Timeinforce
 from .httpclient import BinanceChain
 from .noderpc import BinanceChainNodeRPC
 from .transaction import BinanceTransaction

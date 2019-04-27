@@ -8,7 +8,8 @@ import asyncio
 import json
 from decimal import Decimal
 from binancechain import BinanceTransaction, BinanceWallet, BinanceChain
-from binancechain.enums import *
+
+from binancechain.enums import Side, Votes, Ordertype, Timeinforce
 
 MNEMONIC_2 = "tennis utility midnight pattern that foot security tent punch glance still night virus loop trade velvet rent glare ramp cushion defy grass section cage"
 MNEMONIC = "apart conduct congress bless remember picnic aerobic nothing dinner guilt catch brain sunny vocal advice castle horror shift reject valley evoke fork syrup code"
@@ -41,11 +42,11 @@ async def test_new_order(wallet, client):
     transaction = await BinanceTransaction.new_order_transaction(
         address=address,
         symbol=PAIR,
-        side=SIDE.Buy,
-        timeInForce=TIMEINFORCE.GTE,
+        side=Side.BUY,
+        timeInForce=Timeinforce.GTE,
         price=0.01,
         quantity=1,
-        ordertype=ORDERTYPE.Limit,
+        ordertype=Ordertype.LIMIT,
         client=client,
     )
     pubkey, signature = wallet.sign(transaction.get_sign_message())
@@ -147,7 +148,7 @@ async def test_unfreeze_token(wallet, client):
 # async def test_vote_token(wallet, client):
 #     address = wallet.get_address()
 #     transaction = await BinanceTransaction.vote_transaction(
-#         voter=address, proposal_id=PROPOSAL_ID, option=VOTES.Yes, client=client
+#         voter=address, proposal_id=PROPOSAL_ID, option=Votes.Yes, client=client
 #     )
 #     pubkey, signature = wallet.sign(transaction.get_sign_message())
 #     hex_data = transaction.update_signature(pubkey, signature)
@@ -163,11 +164,11 @@ async def test_transaction_object_new_order(wallet, client):
     transaction = BinanceTransaction(wallet=wallet, client=client)
     new_order = await transaction.create_new_order(
         symbol=PAIR,
-        side=SIDE.Buy,
-        timeInForce=TIMEINFORCE.GTE,
+        side=Side.BUY,
+        timeInForce=Timeinforce.GTE,
         price=0.01,
         quantity=1,
-        ordertype=ORDERTYPE.Limit,
+        ordertype=Ordertype.LIMIT,
     )
     assert new_order, "No result of transfer found"
     assert new_order[0]["hash"], "No txid found"

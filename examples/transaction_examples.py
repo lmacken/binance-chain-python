@@ -29,7 +29,7 @@ async def transaction_example():
     broadcast_info = await transaction.unfreeze_token(symbol="token", amount=1)
 
     broadcast_info = await transaction.vote(
-        proposal_id="", option=VOTES.Yes
+        proposal_id="", option=Votes.Yes
     )  # only validator can vote
 
     """

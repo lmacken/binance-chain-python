@@ -2,14 +2,14 @@
     Create and manage wallets
 """
 import binascii
-from typing import Union, Any, Tuple
+from typing import Union, Any, Tuple, Optional
 import json
 from bitcoinlib import encoding
 from varint import encode
 from decimal import Decimal
 from .crypto import generate_id, address_decode
 from .httpclient import BinanceChain
-from .enums import *
+from .enums import Ordertype, Side, Timeinforce, Votes
 from .transaction_pb2 import (
     CancelOrder,
     Freeze,
@@ -54,11 +54,11 @@ class BinanceTransaction:
     async def new_order_transaction(
         address: str,
         symbol: str,
-        side: SIDE,
+        side: Side,
         price: number_type,
         quantity: number_type,
-        ordertype: ORDERTYPE = ORDERTYPE.Limit,
-        timeInForce: TIMEINFORCE = TIMEINFORCE.GTE,
+        ordertype: Ordertype = Ordertype.LIMIT,
+        timeInForce: Timeinforce = Timeinforce.GTE,
         testnet: bool = False,
         account_number: int = None,
         sequence: int = None,
@@ -191,7 +191,7 @@ class BinanceTransaction:
     async def vote_transaction(
         voter: str,
         proposal_id: Union[int, str],
-        option: VOTES,
+        option: Votes,
         testnet: bool = False,
         account_number: int = None,
         sequence: int = None,
@@ -230,11 +230,11 @@ class BinanceTransaction:
     async def create_new_order(
         self,
         symbol: str,
-        side: SIDE,
-        ordertype: ORDERTYPE,
+        side: Side,
+        ordertype: Ordertype,
         price: number_type,
         quantity: number_type,
-        timeInForce: TIMEINFORCE,
+        timeInForce: Timeinforce,
     ) -> Any:
         """
             Create,sign and broadcast new_order tranasction
@@ -307,7 +307,7 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def vote(self, proposal_id: str, option: VOTES):
+    async def vote(self, proposal_id: str, option: Votes):
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.vote_transaction(
             voter=self.address,
@@ -329,12 +329,7 @@ class BinanceTransaction:
 
 class TransactionBase:
     def __init__(
-        self,
-        address: str,
-        account_number: int,
-        sequence: int,
-        memo: str = "",
-        data: str = "",
+        self, address: str, account_number, sequence, memo: str = "", data: str = ""
     ):
         self.account_number = account_number
         self.data = data.encode()
@@ -354,12 +349,12 @@ class TransactionBase:
     def get_new_order_msg(
         self,
         symbol: str,
-        side: SIDE,
+        side: Side,
         price: number_type,
         quantity: number_type,
         sequence=None,
-        ordertype: ORDERTYPE = ORDERTYPE.Limit,
-        timeInForce: TIMEINFORCE = TIMEINFORCE.GTE,
+        ordertype: Ordertype = Ordertype.LIMIT,
+        timeInForce: Timeinforce = Timeinforce.GTE,
     ):
         """Create new_order protobuf attributes, SignMessage of the transaction"""
         id = generate_id(self.address, self.sequence)
@@ -483,7 +478,7 @@ class TransactionBase:
         )
         return self.SignMessage
 
-    def get_vote_msg(self, proposal_id: str, option: VOTES):
+    def get_vote_msg(self, proposal_id: str, option: Votes):
         """Generate cancel_order StdMsg for StdTx and SignMessage for current transaction"""
         self.msg = {
             "proposal_id": proposal_id,
@@ -504,7 +499,7 @@ class TransactionBase:
     def get_sign_message(self):
         return self.SignMessage
 
-    def update_signature(self, pubkey: str, signature: str) -> bytes:
+    def update_signature(self, pubkey: str, signature: str):
         """
         :Update current transaction with pubkey and signature from self.address
         :Create StdTx proto

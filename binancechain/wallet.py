@@ -15,7 +15,7 @@ MAINET_PREFIX = "bnb"
 
 class BinanceWallet:
     @staticmethod
-    def create_wallet(password: str = "", testnet: bool = False) -> BinanceWallet:
+    def create_wallet(password: str = "", testnet: bool = False):
         """
         Create brand new wallet
         """
@@ -39,7 +39,10 @@ class BinanceWallet:
     @staticmethod
     def create_wallet_mnemonic(
         language: str = "english", password: str = "", testnet: bool = False
-    ) -> BinanceWallet:
+    ):
+        """
+        Create wallet with mnemonic in language
+        """
         m = mnemonic.Mnemonic(language)
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
@@ -47,9 +50,8 @@ class BinanceWallet:
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def wallet_from_keystore(
-        keystore: dict, password: str = "", testnet: bool = False
-    ) -> BinanceWallet:
+    def wallet_from_keystore(keystore: dict, password: str = "", testnet: bool = False):
+        "Recover Binance wallet from keystore"
         private_key = decode_keyfile_json(
             keystore, password=encoding.to_bytes(password)
         )
@@ -59,14 +61,14 @@ class BinanceWallet:
     @staticmethod
     def wallet_from_privatekey(
         privatekey: str, password: str = "", testnet: bool = False
-    ) -> BinanceWallet:
+    ):
+        """Recover Binance Wallet from privatekey"""
         key = keys.HDKey(import_key=privatekey, passphrase=password)
         return BinanceWallet(key=key, testnet=testnet)
 
     @staticmethod
-    def wallet_from_mnemonic(
-        words: str, password: str = "", testnet: bool = False
-    ) -> BinanceWallet:
+    def wallet_from_mnemonic(words: str, password: str = "", testnet: bool = False):
+        "Recover wallet from mnemonic"
         m = mnemonic.Mnemonic(language="english")
         root_key = keys.HDKey.from_seed(m.to_seed(words=words, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
@@ -85,17 +87,20 @@ class BinanceWallet:
         self.address = get_address(prefix=self.prefix, key=key)
 
     def get_address(self) -> str:
+        """Return wallet's address"""
         return self.address
 
     def get_privatekey(self):
+        """Return wallet's private key"""
         return self.key.private_hex
 
     def get_publickey(self):
+        """Return wallet's public key"""
         return self.key.public_hex
 
     def sign(self, msg):
         """
-            Return signature
+            Sign a message with private key, Return signature
         """
         priv = PrivateKey(self.key.private_byte, raw=True)
         sig = priv.ecdsa_sign(msg)
@@ -103,6 +108,7 @@ class BinanceWallet:
         return self.key.public_hex, encoding.to_hexstring(h)
 
     def verify_signature(self, msg, signature):
+        """Verify message and signature if its from this wallet"""
         pub = PublicKey(self.key.public_byte, raw=True)
         sig = pub.ecdsa_deserialize_compact(encoding.to_bytes(signature))
         valid = pub.ecdsa_verify(msg, sig)
