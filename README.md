@@ -42,13 +42,30 @@ An unofficial asyncio Python API for the Binance Chain.
 - [WEBSOCKET](https://github.com/lmacken/binance-chain-python#websocket-1)
 - [WALLET](https://github.com/lmacken/binance-chain-python#binance-chain-wallet)
 - [TRANSACTION](https://github.com/lmacken/binance-chain-python#binance-chain-transaction)
+
+### NAMESPACE
+
+```python
+import binancechain
+
+binancechain.HTTPClient
+binancechain.NodeRPC
+binancechain.WebSocket
+binancechain.Wallet
+binancechain.Transaction
+
+binancechain.BinanceChainException
+```
+
 ------------------
 
 ## REST API
 
 ### Query information
 ```python
-client = HTTPClient(testnet=True)
+import binancechain
+
+client = binancechain.HTTPClient(testnet=True)
 
 server_time = await client.get_time()
 
@@ -136,7 +153,7 @@ broadcast_info = await client.broadcast(hash)
 ## NODE RPC
 ### Query Information
 ```python
-noderpc = NodeRPC(testnet=True)
+noderpc = binancechain.NodeRPC(testnet=True)
 
 abic_info = await noderpc.get_abci_info(path, data=None, height="0", prove=False)
 
@@ -189,9 +206,7 @@ tx_confirmed = await noderpc.commit(height=None)
 ### Decorator API
 
 ```python
-from binancechain import WebSocket
-
-dex = WebSocket(address, testnet=True)
+dex = binancechain.WebSocket(address, testnet=True)
 
 @dex.on("open")
 async def on_open(): …
@@ -218,9 +233,7 @@ dex.start() # or dex.start_async() coroutine
 ```
 ### Callback API
 ```python
-from binancechain import WebSocket
-
-dex = WebSocket(address, testnet=True)
+dex = binancechain.WebSocket(address, testnet=True)
 
 def on_open():
     dex.subscribe_user_orders(callback=user_orders)
