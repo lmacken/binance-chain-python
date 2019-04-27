@@ -16,7 +16,7 @@ wallet = BinanceWallet.create_wallet_mnemonic(
 """
 Create Keystore
 """
-keystore = BinanceWallet.create_keystore(password="")
+keystore = BinanceWallet.create_keystore(password=None)
 
 
 """

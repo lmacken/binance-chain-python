@@ -2,6 +2,7 @@
     Create and manage wallets
 """
 import binascii
+from typing import Union, Any, Tuple
 import json
 from bitcoinlib import encoding
 from varint import encode
@@ -45,23 +46,25 @@ MSG_TYPES = {
 }
 
 BASE = 100000000
+number_type = Union[str, float, int, Decimal]
 
 
 class BinanceTransaction:
     @staticmethod
     async def new_order_transaction(
-        address,
-        symbol,
+        address: str,
+        symbol: str,
         side: SIDE,
-        price,
-        quantity,
-        ordertype=ORDERTYPE.Limit,
-        timeInForce=TIMEINFORCE.GTE,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        price: number_type,
+        quantity: number_type,
+        ordertype: ORDERTYPE = ORDERTYPE.Limit,
+        timeInForce: TIMEINFORCE = TIMEINFORCE.GTE,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """ Create New Order TransactionBase object"""
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -83,14 +86,17 @@ class BinanceTransaction:
 
     @staticmethod
     async def cancel_order_transaction(
-        address,
-        symbol,
-        refid,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        address: str,
+        symbol: str,
+        refid: str,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+            Create Cancel order TransactionBase object
+        """
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -105,15 +111,18 @@ class BinanceTransaction:
 
     @staticmethod
     async def transfer_transaction(
-        from_address,
-        to_address,
-        symbol,
-        amount,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        from_address: str,
+        to_address: str,
+        symbol: str,
+        amount: number_type,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+            Create transfer Transaction Base object
+        """
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -130,14 +139,17 @@ class BinanceTransaction:
 
     @staticmethod
     async def freeze_token_transaction(
-        address,
-        symbol,
-        amount,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        address: str,
+        symbol: str,
+        amount: number_type,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+        Create free_token TransactionBase object
+        """
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -152,14 +164,17 @@ class BinanceTransaction:
 
     @staticmethod
     async def unfreeze_token_transaction(
-        address,
-        symbol,
-        amount,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        address: str,
+        symbol: str,
+        amount: number_type,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+        Create unfreeze token TransactionBase object
+        """
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -174,14 +189,17 @@ class BinanceTransaction:
 
     @staticmethod
     async def vote_transaction(
-        voter,
-        proposal_id,
-        option,
-        testnet=False,
-        account_number=None,
-        sequence=None,
-        client=None,
-    ):
+        voter: str,
+        proposal_id: Union[int, str],
+        option: VOTES,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+        Create vote TransactionBase object
+        """
         if not client:
             client = BinanceChain(testnet=testnet)
         if not account_number or not sequence:
@@ -194,7 +212,7 @@ class BinanceTransaction:
         transaction.get_vote_msg(proposal_id=proposal_id, option=option)
         return transaction
 
-    def __init__(self, wallet, client=None, testnet=False):
+    def __init__(self, wallet: Any, client: Any = None, testnet: bool = False):
         self.wallet = wallet
         self.address = wallet.get_address()
         if not client:
@@ -202,15 +220,25 @@ class BinanceTransaction:
         else:
             self.client = client
 
-    async def get_account_info(self):
+    async def get_account_info(self) -> Tuple[int, int]:
+        """Get account number and current valid sequence number"""
         account_info = await self.client.get_account(self.address)
         account_number = account_info["account_number"]
         sequence = account_info["sequence"]
         return account_number, sequence
 
     async def create_new_order(
-        self, symbol, side, ordertype, price, quantity, timeInForce
-    ):
+        self,
+        symbol: str,
+        side: SIDE,
+        ordertype: ORDERTYPE,
+        price: number_type,
+        quantity: number_type,
+        timeInForce: TIMEINFORCE,
+    ) -> Any:
+        """
+            Create,sign and broadcast new_order tranasction
+        """
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.new_order_transaction(
             address=self.address,
@@ -226,7 +254,8 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def cancel_order(self, symbol, refid):
+    async def cancel_order(self, symbol: str, refid: str) -> Any:
+        """Create, sign and broadcast cancel_order transaction"""
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.cancel_order_transaction(
             address=self.address,
@@ -238,7 +267,8 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def transfer(self, to_address, symbol, amount):
+    async def transfer(self, to_address: str, symbol: str, amount: number_type) -> Any:
+        """Create, sign and broadcast transfer transaction"""
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.transfer_transaction(
             from_address=self.address,
@@ -251,7 +281,8 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def freeze_token(self, symbol, amount):
+    async def freeze_token(self, symbol: str, amount: number_type) -> Any:
+        """Create, sign and broadcast free_token transaction"""
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.freeze_token_transaction(
             address=self.address,
@@ -263,7 +294,8 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def unfreeze_token(self, symbol, amount):
+    async def unfreeze_token(self, symbol: str, amount: number_type) -> Any:
+        """Create, sign and broadcast unfreeze_token transaction"""
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.unfreeze_token_transaction(
             address=self.address,
@@ -275,10 +307,10 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def vote(self, proposal_id, option):
+    async def vote(self, proposal_id: str, option: VOTES):
         account_number, sequence = await self.get_account_info()
         transaction = await BinanceTransaction.vote_transaction(
-            address=self.address,
+            voter=self.address,
             client=self.client,
             account_number=account_number,
             sequence=sequence,
@@ -287,7 +319,8 @@ class BinanceTransaction:
         )
         return await self.sign_and_broadcast(transaction)
 
-    async def sign_and_broadcast(self, transaction):
+    async def sign_and_broadcast(self, transaction: TransactionBase) -> Any:
+        """Sign and broadcast an TransactionBase object"""
         pub, sig = self.wallet.sign(transaction.get_sign_message())
         hex_data = transaction.update_signature(pub, sig)
         broadcast_info = await self.client.broadcast(hex_data)
@@ -295,7 +328,14 @@ class BinanceTransaction:
 
 
 class TransactionBase:
-    def __init__(self, address, account_number, sequence, memo="", data=""):
+    def __init__(
+        self,
+        address: str,
+        account_number: int,
+        sequence: int,
+        memo: str = "",
+        data: str = "",
+    ):
         self.account_number = account_number
         self.data = data.encode()
         self.memo = memo
@@ -303,7 +343,7 @@ class TransactionBase:
         self.sequence = sequence
         self.StdSignMsg = {
             "memo": self.memo,
-            "msgs": [],
+            "msgs": [dict],
             "account_number": str(self.account_number),
             "sequence": str(self.sequence),
             "chain_id": CHAIN_ID,
@@ -313,14 +353,15 @@ class TransactionBase:
 
     def get_new_order_msg(
         self,
-        symbol,
+        symbol: str,
         side: SIDE,
-        price,
-        quantity,
+        price: number_type,
+        quantity: number_type,
         sequence=None,
         ordertype: ORDERTYPE = ORDERTYPE.Limit,
         timeInForce: TIMEINFORCE = TIMEINFORCE.GTE,
     ):
+        """Create new_order protobuf attributes, SignMessage of the transaction"""
         id = generate_id(self.address, self.sequence)
         price = int(Decimal(price) * BASE)
         quantity = int(Decimal(quantity) * Decimal(100000000))
@@ -341,7 +382,8 @@ class TransactionBase:
         self.stdMsg = self.generate_stdNewOrderMsg(self.msg)
         return self.SignMessage
 
-    def generate_stdNewOrderMsg(self, msg):
+    def generate_stdNewOrderMsg(self, msg: dict) -> bytes:
+        """Generate StdMsg part of StdTx"""
         std = NewOrder()
         std.sender = address_decode(self.address)
         std.id = generate_id(self.address, self.sequence)
@@ -357,7 +399,8 @@ class TransactionBase:
         type_bytes = encoding.to_bytes(TYPE_PREFIX["NewOrder"])
         return type_bytes + proto_bytes
 
-    def get_cancel_order_msg(self, symbol, refid):
+    def get_cancel_order_msg(self, symbol: str, refid: str):
+        """Generate cancel_order StdMsg for StdTx and SignMessage for current transaction"""
         self.msg = {"sender": self.address, "symbol": symbol, "refid": refid}
         self.StdSignMsg["msgs"] = [self.msg]
         self.SignMessage = json.dumps(
@@ -372,7 +415,8 @@ class TransactionBase:
         )
         return self.SignMessage
 
-    def get_transfer_msg(self, to_address, symbol, amount):
+    def get_transfer_msg(self, to_address: str, symbol: str, amount: number_type):
+        """Generate transfer StdMsg for StdTx and SignMessage for current transaction"""
         amount = int(Decimal(amount) * BASE)
         self.msg = {
             "inputs": [
@@ -405,7 +449,8 @@ class TransactionBase:
         self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Send"]) + std.SerializeToString()
         return self.SignMessage
 
-    def get_freeze_token_msg(self, symbol, amount):
+    def get_freeze_token_msg(self, symbol: str, amount: number_type):
+        """Generate freeze_token StdMsg for StdTx and SignMessage for current transaction"""
         amount = int(Decimal(amount) * BASE)
         self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
         self.StdSignMsg["msgs"] = [self.msg]
@@ -421,7 +466,8 @@ class TransactionBase:
         )
         return self.SignMessage
 
-    def get_unfreeze_token_msg(self, symbol, amount):
+    def get_unfreeze_token_msg(self, symbol: str, amount: number_type):
+        """Generate unfreeze_token StdMsg for StdTx and SignMessage for current transaction"""
         amount = int(Decimal(amount) * BASE)
         self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
         self.StdSignMsg["msgs"] = [self.msg]
@@ -437,7 +483,8 @@ class TransactionBase:
         )
         return self.SignMessage
 
-    def get_vote_msg(self, proposal_id, option):
+    def get_vote_msg(self, proposal_id: str, option: VOTES):
+        """Generate cancel_order StdMsg for StdTx and SignMessage for current transaction"""
         self.msg = {
             "proposal_id": proposal_id,
             "voter": self.address,
@@ -457,13 +504,18 @@ class TransactionBase:
     def get_sign_message(self):
         return self.SignMessage
 
-    def update_signature(self, pubkey, signature):
-        pubkey_bytes = self.pubkey_to_msg(pubkey, signature)
+    def update_signature(self, pubkey: str, signature: str) -> bytes:
+        """
+        :Update current transaction with pubkey and signature from self.address
+        :Create StdTx proto
+        :Return data hex ready to be broadcast
+        """
+        pubkey_bytes = self.pubkey_to_msg(pubkey)
         self.stdSignature = self.generate_stdSignatureMsg(pubkey_bytes, signature)
         self.stdTx = self.generate_StdTxMsg()
         return binascii.hexlify(self.stdTx)
 
-    def pubkey_to_msg(self, pubkey, signature):
+    def pubkey_to_msg(self, pubkey: str):
         key_bytes = encoding.to_bytes(pubkey)
         return (
             encoding.to_bytes(TYPE_PREFIX["PubKey"])
@@ -471,7 +523,8 @@ class TransactionBase:
             + key_bytes
         )
 
-    def generate_stdSignatureMsg(self, pubkey_bytes, signature):
+    def generate_stdSignatureMsg(self, pubkey_bytes: bytes, signature: str):
+        """Generate StdSignature for StdTx"""
         std = StdSignature()
         std.pub_key = pubkey_bytes
         std.signature = encoding.to_bytes(signature)
@@ -481,6 +534,7 @@ class TransactionBase:
         return proto_bytes
 
     def generate_StdTxMsg(self):
+        """Geneate StdTx"""
         std = StdTx()
         std.msgs.extend([self.stdMsg])
         std.signatures.extend([self.stdSignature])
