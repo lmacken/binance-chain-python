@@ -21,8 +21,7 @@ import aiohttp
 
 from .exceptions import BinanceChainException
 
-MAINNET_URL = ""
-# TODO: get this dynamically?
+MAINNET_URL = "https://seed1.longevito.io:443/"
 TESTNET_URL = "https://seed-pre-s3.binance.org/"
 
 
