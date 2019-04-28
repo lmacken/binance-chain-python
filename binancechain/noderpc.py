@@ -13,6 +13,7 @@ Endpoints that require arguments:
 """
 import sys
 import itertools
+import warnings
 from typing import Any, Optional, Callable
 
 import asyncio
@@ -39,6 +40,11 @@ class NodeRPC:
         self._id = itertools.count()
         self._session: Optional[aiohttp.ClientSession] = None
         self._testnet = testnet
+        self._keepalive_task: Optional[asyncio.Future] = None
+
+    def __del__(self):
+        if self._session and not self._session.closed:
+            warnings.warn(f"{repr(self)}.close() was never awaited")
 
     async def _request(self, method: str, path: str, **kwargs):
         """

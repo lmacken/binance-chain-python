@@ -190,15 +190,6 @@ async def test_del_without_close_warning():
 
 
 @pytest.mark.asyncio
-async def test_ws_decorator(noderpc):
-    @noderpc.on('open')
-    def callback():
-        print('noderpc websocket open!')
-        noderpc.close()
-    await noderpc.start_async()
-
-
-@pytest.mark.asyncio
 async def test_ws_open_close(noderpc):
     """"Open then immediately close"""
     def on_open():
