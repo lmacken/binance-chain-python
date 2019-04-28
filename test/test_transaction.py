@@ -58,7 +58,7 @@ async def test_new_order(wallet, client):
     assert txid
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
-    assert tx
+    assert tx["data"], "transaction not found"
 
 
 @pytest.mark.asyncio
@@ -77,7 +77,7 @@ async def test_cancel_order(wallet, client):
     txid = broadcast[0]["hash"]
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
-    assert tx
+    assert tx["data"], "transaction not found"
 
 
 @pytest.mark.asyncio
@@ -115,6 +115,7 @@ async def test_transfer_order(wallet, wallet_two, client):
     tx = await client.get_transaction(txid)
     assert tx, "No transaction on client"
     assert "data" in tx, "tx is not on chain"
+    print(tx)
     # TODO check balance again
 
 
@@ -144,20 +145,6 @@ async def test_unfreeze_token(wallet, client):
     txid = broadcast[0]["hash"]
     await asyncio.sleep(1)
     tx = await client.get_transaction(txid)
-
-
-# @pytest.mark.asyncio
-# async def test_vote_token(wallet, client):
-#     address = wallet.get_address()
-#     transaction = await binancechain.Transaction.vote_transaction(
-#         voter=address, proposal_id=PROPOSAL_ID, option=Votes.Yes, client=client
-#     )
-#     pubkey, signature = wallet.sign(transaction.get_sign_message())
-#     hex_data = transaction.update_signature(pubkey, signature)
-#     broadcast = await client.broadcast(hex_data)
-#     txid = broadcast[0]["hash"]
-#     await asyncio.sleep(1)
-#     tx = await client.get_transaction(txid)
 
 
 @pytest.mark.asyncio
@@ -213,3 +200,18 @@ async def test_transaction_object_unfreeze(wallet, client):
     unfreeze = await transaction.unfreeze_token(symbol="BNB", amount=0.1)
     assert unfreeze, "No result of transfer found"
     assert unfreeze[0]["hash"], "No txid found"
+
+
+# @pytest.mark.asyncio
+# async def test_vote_token(wallet, client):
+#     address = wallet.get_address()
+#     transaction = await Transaction.vote_transaction(
+#         voter=address, proposal_id=PROPOSAL_ID, option=Votes.YES, client=client
+#     )
+#     pubkey, signature = wallet.sign(transaction.get_sign_message())
+#     hex_data = transaction.update_signature(pubkey, signature)
+#     broadcast = await client.broadcast(hex_data)
+#     txid = broadcast[0]["hash"]
+#     await asyncio.sleep(1)
+#     tx = await client.get_transaction(txid)
+#     print(tx)

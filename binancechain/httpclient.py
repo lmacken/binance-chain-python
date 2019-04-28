@@ -22,15 +22,17 @@ TESTNET_URL = "https://testnet-dex.binance.org"
 class HTTPClient:
     """ Binance Chain HTTP API Client """
 
-    def __init__(self, testnet: bool = True, api_version: str = "v1"):
+    def __init__(self, testnet: bool = True, api_version: str = "v1", url=None):
         """
         :param testnet: Use testnet instead of mainnet
         :param api_version: The API version to use
         :param session: An optional HTTP session to use
         """
-        url = TESTNET_URL if testnet else MAINNET_URL
+        if not url:
+            url = TESTNET_URL if testnet else MAINNET_URL
         self._server = f"{url}/api/{api_version}/"
         self._session: aiohttp.ClientSession = None
+        self._testnet = testnet
 
     def __del__(self):
         if self._session:  # pragma: nocover

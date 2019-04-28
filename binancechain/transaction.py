@@ -27,7 +27,8 @@ from .transaction_pb2 import (
 )
 
 SOURCE = "1"
-CHAIN_ID = "Binance-Chain-Nile"
+TESTNET_CHAIN_ID = "Binance-Chain-Nile"
+MAINNET_CHAIN_ID = "Binance-Chain-Tigris"
 TYPE_PREFIX = {
     "CancelOrder": b"166E681B",
     "TokenFreeze": b"E774B32D",
@@ -53,7 +54,13 @@ number_type = Union[str, float, int, Decimal]
 
 class TransactionBase:
     def __init__(
-        self, address: str, account_number, sequence, memo: str = "", data: str = ""
+        self,
+        address: str,
+        account_number,
+        sequence,
+        chainid: str,
+        memo: str = "",
+        data: str = "",
     ):
         self.account_number = account_number
         self.data = data.encode()
@@ -65,10 +72,11 @@ class TransactionBase:
             "msgs": [dict],
             "account_number": str(self.account_number),
             "sequence": str(self.sequence),
-            "chain_id": CHAIN_ID,
+            "chain_id": chainid,
             "source": str(SOURCE),
             "data": None,
         }
+        print("CHAIN ID ", chainid)
 
     def get_new_order_msg(
         self,
@@ -286,12 +294,15 @@ class Transaction:
         """ Create New Order TransactionBase object"""
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address, account_number=account_number, sequence=sequence
+            address, account_number=account_number, sequence=sequence, chainid=chain_id
         )
         transaction.get_new_order_msg(
             symbol=symbol,
@@ -318,12 +329,15 @@ class Transaction:
         """
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address, account_number=account_number, sequence=sequence
+            address, account_number=account_number, sequence=sequence, chainid=chain_id
         )
         transaction.get_cancel_order_msg(symbol=symbol, refid=refid)
         return transaction
@@ -344,12 +358,18 @@ class Transaction:
         """
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(from_address)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address=from_address, account_number=account_number, sequence=sequence
+            address=from_address,
+            account_number=account_number,
+            sequence=sequence,
+            chainid=chain_id,
         )
         transaction.get_transfer_msg(
             to_address=to_address, symbol=symbol, amount=amount
@@ -371,12 +391,18 @@ class Transaction:
         """
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address=address, account_number=account_number, sequence=sequence
+            address=address,
+            account_number=account_number,
+            sequence=sequence,
+            chainid=chain_id,
         )
         transaction.get_freeze_token_msg(symbol=symbol, amount=amount)
         return transaction
@@ -396,12 +422,18 @@ class Transaction:
         """
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(address)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address=address, account_number=account_number, sequence=sequence
+            address=address,
+            account_number=account_number,
+            sequence=sequence,
+            chainid=chain_id,
         )
         transaction.get_unfreeze_token_msg(symbol=symbol, amount=amount)
         return transaction
@@ -421,12 +453,18 @@ class Transaction:
         """
         if not client:
             client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
         if not account_number or not sequence:
             account_info = await client.get_account(voter)
             account_number = account_info["account_number"]
             sequence = account_info["sequence"]
         transaction = TransactionBase(
-            address=voter, account_number=account_number, sequence=sequence
+            address=voter,
+            account_number=account_number,
+            sequence=sequence,
+            chainid=chain_id,
         )
         transaction.get_vote_msg(proposal_id=proposal_id, option=option)
         return transaction
