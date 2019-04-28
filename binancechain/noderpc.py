@@ -11,12 +11,11 @@ Endpoints that require arguments:
 /unsubscribe?query=_
 /unsubscribe_all?
 """
-import itertools
 import sys
-import traceback
-import warnings
-from typing import Any, Dict, List, Optional
+import itertools
+from typing import Any, Optional, Callable
 
+import asyncio
 import aiohttp
 
 from .exceptions import BinanceChainException
@@ -31,24 +30,15 @@ class NodeRPC:
 
     def __init__(self, url: str = None, testnet: bool = True):
         """
+        :param: url: binance chain node URL
         :param testnet: A boolean to enable testnet
         :param session: An optional HTTP session to use
         """
         if not url:
             self.url = TESTNET_URL if testnet else MAINNET_URL
         self._id = itertools.count()
-        self._session: aiohttp.ClientSession = None
+        self._session: Optional[aiohttp.ClientSession] = None
         self._testnet = testnet
-
-    def __del__(self):
-        if self._session:
-            warnings.warn(f"{repr(self)}.close() was never awaited")
-
-    async def close(self):
-        """ Clean up our connections """
-        if self._session:
-            await self._session.close()
-            self._session = None
 
     async def _request(self, method: str, path: str, **kwargs):
         """
@@ -219,3 +209,114 @@ class NodeRPC:
     async def validators(self, height: str = None) -> dict:
         """Get information on the validators"""
         return await self.post_request("validators", height)
+
+    def subscribe(
+        self, query: str, callback: Optional[Callable[[dict], None]] = None
+    ) -> None:
+        """Subscribe to events via WebSocket.
+
+        See list of all possible events here:
+        https://godoc.org/github.com/tendermint/tendermint/types#pkg-constants
+        For complete query syntax, check out:
+        https://godoc.org/github.com/tendermint/tendermint/libs/pubsub/query.
+        """
+        payload = {
+            "method": "subscribe",
+            "params": [query],
+            "jsonrpc": "2.0",
+            "id": str(next(self._id)),
+        }
+        asyncio.ensure_future(self.send(payload))
+
+    def unsubscribe(self, query: str) -> None:
+        """Unubscribe from events via WebSocket."""
+        payload = {
+            "method": "unsubscribe",
+            "params": [query],
+            "jsonrpc": "2.0",
+            "id": str(next(self._id)),
+        }
+        asyncio.ensure_future(self.send(payload))
+
+    def unsubscribe_all(self) -> None:
+        """Unubscribe from all events via WebSocket."""
+        payload = {
+            "method": "unsubscribe_all",
+            "params": [],
+            "jsonrpc": "2.0",
+            "id": str(next(self._id)),
+        }
+        asyncio.ensure_future(self.send(payload))
+
+    def start(
+        self,
+        on_open: Optional[Callable[[], None]] = None,
+        on_msg: Callable[[], None] = None,
+        on_error: Optional[Callable[[dict], None]] = None,
+        loop: asyncio.AbstractEventLoop = None,
+        keepalive: bool = True,
+    ) -> None:
+        """The main blocking call to start the WebSocket connection."""
+        loop = loop or asyncio.get_event_loop()
+        return loop.run_until_complete(
+            self.start_async(on_open, on_msg, on_error, keepalive)
+        )
+
+    async def start_async(
+        self,
+        on_open: Optional[Callable[[], None]] = None,
+        on_msg: Callable[[dict], None] = None,
+        on_error: Optional[Callable[[dict], None]] = None,
+        keepalive: bool = True,
+    ) -> None:
+        """Processes all websocket messages.
+
+        :param callback: The single callback to use for all websocket messages
+        :param keepalive: Run a background keepAlive coroutine
+        """
+        if not self._session:
+            self._session = aiohttp.ClientSession()
+        ws_url = f"{self.url}/websocket"
+        async with self._session.ws_connect(ws_url) as ws:
+            self._ws = ws
+            if on_open:
+                on_open()
+
+            # Schedule keepalive calls every 30 minutes
+            if keepalive:
+                self._keepalive_task = asyncio.ensure_future(self._auto_keepalive())
+
+            async for msg in ws:
+                if msg.type == aiohttp.WSMsgType.TEXT:
+                    try:
+                        data = msg.json()
+                    except Exception as e:
+                        print(f"Unable to decode msg: {msg}", file=sys.stderr)
+                        continue
+                    if data:
+                        if on_msg:
+                            on_msg(data)
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    print(msg, file=sys.stderr)
+                    if on_error:
+                        on_error(msg)
+                    break
+
+    async def send(self, data: dict) -> None:
+        """Send data to the WebSocket"""
+        if not self._ws:
+            print("Error: Cannot send to uninitialized websocket", file=sys.stderr)
+            return
+        await self._ws.send_json(data)
+
+    async def _auto_keepalive(self):
+        while True:
+            await asyncio.sleep(30 * 60)
+            self.keepalive()
+
+    def close(self) -> None:
+        """Close the websocket session"""
+        if self._session and not self._session.closed:
+            asyncio.ensure_future(self._session.close())
+        if self._keepalive_task:
+            self._keepalive_task.cancel()

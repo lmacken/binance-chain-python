@@ -233,6 +233,28 @@ pending_transactions = await noderpc.unconfirmed_txs(limit=None)
 
 pendings_number = await noderpc.get_num_unconfirmed_txs()
 ```
+
+### NodeRPC WebSocket
+
+```
+query = "tm.event = 'Tx'"
+
+def on_open():
+    noderpc.subscribe(query)
+
+def on_msg(msg): …
+
+noderpc.start(on_open=on_open, on_msg=on_msg, on_error=on_error)
+
+noderpc.unsubscribe(query=query)
+noderpc.unsubscribe_all()
+```
+
+See list of all possible events here
+https://godoc.org/github.com/tendermint/tendermint/types#pkg-constants
+
+For complete query syntax, check out https://godoc.org/github.com/tendermint/tendermint/libs/pubsub/query.
+
 ### Broadcast transaction
 ```python
 tx_hash = await noderpc.broadcast_tx_async(hash)

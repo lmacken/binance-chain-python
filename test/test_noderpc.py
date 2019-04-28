@@ -13,7 +13,11 @@ from binancechain import NodeRPC, BinanceChainException
 async def noderpc():
     noderpc = NodeRPC(testnet=True)
     yield noderpc
-    await noderpc.close()
+    noderpc.close()
+
+
+def on_error(msg):
+    print(f'Error: {msg}')
 
 
 @pytest.mark.asyncio
@@ -183,3 +187,94 @@ async def test_del_without_close_warning():
     await noderpc.get_status()
     with pytest.warns(UserWarning):
         del(noderpc)
+
+
+@pytest.mark.asyncio
+async def test_ws_decorator(noderpc):
+    @noderpc.on('open')
+    def callback():
+        print('noderpc websocket open!')
+        noderpc.close()
+    await noderpc.start_async()
+
+
+@pytest.mark.asyncio
+async def test_ws_open_close(noderpc):
+    """"Open then immediately close"""
+    def on_open():
+        print('opened')
+        noderpc.close()
+
+    await noderpc.start_async(on_open=on_open, on_error=on_error)
+    print('closed')
+
+
+@pytest.mark.asyncio
+async def test_ws_subscribe(noderpc):
+    """"Open then immediately close with the decorator API"""
+
+    results = []
+
+    def on_msg(msg):
+        results.append(msg)
+        noderpc.close()
+
+    def on_open():
+        noderpc.subscribe("tm.event = 'Tx'")
+
+    await noderpc.start_async(on_open=on_open, on_error=on_error, on_msg=on_msg)
+    assert results
+    result_ids = [r['id'] for r in results]
+    assert result_ids == ['0']
+    for result in results:
+        assert result['result'] == {}
+
+
+@pytest.mark.asyncio
+async def test_ws_unsubscribe(noderpc):
+    """"Open then immediately close with the decorator API"""
+
+    results = []
+
+    def on_msg(msg):
+        print('on_msg', msg)
+        results.append(msg)
+        if len(results) == 1:
+            noderpc.unsubscribe("tm.event = 'Tx'")
+        if len(results) == 2:
+            noderpc.close()
+
+    def on_open():
+        noderpc.subscribe("tm.event = 'Tx'")
+
+    await noderpc.start_async(on_open=on_open, on_error=on_error, on_msg=on_msg)
+    assert results
+    result_ids = [r['id'] for r in results]
+    assert result_ids == ['0', '1']
+    for result in results:
+        assert result['result'] == {}
+
+
+@pytest.mark.asyncio
+async def test_ws_unsubscribe_all(noderpc):
+    """"Open then immediately close with the decorator API"""
+
+    results = []
+
+    def on_msg(msg):
+        print('on_msg', msg)
+        results.append(msg)
+        if len(results) == 1:
+            noderpc.unsubscribe_all()
+        if len(results) == 2:
+            noderpc.close()
+
+    def on_open():
+        noderpc.subscribe("tm.event = 'Tx'")
+
+    await noderpc.start_async(on_open=on_open, on_error=on_error, on_msg=on_msg)
+    assert results
+    result_ids = [r['id'] for r in results]
+    assert result_ids == ['0', '1']
+    for result in results:
+        assert result['result'] == {}
