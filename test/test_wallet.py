@@ -87,6 +87,7 @@ async def test_not_recover_wallet_keystore_with_wrong_password(chain):
     assert keystore, "Failed to create keystore"
     try:
         wallet = Wallet.wallet_from_keystore(keystore=keystore, password="")
+        assert False
     except ValueError as e:
         print(e)
         assert True

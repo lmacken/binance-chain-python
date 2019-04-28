@@ -291,11 +291,11 @@ transfer = await transaction.transfer(to_address, symbol, amount)
 
 broadcast_info = await transaction.create_new_order(
     symbol="binance_pair",
-    side=SIDE.Buy,
-    ordertype=ORDERTYPE.Limit,
+    side=Side.BUY,
+    ordertype=Ordertype.LIMIT,
     price=1,
     quantity=1,
-    timeInForce=TIMEINFORCE.GTE,
+    timeInForce=Timeinforce.GTE,
 )
 
 broadcast_info = await transaction.cancel_order(symbol="pair", refid)
@@ -314,11 +314,11 @@ broadcast_info = await transaction.vote(
 limit_buy_transaction = await Transaction.new_order_transaction(
       address="owner address",
       symbol="pair",
-      side=SIDE.Buy,
-      ordertype=ORDERTYPE.Limit,
+      side=Side.BUY,
+      ordertype=Ordertype.LIMIT,
       price=1,
       quantity=1,
-      timeInForce=TIMEINFORCE.GTE,
+      timeInForce=Timeinforce.GTE,
       account_number= None,
       sequence= None,
       client= None,
@@ -328,11 +328,11 @@ limit_buy_transaction = await Transaction.new_order_transaction(
 limit_sell_transaction = await Transaction.new_order_transaction(
     address="owner address",
     symbol="pair",
-    side=SIDE.Buy,
-    ordertype=ORDERTYPE.Limit,
+    side=Side.BUY,
+    ordertype=Ordertype.LIMIT,
     price=1,
     quantity=1,
-    timeInForce=TIMEINFORCE.GTE,
+    timeInForce=Timeinforce.GTE,
     account_number= None,
     sequence= None,
     client= None,
@@ -368,6 +368,10 @@ unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
     client= None,
     testnet = False, # will be ignored if client is passed in
 )
+
+""" Get transaction message to sign"""
+
+sign_message_bytes_format = Limit_Buy_Transaction.get_sign_message()
 ```
 - Example transaction message :
 

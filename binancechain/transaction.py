@@ -210,7 +210,7 @@ class TransactionBase:
         )
         return self.SignMessage
 
-    def get_vote_msg(self, proposal_id: str, option: Votes):
+    def get_vote_msg(self, proposal_id: Union[str, int], option: Votes):
         """Generate cancel_order StdMsg for StdTx and SignMessage for current transaction"""
         self.msg = {
             "proposal_id": proposal_id,
