@@ -236,7 +236,7 @@ pendings_number = await noderpc.get_num_unconfirmed_txs()
 
 ### NodeRPC WebSocket
 
-```
+```python
 query = "tm.event = 'Tx'"
 
 def on_open():
