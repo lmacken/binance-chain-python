@@ -25,9 +25,13 @@ class WebSocket:
         testnet: bool = False,
         keepalive: bool = True,
         loop: asyncio.AbstractEventLoop = None,
+        url: str = None,
     ) -> None:
+        if not url:
+            self.url = TESTNET_URL if testnet else MAINNET_URL
+        else:
+            self.url = url
         self.address = address
-        self.url = TESTNET_URL if testnet else MAINNET_URL
         self._session = aiohttp.ClientSession()
         self._ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self._loop = loop or asyncio.get_event_loop()
@@ -36,6 +40,7 @@ class WebSocket:
         self._keepalive = keepalive
         self._keepalive_task: Optional[asyncio.Future] = None
         self._open = False
+        self._testnet = testnet
 
     def on(self, event: str, func: Optional[Callable] = None, **kwargs):
         """Register an event, and optional handler.

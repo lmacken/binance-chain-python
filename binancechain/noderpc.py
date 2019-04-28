@@ -38,6 +38,7 @@ class NodeRPC:
             self.url = TESTNET_URL if testnet else MAINNET_URL
         self._id = itertools.count()
         self._session: aiohttp.ClientSession = None
+        self._testnet = testnet
 
     def __del__(self):
         if self._session:
