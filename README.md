@@ -407,7 +407,8 @@ b'{"account_number":"668107","chain_id":"Binance-Chain-Nile","data":null,"memo":
 
 ```bash
 git clone https://github.com/lmacken/binance-chain-python.git
-pip install -r test-requirements.txt`
+cd binance-chain-python
+pip install -r test-requirements.txt -r requirements.txt
 python setup.py develop
 pytest
 ```
