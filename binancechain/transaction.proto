@@ -77,9 +77,21 @@ enum VoteOption {
 }
 
 message Issue{
-  string name = 1;
-  string symbol = 2;
-  int64 supply = 3;
-  bytes owner = 4;
+  bytes from = 1;
+  string name = 2;
+  string symbol = 3;
+  int64 total_supply = 4;
   bool mintable = 5;
+}
+
+message Mint{
+  bytes from = 1;
+  string symbol = 2;
+  int64 amount = 3;
+}
+
+message Burn{
+  bytes from = 1;
+  string symbol = 2;
+  int64 amount = 3;
 }

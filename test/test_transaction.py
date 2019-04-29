@@ -17,7 +17,6 @@ from binancechain.enums import Side, Votes, Ordertype, Timeinforce
 
 MNEMONIC_2 = "tennis utility midnight pattern that foot security tent punch glance still night virus loop trade velvet rent glare ramp cushion defy grass section cage"
 MNEMONIC = "apart conduct congress bless remember picnic aerobic nothing dinner guilt catch brain sunny vocal advice castle horror shift reject valley evoke fork syrup code"
-MNEMONIC_ISSUE = "bottom quick strong ranch section decide pepper broken oven demand coin run jacket curious business achieve mule bamboo remain vote kid rigid bench rubber"
 PAIR = "IBB-8DE_BNB"
 PROPOSAL_ID = 370
 
@@ -62,6 +61,7 @@ async def test_new_order(wallet, client):
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
     assert tx["data"], "transaction not found"
+    print(tx)
 
 
 @pytest.mark.asyncio
@@ -134,6 +134,7 @@ async def test_freeze_token(wallet, client):
     txid = broadcast[0]["hash"]
     await asyncio.sleep(1)
     tx = await client.get_transaction(txid)
+    print(tx)
 
 
 @pytest.mark.asyncio
@@ -164,6 +165,9 @@ async def test_transaction_object_new_order(wallet, client):
     )
     assert new_order, "No result of transfer found"
     assert new_order[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(new_order[0]["hash"])
+    assert tx, "Transaction not on chain"
 
 
 @pytest.mark.asyncio
@@ -175,8 +179,12 @@ async def test_transaction_object_cancel(wallet, client):
     symbol = order["symbol"]
     transaction = Transaction(wallet=wallet, client=client)
     cancel_order = await transaction.cancel_order(symbol=symbol, refid=refid)
+    print(cancel_order)
     assert cancel_order, "No result of transfer found"
     assert cancel_order[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(cancel_order[0]["hash"])
+    assert tx, "Transaction not on chain"
 
 
 @pytest.mark.asyncio
@@ -187,14 +195,21 @@ async def test_transaction_object_transfer(wallet, wallet_two, client):
     )
     assert transfer, "No result of transfer found"
     assert transfer[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(transfer[0]["hash"])
+    assert tx, "Transaction not on chain"
 
 
 @pytest.mark.asyncio
 async def test_transaction_object_freeze(wallet, client):
     transaction = Transaction(wallet=wallet, client=client)
     freeze = await transaction.freeze_token(symbol="BNB", amount=0.1)
+    print(freeze)
     assert freeze, "No result of transfer found"
     assert freeze[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(freeze[0]["hash"])
+    assert tx, "Transaction not on chain"
 
 
 @pytest.mark.asyncio
@@ -204,6 +219,9 @@ async def test_transaction_object_unfreeze(wallet, client):
     print(unfreeze)
     assert unfreeze, "No result of transfer found"
     assert unfreeze[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(unfreeze[0]["hash"])
+    assert tx, "Transaction not on chain"
 
 
 @pytest.mark.asyncio
@@ -211,14 +229,44 @@ async def test_issue_token(wallet_two, client):
     address = wallet_two.get_address()
     transaction = await Transaction.issue_token_transaction(
         owner=address,
-        name="Sensei",
-        orig_symbol="SENSEI",
-        symbol="SENSEI",
-        supply=10000000000000,
+        name="Bitcoin",
+        symbol="BTC",
+        supply=1000000000000000,
         mintable=True,
         client=client,
-        # account_number=1,
-        # sequence=0,
+    )
+    pubkey, signature = wallet_two.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    print(binascii.hexlify(transaction.stdTx))
+    broadcast = await client.broadcast(hex_data)
+    txid = broadcast[0]["hash"]
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(txid)
+    print(tx)
+
+
+@pytest.mark.asyncio
+async def test_mint_token(wallet_two, client):
+    address = wallet_two.get_address()
+    transaction = await Transaction.mint_token_transaction(
+        owner=address, symbol="BTC-531", amount=10000, client=client
+    )
+    pubkey, signature = wallet_two.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    print(binascii.hexlify(transaction.stdTx))
+    broadcast = await client.broadcast(hex_data)
+    txid = broadcast[0]["hash"]
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(txid)
+    print(tx)
+
+
+@pytest.mark.asyncio
+async def test_burn_token(wallet_two, client):
+    address = wallet_two.get_address()
+    print(address)
+    transaction = await Transaction.burn_token_transaction(
+        owner=address, symbol="BTC-531", amount=1, client=client
     )
     pubkey, signature = wallet_two.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
@@ -238,16 +286,16 @@ async def test_transfer_new(client):
     print(address)
 
 
-# @pytest.mark.asyncio
-# async def test_vote_token(wallet, client):
-#     address = wallet.get_address()
-#     transaction = await Transaction.vote_transaction(
-#         voter=address, proposal_id=PROPOSAL_ID, option=Votes.YES, client=client
-#     )
-#     pubkey, signature = wallet.sign(transaction.get_sign_message())
-#     hex_data = transaction.update_signature(pubkey, signature)
-#     broadcast = await client.broadcast(hex_data)
-#     txid = broadcast[0]["hash"]
-#     await asyncio.sleep(1)
-#     tx = await client.get_transaction(txid)
-#     print(tx)
+@pytest.mark.asyncio
+async def test_vote_token(wallet, client):
+    address = wallet.get_address()
+    transaction = await Transaction.vote_transaction(
+        voter=address, proposal_id=PROPOSAL_ID, option=Votes.YES, client=client
+    )
+    pubkey, signature = wallet.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    broadcast = await client.broadcast(hex_data)
+    txid = broadcast[0]["hash"]
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(txid)
+    print(tx)

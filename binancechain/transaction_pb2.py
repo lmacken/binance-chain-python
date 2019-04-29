@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='transaction.proto',
   package='transaction',
   syntax='proto3',
-  serialized_pb=_b('\n\x11transaction.proto\x12\x0btransaction\"U\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12\x12\n\nsignatures\x18\x02 \x03(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"\\\n\x0cStdSignature\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\"\x05\n\x03Msg\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x03 \x01(\t\"P\n\x04Send\x12\"\n\x06inputs\x18\x01 \x03(\x0b\x32\x12.transaction.Input\x12$\n\x07outputs\x18\x02 \x03(\x0b\x32\x13.transaction.Output\"&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\";\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"<\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"6\n\x06\x46reeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"8\n\x08Unfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"S\n\x04Vote\x12\x13\n\x0bproposal_id\x18\x01 \x01(\x03\x12\r\n\x05voter\x18\x02 \x01(\x0c\x12\'\n\x06option\x18\x03 \x01(\x0e\x32\x17.transaction.VoteOption\"V\n\x05Issue\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06supply\x18\x03 \x01(\x03\x12\r\n\x05owner\x18\x04 \x01(\x0c\x12\x10\n\x08mintable\x18\x05 \x01(\x08*G\n\nVoteOption\x12\x0b\n\x07Unknown\x10\x00\x12\x07\n\x03Yes\x10\x01\x12\x0b\n\x07\x41\x62stain\x10\x02\x12\x06\n\x02No\x10\x03\x12\x0e\n\nNoWithVeto\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x11transaction.proto\x12\x0btransaction\"U\n\x05StdTx\x12\x0c\n\x04msgs\x18\x01 \x03(\x0c\x12\x12\n\nsignatures\x18\x02 \x03(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0e\n\x06source\x18\x04 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"\\\n\x0cStdSignature\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x11\n\tsignature\x18\x02 \x01(\x0c\x12\x16\n\x0e\x61\x63\x63ount_number\x18\x03 \x01(\x03\x12\x10\n\x08sequence\x18\x04 \x01(\x03\"\x05\n\x03Msg\"\x8d\x01\n\x08NewOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x11\n\tordertype\x18\x04 \x01(\x03\x12\x0c\n\x04side\x18\x05 \x01(\x03\x12\r\n\x05price\x18\x06 \x01(\x03\x12\x10\n\x08quantity\x18\x07 \x01(\x03\x12\x13\n\x0btimeinforce\x18\x08 \x01(\x03\"<\n\x0b\x43\x61ncelOrder\x12\x0e\n\x06sender\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\r\n\x05refid\x18\x03 \x01(\t\"P\n\x04Send\x12\"\n\x06inputs\x18\x01 \x03(\x0b\x32\x12.transaction.Input\x12$\n\x07outputs\x18\x02 \x03(\x0b\x32\x13.transaction.Output\"&\n\x05Token\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\";\n\x05Input\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"<\n\x06Output\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\x0c\x12!\n\x05\x63oins\x18\x02 \x03(\x0b\x32\x12.transaction.Token\"6\n\x06\x46reeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"8\n\x08Unfreeze\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"S\n\x04Vote\x12\x13\n\x0bproposal_id\x18\x01 \x01(\x03\x12\r\n\x05voter\x18\x02 \x01(\x0c\x12\'\n\x06option\x18\x03 \x01(\x0e\x32\x17.transaction.VoteOption\"[\n\x05Issue\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06symbol\x18\x03 \x01(\t\x12\x14\n\x0ctotal_supply\x18\x04 \x01(\x03\x12\x10\n\x08mintable\x18\x05 \x01(\x08\"4\n\x04Mint\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03\"4\n\x04\x42urn\x12\x0c\n\x04\x66rom\x18\x01 \x01(\x0c\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x03*G\n\nVoteOption\x12\x0b\n\x07Unknown\x10\x00\x12\x07\n\x03Yes\x10\x01\x12\x0b\n\x07\x41\x62stain\x10\x02\x12\x06\n\x02No\x10\x03\x12\x0e\n\nNoWithVeto\x10\x04\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -53,8 +53,8 @@ _VOTEOPTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=960,
-  serialized_end=1031,
+  serialized_start=1073,
+  serialized_end=1144,
 )
 _sym_db.RegisterEnumDescriptor(_VOTEOPTION)
 
@@ -622,30 +622,30 @@ _ISSUE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='transaction.Issue.name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='from', full_name='transaction.Issue.from', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='symbol', full_name='transaction.Issue.symbol', index=1,
+      name='name', full_name='transaction.Issue.name', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='supply', full_name='transaction.Issue.supply', index=2,
-      number=3, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='symbol', full_name='transaction.Issue.symbol', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='owner', full_name='transaction.Issue.owner', index=3,
-      number=4, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b(""),
+      name='total_supply', full_name='transaction.Issue.total_supply', index=3,
+      number=4, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -669,7 +669,97 @@ _ISSUE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=872,
-  serialized_end=958,
+  serialized_end=963,
+)
+
+
+_MINT = _descriptor.Descriptor(
+  name='Mint',
+  full_name='transaction.Mint',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='from', full_name='transaction.Mint.from', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='symbol', full_name='transaction.Mint.symbol', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='amount', full_name='transaction.Mint.amount', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=965,
+  serialized_end=1017,
+)
+
+
+_BURN = _descriptor.Descriptor(
+  name='Burn',
+  full_name='transaction.Burn',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='from', full_name='transaction.Burn.from', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='symbol', full_name='transaction.Burn.symbol', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='amount', full_name='transaction.Burn.amount', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1019,
+  serialized_end=1071,
 )
 
 _SEND.fields_by_name['inputs'].message_type = _INPUT
@@ -690,6 +780,8 @@ DESCRIPTOR.message_types_by_name['Freeze'] = _FREEZE
 DESCRIPTOR.message_types_by_name['Unfreeze'] = _UNFREEZE
 DESCRIPTOR.message_types_by_name['Vote'] = _VOTE
 DESCRIPTOR.message_types_by_name['Issue'] = _ISSUE
+DESCRIPTOR.message_types_by_name['Mint'] = _MINT
+DESCRIPTOR.message_types_by_name['Burn'] = _BURN
 DESCRIPTOR.enum_types_by_name['VoteOption'] = _VOTEOPTION
 
 StdTx = _reflection.GeneratedProtocolMessageType('StdTx', (_message.Message,), dict(
@@ -782,6 +874,20 @@ Issue = _reflection.GeneratedProtocolMessageType('Issue', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:transaction.Issue)
   ))
 _sym_db.RegisterMessage(Issue)
+
+Mint = _reflection.GeneratedProtocolMessageType('Mint', (_message.Message,), dict(
+  DESCRIPTOR = _MINT,
+  __module__ = 'transaction_pb2'
+  # @@protoc_insertion_point(class_scope:transaction.Mint)
+  ))
+_sym_db.RegisterMessage(Mint)
+
+Burn = _reflection.GeneratedProtocolMessageType('Burn', (_message.Message,), dict(
+  DESCRIPTOR = _BURN,
+  __module__ = 'transaction_pb2'
+  # @@protoc_insertion_point(class_scope:transaction.Burn)
+  ))
+_sym_db.RegisterMessage(Burn)
 
 
 # @@protoc_insertion_point(module_scope)

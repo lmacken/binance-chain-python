@@ -49,7 +49,7 @@ class Wallet:
         mnem = m.generate(256)
         root_key = keys.HDKey.from_seed(m.to_seed(mnem, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return Wallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet, mnemonic=mnem)
 
     @staticmethod
     def wallet_from_keystore(keystore: dict, password: str = "", testnet: bool = False):
@@ -74,7 +74,7 @@ class Wallet:
         m = mnemonic.Mnemonic(language="english")
         root_key = keys.HDKey.from_seed(m.to_seed(words=words, password=password))
         key = from_path(root_key=root_key, path=HDPATH)
-        return Wallet(key=key, testnet=testnet)
+        return Wallet(key=key, testnet=testnet, mnemonic=words)
 
     # @staticmethod
     # def wallet_from_seed(seed, testnet=False):
@@ -82,11 +82,13 @@ class Wallet:
     #     key = from_path(root_key=root_key, path=HDPATH)
     #     return Wallet(key=key, testnet=testnet, mnemonic=words)
 
-    def __init__(self, key: str, testnet: bool = False):
+    def __init__(self, key: str, testnet: bool = False, mnemonic: str = None):
         self.testnet = testnet
         self.prefix = TESTNET_PREFIX if testnet else MAINET_PREFIX
         self.key = key
         self.address = get_address(prefix=self.prefix, key=key)
+        if mnemonic:
+            self.mnemonic = mnemonic
 
     def get_address(self) -> str:
         """Return wallet's address"""
@@ -99,6 +101,11 @@ class Wallet:
     def get_publickey(self):
         """Return wallet's public key"""
         return self.key.public_hex
+
+    def get_mnemonic(self):
+        if not self.mnemonic:
+            raise Exception("No mnemonic available in this wallet")
+        return self.mnemonic
 
     def sign(self, msg):
         """
