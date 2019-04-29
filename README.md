@@ -15,6 +15,7 @@ An unofficial asyncio Python API for the Binance Chain.
 ## Implementation Details
 
 - [Extensive test suite](https://github.com/lmacken/binance-chain-python/tree/master/test)
+- Optional rate limiter with the `HTTPClient(rate_limit=True)`, which uses a token-bucket style queue for each endpoint.
 - [aiohttp](https://aiohttp.readthedocs.io) for all HTTP requests, which automatically performs connection-pooling
 - [SPDX license identifiers](https://spdx.org/)
 - Python [type hints](https://docs.python.org/3/library/typing.html) for ease of development
