@@ -42,6 +42,7 @@ class HTTPClient:
         self._server = f"{url}/api/{api_version}/"
         self._session: aiohttp.ClientSession = None
         self._testnet = testnet
+        self._rate_limiter: Optional[RateLimiter] = None
         if rate_limit:
             self._rate_limiter = RateLimiter()
 
