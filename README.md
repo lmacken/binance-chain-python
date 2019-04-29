@@ -24,6 +24,7 @@ An unofficial asyncio Python API for the Binance Chain.
 - Example CLI tool that just outputs raw JSON responses (`python -m binancechain.cli`)
 - Event-driven WebSocket using [pyee](https://github.com/jfhbrook/pyee)
 - Automatically sends `keepAlive` WebSocket messages every 30 minutes
+- Utilizes [orjson](https://github.com/ijl/orjson), the fastest JSON library in Python.
 
 ### Utilizes popular crypto libraries
 - [bitcoinlib](https://github.com/1200wd/bitcoinlib)

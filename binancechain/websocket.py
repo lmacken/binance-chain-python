@@ -10,6 +10,7 @@ import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aiohttp
+import orjson
 from pyee import AsyncIOEventEmitter
 
 log = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ class WebSocket:
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     try:
-                        data = msg.json()
+                        data = msg.json(loads=orjson.loads)
                     except Exception as e:
                         log.error(f"Unable to decode msg: {msg}")
                         continue
@@ -129,7 +130,7 @@ class WebSocket:
         if not self._ws:
             log.error("Error: Cannot send to uninitialized websocket")
             return
-        await self._ws.send_json(data)
+        await self._ws.send_bytes(orjson.dumps(data))
 
     def subscribe(
         self,
