@@ -328,21 +328,21 @@ class HTTPClient:
             await self._rate_limiter.limit("orders", 5)
         params = {"address": address}
         if end is not None:
-            params['end'] = int(end)
+            params["end"] = int(end)
         if limit is not None:
             params["limit"] = limit
         if offset is not None:
-            params['offset'] = offset
+            params["offset"] = offset
         if side is not None:
-            params['side'] = side
+            params["side"] = side
         if start is not None:
-            params['start'] = int(start)
+            params["start"] = int(start)
         if status is not None:
-            params['status'] = status
+            params["status"] = status
         if symbol is not None:
-            params['symbol'] = symbol
+            params["symbol"] = symbol
         if total is not None:
-            params['total'] = total
+            params["total"] = total
         return await self.get_request("orders/closed", params=params)
 
     async def get_open_orders(
