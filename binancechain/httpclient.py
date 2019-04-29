@@ -10,6 +10,7 @@ import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
+import orjson
 
 from .exceptions import BinanceChainException
 
@@ -58,7 +59,7 @@ class HTTPClient:
             async with getattr(self._session, method)(
                 self._server + path, **kwargs
             ) as resp:
-                return await resp.json()
+                return await resp.json(loads=orjson.loads)
         except Exception as e:
             log.exception(f"Request error: {method} {path} {kwargs}")
             raise BinanceChainException(resp) from e

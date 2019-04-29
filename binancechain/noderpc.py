@@ -18,6 +18,7 @@ from typing import Any, Optional, Callable
 
 import asyncio
 import aiohttp
+import orjson
 
 from .exceptions import BinanceChainException
 
@@ -60,7 +61,7 @@ class NodeRPC:
             async with getattr(self._session, method)(
                 self.url + path, **kwargs
             ) as resp:
-                return await resp.json()
+                return await resp.json(loads=orjson.loads)
         except Exception as e:
             raise BinanceChainException(resp) from e
 
@@ -78,7 +79,7 @@ class NodeRPC:
             self._session = aiohttp.ClientSession()
         try:
             async with self._session.post(self.url, json=payload) as resp:
-                return await resp.json()
+                return await resp.json(loads=orjson.loads)
         except Exception as e:
             raise BinanceChainException(resp) from e
 
@@ -296,7 +297,7 @@ class NodeRPC:
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     try:
-                        data = msg.json()
+                        data = msg.json(loads=orjson.loads)
                     except Exception as e:
                         log.error(f"Unable to decode msg: {msg}")
                         continue
@@ -314,7 +315,7 @@ class NodeRPC:
         if not self._ws:
             log.error("Error: Cannot send to uninitialized websocket")
             return
-        await self._ws.send_json(data)
+        await self._ws.send_bytes(orjson.dumps(data))
 
     async def _auto_keepalive(self):
         while True:

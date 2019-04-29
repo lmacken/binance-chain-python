@@ -32,6 +32,6 @@ setup(
         "pyee",
         "varint",
         "protobuf",
-        "click",
+        "orjson",
     ],
 )
