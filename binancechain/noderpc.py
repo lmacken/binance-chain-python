@@ -11,15 +11,17 @@ Endpoints that require arguments:
 /unsubscribe?query=_
 /unsubscribe_all?
 """
-import sys
 import itertools
 import warnings
+import logging
 from typing import Any, Optional, Callable
 
 import asyncio
 import aiohttp
 
 from .exceptions import BinanceChainException
+
+log = logging.getLogger(__name__)
 
 MAINNET_URL = "https://seed1.longevito.io:443/"
 TESTNET_URL = "https://seed-pre-s3.binance.org/"
@@ -256,7 +258,7 @@ class NodeRPC:
     def start(
         self,
         on_open: Optional[Callable[[], None]] = None,
-        on_msg: Callable[[], None] = None,
+        on_msg: Callable[[dict], None] = None,
         on_error: Optional[Callable[[dict], None]] = None,
         loop: asyncio.AbstractEventLoop = None,
         keepalive: bool = True,
@@ -271,7 +273,7 @@ class NodeRPC:
         self,
         on_open: Optional[Callable[[], None]] = None,
         on_msg: Callable[[dict], None] = None,
-        on_error: Optional[Callable[[dict], None]] = None,
+        on_error: Optional[Callable[[Any], None]] = None,
         keepalive: bool = True,
     ) -> None:
         """Processes all websocket messages.
@@ -296,13 +298,13 @@ class NodeRPC:
                     try:
                         data = msg.json()
                     except Exception as e:
-                        print(f"Unable to decode msg: {msg}", file=sys.stderr)
+                        log.error(f"Unable to decode msg: {msg}")
                         continue
                     if data:
                         if on_msg:
                             on_msg(data)
                 elif msg.type == aiohttp.WSMsgType.ERROR:
-                    print(msg, file=sys.stderr)
+                    log.error(msg)
                     if on_error:
                         on_error(msg)
                     break
@@ -310,7 +312,7 @@ class NodeRPC:
     async def send(self, data: dict) -> None:
         """Send data to the WebSocket"""
         if not self._ws:
-            print("Error: Cannot send to uninitialized websocket", file=sys.stderr)
+            log.error("Error: Cannot send to uninitialized websocket")
             return
         await self._ws.send_json(data)
 

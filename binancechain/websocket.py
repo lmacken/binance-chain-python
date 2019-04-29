@@ -6,11 +6,13 @@ Binance DEX WebSockets
 https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
 import asyncio
-import sys
+import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aiohttp
 from pyee import AsyncIOEventEmitter
+
+log = logging.getLogger(__name__)
 
 MAINNET_URL = "wss://dex.binance.org/api/ws"
 TESTNET_URL = "wss://testnet-dex.binance.org/api/ws"
@@ -96,36 +98,36 @@ class WebSocket:
                     try:
                         data = msg.json()
                     except Exception as e:
-                        print(f"Unable to decode msg: {msg}", file=sys.stderr)
+                        log.error(f"Unable to decode msg: {msg}")
                         continue
                     if not data:
-                        print(f"Got empty msg: {msg}", file=sys.stderr)
+                        log.error(f"Got empty msg: {msg}")
                         continue
                     if "error" in data:
                         self._events.emit("error", data)
                         if on_error:
                             on_error(data)
                         else:
-                            print(f"Unhandled error msg: {data}", file=sys.stderr)
+                            log.error(f"Unhandled error msg: {data}")
                         continue
                     if "stream" not in data:
-                        print(f"Got msg without stream: {data}", file=sys.stderr)
+                        log.error(f"Got msg without stream: {data}")
                         continue
                     if "data" not in data:
-                        print(f"Got msg without data: {data}", file=sys.stderr)
+                        log.error(f"Got msg without data: {data}")
                         continue
 
                     self._events.emit(data["stream"], data)
 
                 elif msg.type == aiohttp.WSMsgType.ERROR:
-                    print(msg, file=sys.stderr)
+                    log.error(msg)
                     self._events.emit("error", msg)
                     break
 
     async def send(self, data: dict) -> None:
         """Send data to the WebSocket"""
         if not self._ws:
-            print("Error: Cannot send to uninitialized websocket", file=sys.stderr)
+            log.error("Error: Cannot send to uninitialized websocket")
             return
         await self._ws.send_json(data)
 
