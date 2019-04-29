@@ -11,7 +11,7 @@ async def test_ratelimiter():
     """
     client = HTTPClient(testnet=True, rate_limit=True)
     futures = []
-    for _ in range(100):
+    for _ in range(10):
         futures.append(asyncio.ensure_future(client.get_time()))
 
     results = await asyncio.gather(*futures)
