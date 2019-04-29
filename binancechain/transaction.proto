@@ -75,3 +75,11 @@ enum VoteOption {
   No = 3;
   NoWithVeto = 4;
 }
+
+message Issue{
+  string name = 1;
+  string symbol = 2;
+  int64 supply = 3;
+  bytes owner = 4;
+  bool mintable = 5;
+}

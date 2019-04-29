@@ -24,6 +24,7 @@ from .transaction_pb2 import (
     Input,
     Output,
     Token,
+    Issue,
 )
 
 SOURCE = "1"
@@ -38,6 +39,7 @@ TYPE_PREFIX = {
     "PubKey": b"EB5AE987",
     "StdTx": b"F0625DEE",
     "Vote": b"A1CADD36",
+    "Issue": b"17EFAB80",
 }
 MSG_TYPES = {
     "CancelOrder": CancelOrder,
@@ -226,6 +228,31 @@ class TransactionBase:
         std.proposal_id = proposal_id
         std.option = option.value
         self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Vote"]) + std.SerializeToString()
+        return self.SignMessage
+
+    def get_issue_msg(
+        self, name: str, symbol: str, orig_symbol: str, supply: int, mintable
+    ):
+        """ Generate issue_token StdMsg and SignMessage"""
+        self.msg = {
+            "owner": self.address,
+            "name": name,
+            "symbol": symbol,
+            # "original_symbol": orig_symbol,
+            "supply": supply,
+            "mintable": mintable,
+        }
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Issue()
+        std.owner = address_decode(self.address)
+        std.name = name
+        std.symbol = symbol
+        std.supply = supply
+        std.mintable = mintable
+        self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Issue"]) + std.SerializeToString()
         return self.SignMessage
 
     def get_sign_message(self):
@@ -469,6 +496,49 @@ class Transaction:
         transaction.get_vote_msg(proposal_id=proposal_id, option=option)
         return transaction
 
+    @staticmethod
+    async def issue_token_transaction(
+        owner: str,
+        name: str,
+        symbol: str,
+        orig_symbol: str,
+        supply: int,
+        mintable: bool,
+        client: Any = None,
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+    ):
+        print("OWNER ", owner)
+        if not client:
+            client = HTTPClient(testnet=testnet)
+            chain_id = TESTNET_CHAIN_ID if testnet else MAINNET_CHAIN_ID
+        else:
+            chain_id = TESTNET_CHAIN_ID if client._testnet else MAINNET_CHAIN_ID
+        account_info = await client.get_account(owner)
+        if not account_info:
+            account_number = account_number if account_number else 0
+            sequence = sequence if sequence else 0
+        else:
+            print("ACCOUNT INFO", account_info)
+            account_number = account_info["account_number"]
+            sequence = account_info["sequence"]
+        print("number and sequence", account_number, sequence)
+        transaction = TransactionBase(
+            address=owner,
+            account_number=account_number,
+            sequence=sequence,
+            chainid=chain_id,
+        )
+        transaction.get_issue_msg(
+            name=name,
+            symbol=symbol,
+            orig_symbol=orig_symbol,
+            supply=supply,
+            mintable=mintable,
+        )
+        return transaction
+
     def __init__(self, wallet: Any, client: Any = None, testnet: bool = False):
         self.wallet = wallet
         self.address = wallet.get_address()
@@ -573,6 +643,21 @@ class Transaction:
             sequence=sequence,
             proposal_id=proposal_id,
             option=option,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def issue_token(
+        self, name: str, symbol: str, orig_symbol: str, supply: int, mintable: bool
+    ):
+        account_number, sequence = await self.get_account_info()
+        transaction = Transaction.issue_token_transaction(
+            client=self.client,
+            owner=self.address,
+            name=name,
+            symbol=symbol,
+            orig_symbol=orig_symbol,
+            supply=supply,
+            mintable=mintable,
         )
         return await self.sign_and_broadcast(transaction)
 
