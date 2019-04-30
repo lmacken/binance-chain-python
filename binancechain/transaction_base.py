@@ -1,5 +1,5 @@
 import binascii
-from typing import Union, Any, Tuple, Optional
+from typing import Union, Any, Tuple, Optional, List, Dict
 import json
 from bitcoinlib import encoding
 from varint import encode
@@ -166,6 +166,39 @@ class TransactionBase:
         self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Send"]) + std.SerializeToString()
         return self.SignMessage
 
+    def get_multi_transfer_msg(
+        self, to_address: str, transfers: List[Dict[str, number_type]]
+    ):
+        """ Generate StdMsg and SignMessage for multiple tokens send in one transaction"""
+        coins = []
+        input = Input()
+        output = Output()
+        for transfer in transfers:
+            coin = {}
+            token = Token()
+            amount = transfer["amount"]
+            coin["denom"] = transfer["symbol"]
+            coin["amount"] = token.amount = int(Decimal(amount) * BASE)
+            token.denom = str(transfer["symbol"]).encode()
+            coins.append(coin)
+            input.coins.extend([token])
+            output.coins.extend([token])
+        self.msg = {
+            "inputs": [{"address": self.address, "coins": coins}],
+            "outputs": [{"address": to_address, "coins": coins}],
+        }
+        self.StdSignMsg["msgs"] = [self.msg]
+        self.SignMessage = json.dumps(
+            self.StdSignMsg, sort_keys=True, separators=(",", ":")
+        ).encode()
+        std = Send()
+        input.address = address_decode(self.address)
+        output.address = address_decode(to_address)
+        std.inputs.extend([input])
+        std.outputs.extend([output])
+        self.stdMsg = encoding.to_bytes(TYPE_PREFIX["Send"]) + std.SerializeToString()
+        return self.SignMessage
+
     def get_freeze_token_msg(self, symbol: str, amount: number_type):
         """Generate freeze_token StdMsg for StdTx and SignMessage for current transaction"""
         amount = int(Decimal(amount) * BASE)
@@ -258,7 +291,6 @@ class TransactionBase:
     def get_burn_msg(self, symbol: str, amount: number_type):
         """ Generate burn_token StdMsg and SignMessage"""
         amount = int(Decimal(amount) * BASE)
-        print(self.address, symbol, amount)
         self.msg = {"from": self.address, "symbol": symbol, "amount": amount}
         self.StdSignMsg["msgs"] = [self.msg]
         self.SignMessage = json.dumps(

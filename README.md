@@ -314,6 +314,11 @@ transfer = await transaction.transfer(
     to_address=wallet_two.get_address(), symbol="BNB", amount=0.1
 )
 
+multi_transfer = await transaction.multi_transfer(
+      to_address,
+      transfers=[{"symbol": "BTC", "amount": 0.1}, {"symbol": "BNB", "amount": 0.1}],
+  )
+
 new_order_txid = await transaction.create_new_order(
     symbol="binance_pair",
     side=Side.BUY,
@@ -323,11 +328,11 @@ new_order_txid = await transaction.create_new_order(
     timeInForce=Timeinforce.GTE,
 )
 
-cancel_order_txid = await transaction.cancel_order(symbol="pair", refid="")
+cancel_order_txid = await transaction.cancel_order(symbol="BTC-531_BNB", refid="")
 
-freeze_token_txid = await transaction.freeze_token(symbol="token", amount=1)
+freeze_token_txid = await transaction.freeze_token(symbol="BNB", amount=1)
 
-unfreeze_token_txid = await transaction.unfreeze_token(symbol="token", amount=1)
+unfreeze_token_txid = await transaction.unfreeze_token(symbol="BNB", amount=1)
 
 vote_txid = await transaction.vote(proposal_id, option=Votes.YES)  # only validator can vote
 
@@ -340,6 +345,16 @@ burn_token_txid = await transaction.burn_token(symbol, amount)
 ### Create Transaction Message. This message can be signed and broadcast somewhere else
 
 ```python
+transfer_transaction = await Transaction.transfer_transaction(
+      from_address, to_address, symbol, amount
+  )
+
+multi_transfer_transaction = await Transaction.multi_transfer_transaction(
+    from_address,
+    to_address,
+    transfers=[{"symbol": "BTC", "amount": 0.1}, {"symbol": "BNB", "amount": 0.1}],
+)
+
 limit_buy_transaction = await Transaction.new_order_transaction(
       address="owner address",
       symbol="pair",
@@ -369,11 +384,11 @@ cancel_order_transaction = await Transaction.cancel_order(
 )
 
 freeze_token_transaction = await Transaction.freeze_token(
-    address="ownder_address", symbol="token", amount=1, testnet=True, client=None
+    address="ownder_address", symbol="BNB", amount=1, testnet=True, client=None
 )
 
 unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
-    address="ownder_address", symbol="token", amount=1, testnet=True, client=None
+    address="ownder_address", symbol="BNB", amount=1, testnet=True, client=None
 )
 
 vote_transaction = await Transaction.vote_transaction(

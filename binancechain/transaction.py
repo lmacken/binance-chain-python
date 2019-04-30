@@ -3,7 +3,7 @@
 """
     Create and manage Transactions
 """
-from typing import Union, Any, Tuple, Optional
+from typing import Union, Any, Tuple, Optional, List, Dict
 from decimal import Decimal
 from .httpclient import HTTPClient
 from .enums import Ordertype, Side, Timeinforce, Votes
@@ -95,6 +95,29 @@ class Transaction:
         transaction.get_transfer_msg(
             to_address=to_address, symbol=symbol, amount=amount
         )
+        return transaction
+
+    @staticmethod
+    async def multi_transfer_transaction(
+        from_address: str,
+        to_address: str,
+        transfers: List[Dict[str, number_type]],
+        testnet: bool = False,
+        account_number: int = None,
+        sequence: int = None,
+        client: Any = None,
+    ) -> TransactionBase:
+        """
+            Create transfer Transaction Base object
+        """
+        transaction = await Transaction.prepare_transaction(
+            address=from_address,
+            client=client,
+            testnet=testnet,
+            account_number=account_number,
+            sequence=sequence,
+        )
+        transaction.get_multi_transfer_msg(to_address=to_address, transfers=transfers)
         return transaction
 
     @staticmethod
@@ -324,6 +347,21 @@ class Transaction:
             to_address=to_address,
             symbol=symbol,
             amount=amount,
+        )
+        return await self.sign_and_broadcast(transaction)
+
+    async def multi_transfer(
+        self, to_address: str, transfers: List[Dict[str, number_type]]
+    ) -> Any:
+        """Create, sign and broadcast transfer transaction"""
+        account_number, sequence = await self.get_account_info()
+        transaction = await Transaction.multi_transfer_transaction(
+            from_address=self.address,
+            client=self.client,
+            account_number=account_number,
+            sequence=sequence,
+            to_address=to_address,
+            transfers=transfers,
         )
         return await self.sign_and_broadcast(transaction)
 
