@@ -123,6 +123,35 @@ async def test_transfer_order(wallet, wallet_two, client):
 
 
 @pytest.mark.asyncio
+async def test_multi_transfer_order(wallet, wallet_two, client):
+    address_1 = wallet.get_address()
+    address_2 = wallet_two.get_address()
+    account_1 = await client.get_account(address_1)
+    account_2 = await client.get_account(address_2)
+    TOKEN_1 = "BNB"
+    TOKEN_2 = "BTC-531"
+    AMOUNT = 0.001
+    transfers = [
+        {"symbol": TOKEN_1, "amount": AMOUNT},
+        {"symbol": TOKEN_2, "amount": AMOUNT},
+    ]
+    transaction = await Transaction.multi_transfer_transaction(
+        from_address=address_2, to_address=address_1, transfers=transfers, client=client
+    )
+    pubkey, signature = wallet_two.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    broadcast = await client.broadcast(hex_data)
+    assert broadcast, "Fail to broadcast"
+    assert "hash" in broadcast[0], "No txid"
+    txid = broadcast[0]["hash"]
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(txid)
+    assert tx, "No transaction on client"
+    assert "data" in tx, "tx is not on chain"
+    print(tx)
+
+
+@pytest.mark.asyncio
 async def test_freeze_token(wallet, client):
     address = wallet.get_address()
     transaction = await Transaction.freeze_token_transaction(
@@ -201,6 +230,26 @@ async def test_transaction_object_transfer(wallet, wallet_two, client):
 
 
 @pytest.mark.asyncio
+async def test_multi_transaction_object_transfer(wallet, wallet_two, client):
+    transaction = Transaction(wallet=wallet_two, client=client)
+    TOKEN_1 = "BNB"
+    TOKEN_2 = "BTC-531"
+    AMOUNT = 0.002
+    transfers = [
+        {"symbol": TOKEN_1, "amount": AMOUNT},
+        {"symbol": TOKEN_2, "amount": AMOUNT},
+    ]
+    transfer = await transaction.multi_transfer(
+        to_address=wallet.get_address(), transfers=transfers
+    )
+    assert transfer, "No result of transfer found"
+    assert transfer[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(transfer[0]["hash"])
+    assert tx, "Transaction not on chain"
+
+
+@pytest.mark.asyncio
 async def test_transaction_object_freeze(wallet, client):
     transaction = Transaction(wallet=wallet, client=client)
     freeze = await transaction.freeze_token(symbol="BNB", amount=0.1)
@@ -222,6 +271,19 @@ async def test_transaction_object_unfreeze(wallet, client):
     await asyncio.sleep(1)
     tx = await client.get_transaction(unfreeze[0]["hash"])
     assert tx, "Transaction not on chain"
+
+
+@pytest.mark.asyncio
+async def test_transaction_object_burn(wallet_two, client):
+    transaction = Transaction(wallet=wallet_two, client=client)
+    burn = await transaction.burn_token(symbol="BTC-531", amount=1)
+    print(burn)
+    assert burn, "No result of unfreeze found"
+    assert burn[0]["hash"], "No txid found"
+    await asyncio.sleep(1)
+    tx = await client.get_transaction(burn[0]["hash"])
+    assert tx, "Transaction not on chain"
+    print(tx)
 
 
 @pytest.mark.asyncio

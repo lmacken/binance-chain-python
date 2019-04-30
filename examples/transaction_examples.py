@@ -9,8 +9,11 @@ from binancechain.enums import Side, Ordertype, Timeinforce
 async def transaction_example():
     transaction = Transaction(wallet=wallet, client=client)
 
-    transfer = await transaction.transfer(
-        to_address=wallet_two.get_address(), symbol="BNB", amount=0.1
+    transfer = await transaction.transfer(to_address, symbol="BNB", amount=0.1)
+
+    multi_transfer = await transaction.multi_transfer(
+        to_address,
+        transfers=[{"symbol": "BTC", "amount": 0.1}, {"symbol": "BNB", "amount": 0.1}],
     )
 
     new_order_txid = await transaction.create_new_order(
@@ -43,6 +46,17 @@ async def transaction_example():
     """
     Using default client if no client is passed in
     """
+
+    transfer_transaction = await Transaction.transfer_transaction(
+        from_address, to_address, symbol, amount
+    )
+
+    multi_transfer_transaction = await Transaction.multi_transfer_transaction(
+        from_address,
+        to_address,
+        transfers=[{"symbol": "BTC", "amount": 0.1}, {"symbol": "BNB", "amount": 0.1}],
+    )
+
     limit_buy_transaction = await Transaction.new_order_transaction(
         address="owner address",
         symbol="pair",
@@ -72,11 +86,11 @@ async def transaction_example():
     )
 
     freeze_token_transaction = await Transaction.freeze_token(
-        address="ownder_address", symbol="token", amount=1, testnet=True, client=None
+        address="ownder_address", symbol="BNB", amount=1, testnet=True, client=None
     )
 
     unfreeze_token_tranasaction = await Transaction.unfreeze_token_transaction(
-        address="ownder_address", symbol="token", amount=1, testnet=True, client=None
+        address="ownder_address", symbol="BNB", amount=1, testnet=True, client=None
     )
 
     vote_transaction = await Transaction.vote_transaction(
