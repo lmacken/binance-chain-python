@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name="binancechain",
-    version="0.1.5",
+    version="0.1.6",
     description="Unofficial Binance Chain SDK",
     author="Luke Macken & Kim Bui",
     author_email="",
