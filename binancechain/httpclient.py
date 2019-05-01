@@ -7,7 +7,7 @@ https://docs.binance.org/api-reference/dex-api/paths.html
 """
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import aiohttp
 import orjson
@@ -40,7 +40,7 @@ class HTTPClient:
         if not url:
             url = TESTNET_URL if testnet else MAINNET_URL
         self._server = f"{url}/api/{api_version}/"
-        self._session: aiohttp.ClientSession = None
+        self._session: Optional[aiohttp.ClientSession] = None
         self._testnet = testnet
         self._rate_limiter: Optional[RateLimiter] = None
         if rate_limit:
@@ -327,7 +327,7 @@ class HTTPClient:
         """
         if self._rate_limiter:
             await self._rate_limiter.limit("orders", 5)
-        params = {"address": address}
+        params: Dict[str, Union[str, int]] = {"address": address}
         if end is not None:
             params["end"] = int(end)
         if limit is not None:
@@ -369,7 +369,7 @@ class HTTPClient:
         """
         if self._rate_limiter:
             await self._rate_limiter.limit("orders", 5)
-        params = {"address": address}
+        params: Dict[str, Union[str, int]] = {"address": address}
         if limit is not None:
             params["limit"] = limit
         if offset is not None:
