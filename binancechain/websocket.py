@@ -88,7 +88,10 @@ class WebSocket:
                 event, kwargs = self._sub_queue.pop()
                 self.subscribe(event, **kwargs)
             if on_open:
-                on_open()
+                if inspect.iscoroutine(on_open) or inspect.iscoroutinefunction(on_open):
+                    asyncio.ensure_future(on_open())
+                else:
+                    on_open()
 
             # Schedule keepalive calls every 30 minutes
             if self._keepalive:
