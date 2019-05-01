@@ -3,7 +3,7 @@
 
 import asyncio
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 
 class RateLimiter:
@@ -16,7 +16,7 @@ class RateLimiter:
         """
         self.buckets: Dict[str, Tuple[asyncio.Queue, int]] = {}
         self.period = period
-        self.task = None
+        self.task: Optional[asyncio.Future] = None
 
     def close(self):
         if self.task:
@@ -30,10 +30,10 @@ class RateLimiter:
                 for i in range(num - queue.qsize()):
                     queue.put_nowait(1)
 
-    async def limit(self, namespace, num):
+    async def limit(self, namespace: str, num: int):
         """Blocks for a given `namespace`, rate-limiting appropriately"""
         if namespace not in self.buckets:
-            queue = asyncio.Queue(num)
+            queue: asyncio.Queue = asyncio.Queue(num)
             self.buckets[namespace] = (queue, num)
             for _ in range(num):
                 queue.put_nowait(1)
