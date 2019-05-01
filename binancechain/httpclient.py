@@ -88,11 +88,14 @@ class HTTPClient:
         self,
         path: str,
         data: Optional[str] = None,
+        params: Optional[dict] = None,
         headers: Optional[dict] = None,
         rps: int = 1,
     ) -> Any:
         """Perform a POST request"""
-        return await self._request("post", path, data=data, headers=headers, rps=rps)
+        return await self._request(
+            "post", path, data=data, params=params, headers=headers, rps=rps
+        )
 
     async def get_time(self) -> dict:
         """Get the block time.
@@ -224,7 +227,7 @@ class HTTPClient:
             "depth", params={"symbol": symbol, "limit": limit}, rps=10
         )
 
-    async def broadcast(self, body: str, sync: bool = None) -> List[dict]:
+    async def broadcast(self, body: str, sync: bool = True) -> List[dict]:
         """Broadcast a transaction.
 
         Broadcasts a signed transaction. A single transaction must be sent
@@ -237,7 +240,11 @@ class HTTPClient:
         :param body: Hex-encoded transaction
         """
         return await self.post_request(
-            "broadcast", data=body, headers={"Content-Type": "text/plain"}, rps=5
+            "broadcast",
+            data=body,
+            params={"sync": int(sync)},
+            headers={"Content-Type": "text/plain"},
+            rps=5,
         )
 
     async def get_klines(
