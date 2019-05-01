@@ -3,6 +3,8 @@
 
 import aiohttp
 
+from typing import Optional
+
 
 class BinanceChainException(Exception):
     def __init__(self, response: Optional[aiohttp.ClientResponse] = None):
