@@ -58,15 +58,18 @@ class HTTPClient:
         if self._rate_limiter:
             self._rate_limiter.close()
 
-    async def _request(self, method: str, path: str, **kwargs):
+    async def _request(self, method: str, path: str, rps: int = 1, **kwargs):
         """
-        :method: `get` or `post`
-        :path: the remote endpoint to call
-        :kwargs: Extra arguments to pass to the request, like `params` or `data`.
+        :param method: `get` or `post`
+        :param path: the remote endpoint to call
+        :param rps: requests per second, used if the rate limiter is enabled
+        :param kwargs: Extra arguments to pass to the request, like `params` or `data`.
         :raises: `BinanceChainException`, which has a `response` attribute.
         """
         if not self._session:
             self._session = aiohttp.ClientSession()
+        if self._rate_limiter:
+            await self._rate_limiter.limit(path.split("/")[0], rps)
         try:
             resp = None
             async with getattr(self._session, method)(
@@ -77,15 +80,19 @@ class HTTPClient:
             log.exception(f"Request error: {method} {path} {kwargs}")
             raise BinanceChainException(resp) from e
 
-    async def get_request(self, path: str, params: dict = None) -> Any:
+    async def get_request(self, path: str, params: dict = None, rps: int = 1) -> Any:
         """Perform a GET request"""
-        return await self._request("get", path, params=params)
+        return await self._request("get", path, params=params, rps=rps)
 
     async def post_request(
-        self, path: str, data: Optional[str] = None, headers: Optional[dict] = None
+        self,
+        path: str,
+        data: Optional[str] = None,
+        headers: Optional[dict] = None,
+        rps: int = 1,
     ) -> Any:
         """Perform a POST request"""
-        return await self._request("post", path, data=data, headers=headers)
+        return await self._request("post", path, data=data, headers=headers, rps=rps)
 
     async def get_time(self) -> dict:
         """Get the block time.
@@ -96,8 +103,6 @@ class HTTPClient:
         Destination: Validator node.
         Rate Limit: 1 request per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("time", 1)
         return await self.get_request("time")
 
     async def get_node_info(self) -> dict:
@@ -108,8 +113,6 @@ class HTTPClient:
         Destination: Validator node.
         Rate Limit: 1 request per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("node-info", 1)
         return await self.get_request("node-info")
 
     async def get_validators(self) -> dict:
@@ -120,9 +123,7 @@ class HTTPClient:
         Destination: Witness node.
         Rate Limit: 10 requests per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("validators", 10)
-        return await self.get_request("validators")
+        return await self.get_request("validators", rps=10)
 
     async def get_peers(self) -> List[dict]:
         """Get network peers.
@@ -132,8 +133,6 @@ class HTTPClient:
         Destination: Witness node.
         Rate Limit: 1 request per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("peers", 1)
         return await self.get_request("peers")
 
     async def get_account(self, address: str) -> dict:
@@ -146,9 +145,7 @@ class HTTPClient:
 
         :param address: The account address to query
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("account", 5)
-        return await self.get_request(f"account/{address}")
+        return await self.get_request(f"account/{address}", rps=5)
 
     async def get_account_sequence(self, address: str) -> dict:
         """Get an account sequence.
@@ -161,9 +158,7 @@ class HTTPClient:
 
         :param address: The account address to query.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("account", 5)
-        return await self.get_request(f"account/{address}/sequence")
+        return await self.get_request(f"account/{address}/sequence", rps=5)
 
     async def get_transaction(self, hash: str) -> dict:
         """Get a transaction.
@@ -176,9 +171,7 @@ class HTTPClient:
 
         :param hash: The transaction hash to query
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("tx", 10)
-        return await self.get_request(f"tx/{hash}")
+        return await self.get_request(f"tx/{hash}", rps=10)
 
     async def get_token_list(self) -> List[dict]:
         """Get tokens list.
@@ -188,8 +181,6 @@ class HTTPClient:
         Destination: Witness node.
         Rate Limit: 1 request per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("tokens", 1)
         return await self.get_request("tokens")
 
     async def get_markets(self, limit: int = 500, offset: int = 0) -> List[dict]:
@@ -203,8 +194,6 @@ class HTTPClient:
         :param limit: default 500; max 1000.
         :param offset: start with 0; default 0.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("markets", 1)
         return await self.get_request(
             "markets", params={"limit": limit, "offset": offset}
         )
@@ -217,8 +206,6 @@ class HTTPClient:
         Destination: Witness node.
         Rate Limit: 1 request per IP per second.
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("fees", 1)
         return await self.get_request("fees")
 
     async def get_depth(self, symbol: str, limit: int = 100) -> Dict[str, list]:
@@ -233,10 +220,8 @@ class HTTPClient:
         :param symbol: Market pair symbol, e.g. NNB-0AD_BNB
         :param limit: The limit of results. Allowed limits: [5, 10, 20, 50, 100, 500, 1000]
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("depth", 10)
         return await self.get_request(
-            "depth", params={"symbol": symbol, "limit": limit}
+            "depth", params={"symbol": symbol, "limit": limit}, rps=10
         )
 
     async def broadcast(self, body: str, sync: bool = None) -> List[dict]:
@@ -251,10 +236,8 @@ class HTTPClient:
         :param sync: Synchronous broadcast (wait for DeliverTx)?
         :param body: Hex-encoded transaction
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("broadcast", 5)
         return await self.post_request(
-            "broadcast", data=body, headers={"Content-Type": "text/plain"}
+            "broadcast", data=body, headers={"Content-Type": "text/plain"}, rps=5
         )
 
     async def get_klines(
@@ -283,14 +266,12 @@ class HTTPClient:
         :param start: start time in Milliseconds
         :param end: end time in Milliseconds
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("klines", 10)
         params = {"symbol": symbol, "interval": interval, "limit": limit}
         if start is not None:
             params["startTime"] = int(start)
         if end is not None:
             params["endTime"] = int(end)
-        return await self.get_request("klines", params=params)
+        return await self.get_request("klines", params=params, rps=10)
 
     async def get_closed_orders(
         self,
@@ -325,8 +306,6 @@ class HTTPClient:
         :param total: total number required, 0 for not required and 1 for
             required; default not required, return total=-1 in response
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("orders", 5)
         params: Dict[str, Union[str, int]] = {"address": address}
         if end is not None:
             params["end"] = int(end)
@@ -344,7 +323,7 @@ class HTTPClient:
             params["symbol"] = symbol
         if total is not None:
             params["total"] = total
-        return await self.get_request("orders/closed", params=params)
+        return await self.get_request("orders/closed", params=params, rps=5)
 
     async def get_open_orders(
         self,
@@ -367,8 +346,6 @@ class HTTPClient:
         :param total: total number required, 0 for not required and 1 for
             required; default not required, return total=-1 in response
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("orders", 5)
         params: Dict[str, Union[str, int]] = {"address": address}
         if limit is not None:
             params["limit"] = limit
@@ -378,7 +355,7 @@ class HTTPClient:
             params["symbol"] = symbol
         if total is not None:
             params["total"] = total
-        return await self.get_request("orders/open", params=params)
+        return await self.get_request("orders/open", params=params, rps=5)
 
     async def get_order(self, id: str) -> dict:
         """Get an order.
@@ -389,9 +366,7 @@ class HTTPClient:
 
         :param id: order id
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("orders", 5)
-        return await self.get_request(f"orders/{id}")
+        return await self.get_request(f"orders/{id}", rps=5)
 
     async def get_ticker(self, symbol: str = None) -> List[dict]:
         """Get a market ticker.
@@ -402,12 +377,10 @@ class HTTPClient:
 
         :param symbol: symbol
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("ticker", 5)
         params = {}
         if symbol:
             params["symbol"] = symbol
-        return await self.get_request("ticker/24hr", params=params)
+        return await self.get_request("ticker/24hr", params=params, rps=5)
 
     async def get_trades(
         self,
@@ -447,8 +420,6 @@ class HTTPClient:
         :param total: total number required, 0 for not required and 1 for
             required; default not required, return total=-1 in response
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("trades", 5)
         params: Dict[Any, Any] = {}
         if address is not None:
             params["address"] = address
@@ -472,7 +443,7 @@ class HTTPClient:
             params["symbol"] = symbol
         if total is not None:
             params["total"] = total
-        return await self.get_request("trades", params=params)
+        return await self.get_request("trades", params=params, rps=5)
 
     async def get_block_exchange_fee(
         self,
@@ -503,8 +474,6 @@ class HTTPClient:
         :param total: total number required, 0 for not required and 1 for
             required; default not required, return total=-1 in response
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("block-exchange-fee", 5)
         params: Dict[Any, Any] = {}
         if address is not None:
             params["address"] = address
@@ -518,7 +487,7 @@ class HTTPClient:
             params["start"] = start
         if total is not None:
             params["total"] = total
-        return await self.get_request("block-exchange-fee", params=params)
+        return await self.get_request("block-exchange-fee", params=params, rps=5)
 
     async def get_transactions(
         self,
@@ -554,8 +523,6 @@ class HTTPClient:
             NEW_ORDER,ISSUE_TOKEN,BURN_TOKEN,LIST_TOKEN,CANCEL_ORDER,FREEZE_TOKEN,
             UN_FREEZE_TOKEN,TRANSFER,PROPOSAL,VOTE,MINT,DEPOSIT]
         """
-        if self._rate_limiter:
-            await self._rate_limiter.limit("transactions", 1)
         params: Dict[Any, Any] = {"address": address}
         if height is not None:
             params["blockHeight"] = height
