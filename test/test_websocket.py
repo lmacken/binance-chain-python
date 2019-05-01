@@ -7,11 +7,45 @@ import asyncio
 
 import pytest
 
-from binancechain import HTTPClient, WebSocket
+from binancechain import HTTPClient, WebSocket, Wallet, Transaction
+from binancechain.enums import Timeinforce, Ordertype, Side
+
+
+MNEMONIC = "apart conduct congress bless remember picnic aerobic nothing dinner guilt catch brain sunny vocal advice castle horror shift reject valley evoke fork syrup code"
 
 
 def on_error(msg):
     print(f'Error: {msg}')
+
+
+async def perform_trade(symbols, httpclient, wallet):
+    # Get the order book for the first symbol
+    for symbol in symbols:
+        if symbol.startswith('BNB_BTC'):
+            break
+    print(symbol)
+    depth = await httpclient.get_depth(symbol)
+
+    # Hit the bid
+    bids = depth['bids']
+    assert bids
+    price = bids[0][0]
+
+    address = wallet.get_address()
+    transaction = await Transaction.new_order_transaction(
+        address=address,
+        symbol=symbol,
+        side=Side.SELL,
+        timeInForce=Timeinforce.IOC,
+        price=price,
+        quantity=1,
+        ordertype=Ordertype.LIMIT,
+        client=httpclient,
+    )
+    pubkey, signature = wallet.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    broadcast = await httpclient.broadcast(hex_data)
+    print(broadcast)
 
 
 @pytest.fixture
@@ -35,6 +69,19 @@ async def symbols():
     await rest.close()
 
 
+@pytest.fixture
+async def httpclient():
+    client = HTTPClient(testnet=True)
+    yield client
+    await client.close()
+
+
+@pytest.fixture
+async def wallet():
+    wallet = Wallet.wallet_from_mnemonic(words=MNEMONIC, testnet=True)
+    yield wallet
+
+
 @pytest.mark.asyncio
 async def test_open_close(client):
     """"Open then immediately close"""
@@ -47,7 +94,7 @@ async def test_open_close(client):
 
 
 @pytest.mark.asyncio
-async def test_trades(client, symbols):
+async def test_trades(client, symbols, httpclient, wallet):
     print(symbols)
     results = []
 
@@ -55,25 +102,28 @@ async def test_trades(client, symbols):
         results.append(msg)
         client.close()
 
-    def on_open():
+    async def on_open():
         client.subscribe_trades(symbols=symbols, callback=callback)
+        await perform_trade(symbols, httpclient, wallet)
 
     await client.start_async(on_open=on_open, on_error=on_error)
 
+    assert results
     result = results[0]
     assert result['stream'] == 'trades'
 
 
 @pytest.mark.asyncio
-async def test_market_diff(client, symbols):
+async def test_market_diff(client, symbols, httpclient, wallet):
     results = []
 
     def callback(msg):
         results.append(msg)
         client.close()
 
-    def on_open():
+    async def on_open():
         client.subscribe_market_diff(symbols=symbols, callback=callback)
+        await perform_trade(symbols, httpclient, wallet)
 
     await client.start_async(on_open=on_open, on_error=on_error)
 

@@ -5,6 +5,7 @@ Binance DEX WebSockets
 
 https://docs.binance.org/api-reference/dex-api/ws-streams.html#websocket-streams
 """
+import inspect
 import asyncio
 import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple

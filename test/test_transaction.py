@@ -55,11 +55,12 @@ async def test_new_order(wallet, client):
     )
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
-    broadcast = await client.broadcast(hex_data)
+    broadcast = await client.broadcast(hex_data, sync=True)
     txid = broadcast[0]["hash"]
     assert txid
     await asyncio.sleep(2)
     tx = await client.get_transaction(txid)
+    assert 'data' in tx, tx
     assert tx["data"], "transaction not found"
     print(tx)
 
