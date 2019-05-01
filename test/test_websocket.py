@@ -44,7 +44,27 @@ async def perform_trade(symbols, httpclient, wallet):
     )
     pubkey, signature = wallet.sign(transaction.get_sign_message())
     hex_data = transaction.update_signature(pubkey, signature)
-    broadcast = await httpclient.broadcast(hex_data)
+    broadcast = await httpclient.broadcast(hex_data, sync=True)
+    print(broadcast)
+
+    # Hit the ask
+    asks = depth['asks']
+    assert asks
+    price = asks[0][0]
+
+    transaction = await Transaction.new_order_transaction(
+        address=address,
+        symbol=symbol,
+        side=Side.BUY,
+        timeInForce=Timeinforce.IOC,
+        price=price,
+        quantity=1,
+        ordertype=Ordertype.LIMIT,
+        client=httpclient,
+    )
+    pubkey, signature = wallet.sign(transaction.get_sign_message())
+    hex_data = transaction.update_signature(pubkey, signature)
+    broadcast = await httpclient.broadcast(hex_data, sync=True)
     print(broadcast)
 
 
