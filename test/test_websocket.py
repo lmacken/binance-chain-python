@@ -11,7 +11,7 @@ from binancechain import HTTPClient, WebSocket, Wallet, Transaction
 from binancechain.enums import Timeinforce, Ordertype, Side
 
 
-MNEMONIC = "apart conduct congress bless remember picnic aerobic nothing dinner guilt catch brain sunny vocal advice castle horror shift reject valley evoke fork syrup code"
+MNEMONIC = "tennis utility midnight pattern that foot security tent punch glance still night virus loop trade velvet rent glare ramp cushion defy grass section cage"
 
 
 def on_error(msg):
